@@ -34,7 +34,7 @@ def fit_drm(data,interpolate=range(0,10000,10)):
 def test():
     import os
     data = []
-    filename = "/Users/delafont/Dropbox/Workspace/Sunniva/input/BIBF_k.txt"
+    filename = "../../data/BIBF_k.txt"
     with open(filename) as f:
         f.readline()
         for line in f:
@@ -43,7 +43,7 @@ def test():
             data.append((float(dose),float(response)))
     fit_drm(data)
 
-if 1:
+if 0:
     test()
 
 

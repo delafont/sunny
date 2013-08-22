@@ -1,5 +1,9 @@
+Django/sunny/sunnydb
+
+
 # Compiled source #
 ###################
+*.pyc
 *.com
 *.class
 *.dll

@@ -1,0 +1,6 @@
+- use absolute path without '~' for the database path.
+- use 'python mapange.py shell' to start Ipython, else an error occurs.
+- to login, run 'python manage.py runserver' and go to <address>/admin (/ADMIN !)
+- when setting STATICFILES_DIRS, don't forget the ',' at the end if there is only one element in the tuple.
+- commented 'django.middleware.csrf.CsrfViewMiddleware' in MIDDLEWARE_CLASSES
+

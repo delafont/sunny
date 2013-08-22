@@ -1,0 +1,128 @@
+
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block app_js %}
+    <script type="text/javascript" src="{% static 'graph/js/d3.v3.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'graph/js/draw.js' %}"></script>
+    <script type="text/javascript" src="{% static 'graph/js/Highcharts-3.0.4/js/highcharts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'graph/js/DataTables-1.9.4/media/js/jquery.dataTables.js' %}"></script>
+{% endblock %}
+{% block app_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'graph/css/style.css' %}" />
+{% endblock %}
+{% block title %}My amazing web app{% endblock %}
+
+{% block app_content %}
+
+    <div id="global_container">
+        <div id='buttons_container'>
+        Update the graph:
+            <button type='button' id='update_button'>Update</button>
+            <br />
+        Upload input file:
+            <input type='file' name='file_upload' id='file_upload'></input>
+            <br />
+        <button type='button' id='example_button'>Load example data</button>
+        <button type='button' id='clear_button'>Clear</button>
+        <button type='button' id='normalize_button'>Normalize</button>
+        </div>
+        <div id="input_table_container">
+            <table id='input_table'>
+                <thead><tr><th>Dose</th><th>Response</th><th id='add'>+</th></tr></thead>
+                <tbody id='tbody'></tbody>
+            </table>
+        </div>
+        <div id="graph_container"></div>
+    </div>
+
+
+    <!--<script type="text/javascript" >
+        var csrftoken = $.cookie('csrftoken');
+    </script>-->
+
+    <script type="text/javascript" >
+    // First time: get data from json, set the table, draw the graph
+    $(function(){
+        var data;
+        $.getJSON("{% url 'graph:json_response' %}", function(json){
+            data = json;
+            M = data.measurements;
+            N = data.measurements.length;
+            if (N==0) // no measurements yet, add a blank input line
+                add_newline();
+            else
+                for (var i=0; i<N; i++){
+                    add_newline(M[i][0],M[i][1]);
+                }
+            draw_graph(data);
+        })
+        $('#add').click(function() {add_newline();})
+
+        // Update data and redraw upon clicking the Update button
+        function update(){
+            data.measurements = [];
+            $('#input_table tr.datarow').each(function(index,v){
+                var fields = $('input',v);
+                var dose = $(fields[0]).val();
+                var response = $(fields[1]).val();
+                if (dose.length>0 && response.length>0)
+                    data.measurements.push([dose,response]);
+            })
+            $.post("{% url 'graph:json_response' %}",
+                   JSON.stringify(data.measurements),
+                   function(data_response){
+                        draw_graph(data_response);
+                        data = data_response;
+                   },
+                   'json'
+            )
+        }
+        $('#update_button').click(function() {
+            return update(data);
+        })
+    })
+    </script>
+
+    <script type="text/javascript" >
+    // Dynamic file import
+    $(function(){
+        if (window.File && window.FileReader && window.FileList && window.Blob) {}
+        else {alert('The File APIs are not fully supported in this browser.');}
+        $('#file_upload').change(function(){
+            var file = $(this)[0].files[0];
+            var FR = new FileReader();
+            FR.onload = (function(f){
+                    return function(e){
+                        var grid = $('#input_table tr.datarow');
+                        var lines = e.target.result.split('\n');
+                        lines = lines.slice(-lines.length+1) // remove header line
+                        $.each(lines, function(i,L){
+                            L = $.trim(L);
+                            L = L.split('\t');
+                            dose = L[0];
+                            response = L[1];
+                            if (L.length > 1){
+                                if (i < grid.length){
+                                    var cells = $('input',grid[i]);
+                                    $(cells[0]).val(dose);
+                                    $(cells[1]).val(response);
+                                } else {
+                                    add_newline(dose,response);
+                                }
+                            } else {
+                                var glen = grid.length;
+                                for (var k=i; k<=glen; k++){
+                                    $(grid[k]).remove();
+                                }
+                                return false;
+                            }
+                        })
+                    }
+                })(file);
+            FR.readAsText(file);
+        })
+    })
+    </script>
+
+{% endblock %}

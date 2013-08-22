@@ -1,0 +1,39 @@
+
+/* Main containers */
+#buttons_container{
+    margin-bottom: 10px;
+}
+#input_table_container{
+    float: left;
+}
+#graph_container{
+    float: left;
+}
+
+
+/* Red cross as a 'Remove' button */
+/* Green plus as an 'Add' button */
+.remove, #add{
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+}
+.remove, #add:hover{
+    cursor: pointer;
+}
+.remove{
+    color: red;
+    font-size: 15px;
+}
+#add{
+    color: green;
+}
+
+
+/* Input table layout */
+#input_table{
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+

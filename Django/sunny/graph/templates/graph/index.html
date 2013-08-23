@@ -7,7 +7,6 @@
     <script type="text/javascript" src="{% static 'graph/js/draw.js' %}"></script>
     <script type="text/javascript" src="{% static 'graph/js/Highcharts-3.0.4/js/highcharts.js' %}"></script>
     <script type="text/javascript" src="{% static 'graph/js/Highcharts-3.0.4/js/modules/exporting.js' %}"></script>
-    <script type="text/javascript" src="{% static 'graph/js/DataTables-1.9.4/media/js/jquery.dataTables.js' %}"></script>
 {% endblock %}
 {% block app_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'graph/css/style.css' %}" />
@@ -24,41 +23,50 @@
         Upload input file:
             <input type='file' name='file_upload' id='file_upload'></input>
             <br />
-        <button type='button' id='example_button'>Load example data</button>
-        <button type='button' id='clear_button'>Clear</button>
-        <button type='button' id='normalize_button'>Normalize</button>
+        Load sample data:
+            <button type='button' id='load_sample_button'>Load</button>
+            <br />
+        Clear: <button type='button' id='clear_button'>Clear</button>
         </div>
         <div id="input_table_container">
-            <table id='input_table'>
+            <ul>
+                <li><a href='#input_table'>Sample1</a></li>
+                <li><a href='#othertab'>Sample2</a></li>
+            </ul>
+            <table id='input_table' class='input_table'>
+                <thead><tr><th>Dose</th><th>Response</th><th id='add'>+</th></tr></thead>
+                <tbody id='tbody'></tbody>
+            </table>
+            <table id='othertab' class='input_table'>
                 <thead><tr><th>Dose</th><th>Response</th><th id='add'>+</th></tr></thead>
                 <tbody id='tbody'></tbody>
             </table>
         </div>
         <div id="graph_container"></div>
+        <div id="log"><div class='log_title'>((R output))</div><div class='log_content'></div></div>
     </div>
 
 
-    <!--<script type="text/javascript" >
-        var csrftoken = $.cookie('csrftoken');
-    </script>-->
+    <script type="text/javascript" >
+    // Create the tabs for the different samples
+    $(function(){
+        $('#input_table_container').tabs();
+    })
+    </script>
 
     <script type="text/javascript" >
     // First time: get data from json, set the table, draw the graph
+    var json_url = "{% url 'graph:json_response' %}";
     $(function(){
         var data;
-        $.getJSON("{% url 'graph:json_response' %}", function(json){
+        $.getJSON(json_url, function(json){
             data = json;
-            M = data.measurements;
-            N = data.measurements.length;
-            if (N==0) // no measurements yet, add a blank input line
-                add_newline();
-            else
-                for (var i=0; i<N; i++){
-                    add_newline(M[i][0],M[i][1]);
-                }
+            update_table(data);
             draw_graph(data);
         })
-        $('#add').click(function() {add_newline();})
+        $('#add').click(function() {
+            add_newline('','',position='first');
+        })
 
         // Update data and redraw upon clicking the Update button
         function update(){
@@ -70,7 +78,7 @@
                 if (dose.length>0 && response.length>0)
                     data.measurements.push([dose,response]);
             })
-            $.post("{% url 'graph:json_response' %}",
+            $.post(json_url,
                    JSON.stringify(data.measurements),
                    function(data_response){
                         draw_graph(data_response);
@@ -82,12 +90,8 @@
         $('#update_button').click(function() {
             return update(data);
         })
-    })
-    </script>
 
-    <script type="text/javascript" >
-    // Dynamic file import
-    $(function(){
+        // Dynamic file import upon clicking the "Upload input file" button
         if (window.File && window.FileReader && window.FileList && window.Blob) {}
         else {alert('The File APIs are not fully supported in this browser.');}
         $('#file_upload').change(function(){

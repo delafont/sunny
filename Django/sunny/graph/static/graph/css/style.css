@@ -1,16 +1,21 @@
 
-/* Main containers */
+
+/************** Main containers *************/
+body{}
 #buttons_container{
     margin-bottom: 10px;
 }
 #input_table_container{
+    margin-top: 0px;
+    padding: 0px 10px;
     float: left;
 }
 #graph_container{
     float: left;
+    margin-left: 20px;
 }
 
-
+/************** Buttons *************/
 /* Red cross as a 'Remove' button */
 /* Green plus as an 'Add' button */
 .remove, #add{
@@ -30,10 +35,33 @@
     color: green;
 }
 
-
-/* Input table layout */
-#input_table{
+/************** Input tables *************/
+.input_table{
     border-spacing: 0;
     border-collapse: collapse;
+    width: 100%
+}
+.input_table tr.datarow{
+    font-size: 0.9em;
+}
+.input_table input{
+    width: 100px;
+}
+
+/************** Others *************/
+#log{
+    max-width: 500px;
+    margin-top: 10px;
+    margin-left: 30px;
+    float: left;
+}
+#log .log_title{
+    text-align: center;
+    margin-bottom: 15px;
+    /*visibility: hidden;*/
+}
+#log .log_content{
+    color: red;
+    font-weight: bold;
 }
 

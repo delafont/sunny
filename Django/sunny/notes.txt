@@ -4,3 +4,33 @@
 - when setting STATICFILES_DIRS, don't forget the ',' at the end if there is only one element in the tuple.
 - commented 'django.middleware.csrf.CsrfViewMiddleware' in MIDDLEWARE_CLASSES
 
+
+    <div id="tabs">
+        <ul>
+            <li><a href="#fragment-1">One</a></li>
+            <li><a href="#fragment-2">Two</a></li>
+        </ul>
+         <div id="fragment-1">
+            <p>First tab is active by default:</p>
+            <pre><code>$( "#tabs" ).tabs(); </code></pre>
+        </div>
+         <div id="fragment-2">
+            Lorem ipsum dolor sit amet
+        </div>
+
+    </div>
+    <script type="text/javascript" >
+    $(function(){
+        $('#tabs').tabs();
+    })
+    </script>
+
+
+
+
+
+
+
+    <!--<script type="text/javascript" >
+        var csrftoken = $.cookie('csrftoken');
+    </script>-->

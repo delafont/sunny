@@ -4,6 +4,7 @@
 
 {% block app_js %}
     <script type="text/javascript" src="{% static 'graph/js/d3.v3.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'graph/js/util.js' %}"></script>
     <script type="text/javascript" src="{% static 'graph/js/draw.js' %}"></script>
     <script type="text/javascript" src="{% static 'graph/js/Highcharts-3.0.4/js/highcharts.js' %}"></script>
     <script type="text/javascript" src="{% static 'graph/js/Highcharts-3.0.4/js/modules/exporting.js' %}"></script>
@@ -16,116 +17,63 @@
 {% block app_content %}
 
     <div id="global_container">
-        <div id='buttons_container'>
-        Update the graph:
-            <button type='button' id='update_button'>Update</button>
-            <br />
-        Upload input file:
-            <input type='file' name='file_upload' id='file_upload'></input>
-            <br />
-        Load sample data:
-            <button type='button' id='load_sample_button'>Load</button>
-            <br />
-        Clear: <button type='button' id='clear_button'>Clear</button>
+        <div id="buttons_container">
+        <span id='update_button_desc'>Update the graph:</span>
+            <button type='button' id='update_button'>Update</button><br>
+        <span id='upload_button_desc'>Upload input file:</span>
+            <input type='file' name='file_upload' id='file_upload'><br>
+        <span>Load sample data:</span>
+            <button type='button' id='load_sample_button'>Load</button><br>
+        <span>Clear:</span>
+            <button type='button' id='clear_button'>Clear</button><br>
         </div>
         <div id="input_table_container">
-            <ul>
-                <li><a href='#input_table'>Sample1</a></li>
-                <li><a href='#othertab'>Sample2</a></li>
-            </ul>
             <table id='input_table' class='input_table'>
-                <thead><tr><th>Dose</th><th>Response</th><th id='add'>+</th></tr></thead>
-                <tbody id='tbody'></tbody>
-            </table>
-            <table id='othertab' class='input_table'>
-                <thead><tr><th>Dose</th><th>Response</th><th id='add'>+</th></tr></thead>
+                <thead><tr><th>Dose</th><th>Response</th><th>Exp</th><th id='add'>+</th></tr></thead>
                 <tbody id='tbody'></tbody>
             </table>
         </div>
         <div id="graph_container"></div>
+        <div id="samples_container">
+            <form>
+            <input type='radio' name='samples' value='-1'/>All<br>
+            {% for sample in samples %}
+                <input type='radio' name='samples' value='{{ sample.id }}'/>{{ sample.name }}<br>
+            {% endfor %}
+            </form>
+        </div>
         <div id="log"><div class='log_title'>((R output))</div><div class='log_content'></div></div>
     </div>
 
 
     <script type="text/javascript" >
-    // Create the tabs for the different samples
-    $(function(){
-        $('#input_table_container').tabs();
-    })
-    </script>
-
-    <script type="text/javascript" >
-    // First time: get data from json, set the table, draw the graph
     var json_url = "{% url 'graph:json_response' %}";
+    var new_sample_url = "{% url 'graph:new_sample' %}";
+    var clear_all_db_url = "{% url 'graph:clear_all_db' %}";
     $(function(){
         var data;
         $.getJSON(json_url, function(json){
             data = json;
-            update_table(data);
+            create_table(data);
             draw_graph(data);
         })
         $('#add').click(function() {
-            add_newline('','',position='first');
+            add_newline('','','',position='first');
         })
-
-        // Update data and redraw upon clicking the Update button
-        function update(){
-            data.measurements = [];
-            $('#input_table tr.datarow').each(function(index,v){
-                var fields = $('input',v);
-                var dose = $(fields[0]).val();
-                var response = $(fields[1]).val();
-                if (dose.length>0 && response.length>0)
-                    data.measurements.push([dose,response]);
-            })
-            $.post(json_url,
-                   JSON.stringify(data.measurements),
-                   function(data_response){
-                        draw_graph(data_response);
-                        data = data_response;
-                   },
-                   'json'
-            )
-        }
         $('#update_button').click(function() {
-            return update(data);
+            post_data_and_redraw(data,json_url);
         })
-
-        // Dynamic file import upon clicking the "Upload input file" button
+        $('#clear_button').click(function() {
+            clear_all_db(clear_all_db_url);
+        })
+        $('input:radio[name=samples]').change(function() {
+            change_sample(this,data,json_url);
+        })
         if (window.File && window.FileReader && window.FileList && window.Blob) {}
         else {alert('The File APIs are not fully supported in this browser.');}
         $('#file_upload').change(function(){
             var file = $(this)[0].files[0];
-            var FR = new FileReader();
-            FR.onload = (function(f){
-                    return function(e){
-                        var grid = $('#input_table tr.datarow');
-                        var lines = e.target.result.split('\n');
-                        lines = lines.slice(-lines.length+1) // remove header line
-                        $.each(lines, function(i,L){
-                            L = $.trim(L);
-                            L = L.split('\t');
-                            dose = L[0];
-                            response = L[1];
-                            if (L.length > 1){
-                                if (i < grid.length){
-                                    var cells = $('input',grid[i]);
-                                    $(cells[0]).val(dose);
-                                    $(cells[1]).val(response);
-                                } else {
-                                    add_newline(dose,response);
-                                }
-                            } else {
-                                var glen = grid.length;
-                                for (var k=i; k<=glen; k++){
-                                    $(grid[k]).remove();
-                                }
-                                return false;
-                            }
-                        })
-                    }
-                })(file);
-            FR.readAsText(file);
+            import_file(file,data);
         })
     })
     </script>

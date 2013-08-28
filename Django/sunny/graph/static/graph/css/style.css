@@ -5,6 +5,9 @@ body{}
 #buttons_container{
     margin-bottom: 10px;
 }
+#samples_container{
+    float: left;
+}
 #input_table_container{
     margin-top: 0px;
     padding: 0px 10px;
@@ -45,10 +48,12 @@ body{}
     font-size: 0.9em;
 }
 .input_table input{
-    width: 100px;
+    width: 70px;
 }
 
-/************** Others *************/
+/************** Samples list *************/
+
+/************** Log *************/
 #log{
     max-width: 500px;
     margin-top: 10px;
@@ -56,9 +61,9 @@ body{}
     float: left;
 }
 #log .log_title{
+    visibility: hidden;
     text-align: center;
     margin-bottom: 15px;
-    /*visibility: hidden;*/
 }
 #log .log_content{
     color: red;

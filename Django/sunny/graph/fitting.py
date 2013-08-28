@@ -15,7 +15,7 @@ def list2r(L):
 def fit_drm(data,interpolate=range(0,10000,10), norm=True):
     """:param data: a list of couples (dose,response)"""
     R_output = ""
-    dose,response = asarray(zip(*data))
+    dose,response,experiment = asarray(zip(*data))
     drc = importr('drc')
     fitted = ro.r('fitted')
     ro.r.assign('dose',numpy2ri(dose))
@@ -40,7 +40,7 @@ def fit_drm(data,interpolate=range(0,10000,10), norm=True):
     curve = model.rx2('curve')[0](ro.FloatVector(interpolate))
     curve = zip(interpolate,list(curve))
     fitted_points = zip(dose[:len(set(dose))], fitted(model)[:len(set(dose))])
-    norm_data = zip(dose,nround(norm_response,2))
+    norm_data = zip(dose,nround(norm_response,2),experiment)
     return norm_data,curve,fitted_points,R_output
 
 def import_normalize():
@@ -90,7 +90,7 @@ def test():
         for line in f:
             sample_name = os.path.basename(os.path.splitext(filename)[0])
             dose,response,experiment = line.strip().split('\t')
-            data.append((float(dose),float(response)))
+            data.append((float(dose),float(response)),experiment)
     fit_drm(data)
 
 if 0:

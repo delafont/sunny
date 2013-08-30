@@ -6,6 +6,7 @@ from util import sha1
 from fitting import fit_drm
 from math import log10
 import os
+import itertools
 
 from graph.models import Measurement, Sample
 
@@ -29,71 +30,93 @@ def _create_test_data():
 def index(request):
     #_create_test_data()
     samples = Sample.objects.all()
-    measurements = Measurement.objects.all()
     template = loader.get_template('graph/index.html')
     context = RequestContext(request, {
             'samples': samples,
-            'measurements': measurements,
         })
     return HttpResponse(template.render(context))
 
+
 def json_response(request):
-    if request.method == 'POST': # "Update" button or similar
+    """Return a JSON {
+        'points': {sample.id: {experiment: [data]}},
+        'curves': {sample.id: {experiment: [data]}},
+        'fitted': {sample.id: {experiment: [data]}},
+        'samples': [{'id': sample.id, ...}],
+        'bounds': [xmin,xmax,ymin,ymax],
+        'loglist': ["logstring1",...]
+    }
+    `samples` determines which data will be returned.
+    """
+    # "Update" button or similar
+    if request.method == 'POST':
         newdata = simplejson.loads(request.body)
-        if newdata["sample"]:
-            newid = newdata["sample"]["id"]
-            Measurement.objects.filter(sample=newid).delete()
-            sample = Sample.objects.filter(id=newid)[0]
-            for mes in newdata["measurements"]:
-                Measurement.objects.create(dose=mes[0], response=mes[1], experiment=mes[2], sample=sample)
-    elif request.method == 'GET': # Upon changing sample (radio buttons)
-        if request.GET:
-            sample_id = request.GET['id']
-            if sample_id == -1: # "All" radio button
-                sample = Sample.objects.all()
-            else: # other radio button
-                sample = Sample.objects.filter(id=sample_id)[0]
-        else: # OnLoad, take the first
-            sample = list(Sample.objects.all()[:1])
-            if sample: sample = sample[0]
+        samples = Sample.objects.filter(id__in=newdata['samples'])
+        # Replace measurements for the corresponding samples
+        Measurement.objects.filter(sample__in=newdata['measurements']).delete()
+        for newid in newdata["measurements"]:
+            for mes in newdata["measurements"][newid]:
+                Measurement.objects.create(dose=mes[0], response=mes[1], \
+                                           experiment=mes[2], sample=samples.get(id=newid))
+    # Upon changing sample (radio buttons)
+    elif request.method == 'GET' and request.GET:
+        sample_ids = simplejson.loads(request.GET.keys()[0])
+        samples = Sample.objects.filter(id__in=sample_ids)
 
-    if sample:
-        points = [(m.dose,round(m.response,2),m.experiment) for m in Measurement.objects.filter(sample=sample.id)]
-        sample = {'id':sample.id, 'name':sample.name, 'sha1':sample.sha1}
-    else:
-        points = []
-        sample = {'name':''}
-    loglist = []
+    # OnLoad, take the first
+    elif request.method == 'GET':
+        samples = list(Sample.objects.all()[:1])
+        if not samples:
+            "Create a DefaultSample"
 
-    if points:
-        min_x = min(x[0] for x in points)
-        max_x = max(x[0] for x in points)
-        min_y = min(x[1] for x in points)
-        max_y = max(x[1] for x in points)
-        nbins = 100
-        inc = float(log10(max_x)-log10(min_x))/nbins
-        intervals = [log10(min_x)+k*inc for k in range(nbins+1)]
-        intervals = [10**x for x in intervals]
-        points,curve,fitted,log = fit_drm(points, interpolate=intervals, norm=True)
-        experiment = m.experiment
+    # Compute the curves and normalize the data points
+    points = {}; curves = {}; fitteds = {}; loglist = []
+    xmin = xmax = ymin = ymax = 0
+    if samples:
+        measurements = {}
+        for s in samples:
+            points[s.id]={}; curves[s.id]={}; fitteds[s.id]={}
+            measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
+            # Group by experiment
+            measurements = dict((key,list(vals)) for key,vals in itertools.groupby(measurements,lambda x:x.experiment))
+            for exp,pts in measurements.iteritems():
+                pts = [(x.dose,x.response) for x in pts]
+                min_x = min(x[0] for x in pts)
+                max_x = max(x[0] for x in pts)
+                min_y = min(0,min(x[1] for x in pts))
+                max_y = max(100,max(x[1] for x in pts))
+                nbins = 100
+                inc = float(log10(max_x)-log10(min_x))/nbins
+                intervals = [log10(min_x)+k*inc for k in range(nbins+1)]
+                intervals = [10**x for x in intervals]
+                norm_pts,curve,fitted,log = fit_drm(pts, interpolate=intervals, norm=True)
+                points[s.id][exp] = norm_pts
+                curves[s.id][exp] = curve
+                #fitteds[s.id][exp] = fitted
+                if len(curve) == 0: loglist.append("Failed to fit the model.")
+                loglist.append(log)
+                xmin = min(xmin,min_x)
+                xmax = max(xmax,max_x)
+                ymin = min(ymin,min_y)
+                ymax = max(ymax,max_y)
+        samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
     else:
-        min_x = max_x = min_y = max_y = 0
-        curve = []
-        fitted = []
-        experiment = ''
-        log = 'No points to fit.\n'
-    loglist.append(log)
-    if len(curve) == 0:
-        loglist.append("Failed to fit the model.")
-    data = {'measurements': points,
-            'sample': sample,
-            'experiment': experiment,
-            'curve': curve,
-            'fitted': fitted,
-            'bounds': [min_x,max_x,min_y,max_y],
+        points = {}#{-1: {-1:[]} }
+        curves = {}#{-1: {-1:[]} }
+        #fitteds = {}#{-1: {-1:[]} }
+        loglist.append('No points to fit.')
+        samples = {}#{-1:{'id':-1, 'name':''}}
+
+    # Export
+    data = {'points': points,
+            'curves': curves,
+            #'fitted': fitteds,
+            'samples': samples,
+            'bounds': [xmin,xmax,ymin,ymax],
             'loglist': loglist,
            }
     return HttpResponse(simplejson.dumps(data), content_type="application/json")
+
 
 def new_sample(request):
     newsample = simplejson.loads(request.body)
@@ -109,6 +132,7 @@ def new_sample(request):
         old.save()
         response = {'new':False, 'id':old.id, 'name':newsample['name']}
     return HttpResponse(simplejson.dumps(response), content_type="application/json") # new sample
+
 
 def clear_all_db(request):
     Measurement.objects.all().delete()

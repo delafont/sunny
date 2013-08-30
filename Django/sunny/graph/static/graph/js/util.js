@@ -1,4 +1,18 @@
 
+
+// Return a string of the form `name [id]` from {'name':name, 'id':id}
+function format_sample(sample){
+    return sample.name+' ['+sample.id+']';
+}
+// Parse names of that kind to retrieve name and id from `name [id]`
+function parse_sample(sample_string){
+    var splitted = sample_string.split(' ');
+    var sample_name = splitted[0];
+    var sample_id = parseInt(splitted[1].replace(/[\[\]']+/g,'')); // remove '[]'
+    return [sample_id,sample_name]
+}
+
+
 /**
 *  Secure Hash Algorithm (SHA1)
 *  http://www.webtoolkit.info/

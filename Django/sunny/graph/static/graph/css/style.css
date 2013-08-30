@@ -4,9 +4,11 @@
 body{}
 #buttons_container{
     margin-bottom: 10px;
+    width: 500px;
 }
 #samples_container{
     float: left;
+    margin-left: 10px;
 }
 #input_table_container{
     margin-top: 0px;
@@ -50,8 +52,16 @@ body{}
 .input_table input{
     width: 70px;
 }
+.input_table input.dose_in{ width: 60px; }
+.input_table input.response_in{ width: 60px; }
+.input_table input.experiment_in{ width: 30px; }
+.input_table input.sample_in{ width: 80px; }
 
 /************** Samples list *************/
+
+#graph_samples_container{
+    margin-bottom: 20px;
+}
 
 /************** Log *************/
 #log{

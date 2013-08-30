@@ -5,7 +5,7 @@ class Sample(models.Model):
     sha1 = models.CharField(max_length=20,default='') # hash of the file's content
 
     def __unicode__(self):
-        return "[%s] %s, %s" % (self.id,self.name,self.sha1)
+        return "<[%s] %s, %s>" % (self.id,self.name,self.sha1)
 
 class Measurement(models.Model):
     sample = models.ForeignKey(Sample)
@@ -14,5 +14,5 @@ class Measurement(models.Model):
     experiment = models.IntegerField(default=-1)
 
     def __unicode__(self):
-        return "[%s] (%s, %s), exp.%s" % (self.id,self.dose,self.response,self.experiment)
+        return "<[%s] (%s, %s), s%s-e%s>" % (self.id,self.dose,self.response,self.sample.id,self.experiment)
 

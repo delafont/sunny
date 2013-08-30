@@ -18,14 +18,15 @@
 
     <div id="global_container">
         <div id="buttons_container">
-        <span id='update_button_desc'>Update the graph:</span>
-            <button type='button' id='update_button'>Update</button><br>
-        <span id='upload_button_desc'>Upload input file:</span>
-            <input type='file' name='file_upload' id='file_upload'><br>
-        <span>Load sample data:</span>
-            <button type='button' id='load_sample_button'>Load</button><br>
-        <span>Clear:</span>
-            <button type='button' id='clear_button'>Clear</button><br>
+            <span id='update_button_desc'>Update the graph:</span>
+                <button type='button' id='update_button'>Update</button><br>
+            <span id='upload_button_desc'>Upload input file:</span>
+                <input type='file' name='file_upload' id='file_upload'><br>
+            <span>Load sample data:</span>
+                <button type='button' id='load_sample_button'>Load</button><br>
+            <span>Clear:</span>
+                <button type='button' id='clear_button'>Clear</button>
+                <button type='button' id='clear_local'>Clear localStorage</button><br>
         </div>
         <div id="input_table_container">
             <table id='input_table' class='input_table'>
@@ -34,48 +35,67 @@
             </table>
         </div>
         <div id="graph_container"></div>
-        <div id="samples_container">
-            <form>
-            <input type='radio' name='samples' value='-1'/>All<br>
-            {% for sample in samples %}
-                <input type='radio' name='samples' value='{{ sample.id }}'/>{{ sample.name }}<br>
-            {% endfor %}
-            </form>
-        </div>
+        <div id='samples_container'>
+            <div id="graph_samples_container">
+                Samples displayed:
+                <form>
+                {% for sample in samples %}
+                    <input type='checkbox' name='samples_graph' value='{{ sample.id }}'/>{{ sample.name }}<br>
+                {% endfor %}
+                </form>
+            </div>
+            <div id="table_samples_container">
+                Edit sample:
+                <form>
+                {% for sample in samples %}
+                    <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}<br>
+                {% endfor %}
+                </form>
+            </div>
+        <div>
         <div id="log"><div class='log_title'>((R output))</div><div class='log_content'></div></div>
     </div>
 
 
     <script type="text/javascript" >
-    var json_url = "{% url 'graph:json_response' %}";
-    var new_sample_url = "{% url 'graph:new_sample' %}";
-    var clear_all_db_url = "{% url 'graph:clear_all_db' %}";
     $(function(){
-        var data;
-        $.getJSON(json_url, function(json){
-            data = json;
-            create_table(data);
-            draw_graph(data);
-        })
+        // Set global variables
+        _JSON_URL_ = "{% url 'graph:json_response' %}";
+        _NEW_SAMPLE_URL_ = "{% url 'graph:new_sample' %}";
+        _CLEAR_ALL_DB_URL_ = "{% url 'graph:clear_all_db' %}";
+        // On page reload
+        $.getJSON(_JSON_URL_, function(json){
+            _DATA_ = json;
+            _ACTIVE_GRAPH_IDS_ = boxcheck_active_samples();
+            _ACTIVE_TABLE_ID_ = radiocheck_active_table();
+            _CHART_ = draw_graph();
+            create_table();
+        });
         $('#add').click(function() {
             add_newline('','','',position='first');
-        })
+        });
         $('#update_button').click(function() {
-            post_data_and_redraw(data,json_url);
-        })
+            update_event();
+        });
         $('#clear_button').click(function() {
-            clear_all_db(clear_all_db_url);
-        })
-        $('input:radio[name=samples]').change(function() {
-            change_sample(this,data,json_url);
-        })
+            clear_all_db();
+        });
+        $('#clear_local').click(function() {
+            localStorage.clear();
+        });
+        $('input:checkbox[name=samples_graph]').change(function() {
+            change_sample_graph(this);
+        });
+        $('input:radio[name=samples_table]').change(function() {
+            change_sample_table(this);
+        });
         if (window.File && window.FileReader && window.FileList && window.Blob) {}
         else {alert('The File APIs are not fully supported in this browser.');}
         $('#file_upload').change(function(){
             var file = $(this)[0].files[0];
-            import_file(file,data);
-        })
-    })
+            import_file(file);
+        });
+    });
     </script>
 
 {% endblock %}

@@ -15,18 +15,25 @@ def list2r(L):
 def fit_drm(data,interpolate=range(0,10000,10), norm=True):
     """:param data: a list of couples (dose,response)"""
     R_output = ""
-    dose,response,experiment = asarray(zip(*data))
+    dose,response = asarray(zip(*data))
     drc = importr('drc')
     fitted = ro.r('fitted')
     ro.r.assign('dose',numpy2ri(dose))
     ro.r.assign('response',numpy2ri(response))
     fit_name = 'LL.4'
     fit_fct = ro.r(fit_name+'()')
+    # Model selection
+    bmdrcdata = ro.r('')
+    linreg = ro.r('')
+    mselect = ro.r('bestModel')
+    selected_model = mselect(bmdrcdata,linreg)
+    print selected_model
+    # Apply the model
     try:
         model = drc.drm(ro.Formula('response~dose'),fct=fit_fct)
     except RRuntimeError, re:
-        print re
         return data, [],[], "R: "+str(re)
+    # Normalization
     import_normalize()
     constraints = ro.r('constraints')
     param = constraints(model, fit_name)
@@ -35,12 +42,11 @@ def fit_drm(data,interpolate=range(0,10000,10), norm=True):
     try:
         model = drc.drm(ro.Formula('response~dose'),fct=fit_fct)
     except RRuntimeError, re:
-        print re
         return data, [],[], "R: "+str(re)
     curve = model.rx2('curve')[0](ro.FloatVector(interpolate))
     curve = zip(interpolate,list(curve))
     fitted_points = zip(dose[:len(set(dose))], fitted(model)[:len(set(dose))])
-    norm_data = zip(dose,nround(norm_response,2),experiment)
+    norm_data = zip(dose,nround(norm_response,2))
     return norm_data,curve,fitted_points,R_output
 
 def import_normalize():
@@ -79,6 +85,29 @@ def import_normalize():
         return(list(norm=norm, fixedP=fixedP, KoefName=KoefName, AnzK=AnzK))
         } """)
 
+def model_selection():
+    """ """
+    ro.r("""
+    bestModel <- function(bmdrcdata, linreg) {
+        modelList <- list(LL.4(), LL.5(), W1.4(), W2.4(), LL.3())
+        modell <- NULL
+        for(n in seq(length(modelList))) {
+            curModelName <- modelList[[n]]$name
+            trymodeltxt <- paste("mydrm(bmdrcdata, fct='", curModelName,"')", sep="")
+            capture.output(modell <- try(eval(parse(text=trymodeltxt))), file=nulldev())
+            if (!(class(modell)=="try-error")) { break(); }
+        }
+        if (class(modell)=="try-error") { # no model found
+            mynames <- NULL
+        } else {
+            best <- mselect(modell, fctList=modelList, linreg=linreg)
+            mynames <- rownames(best)
+        }
+        print(mynames)
+        return(mynames)
+    }
+    """)
+
 ###############################################################################
 
 def test():
@@ -89,8 +118,8 @@ def test():
         f.readline()
         for line in f:
             sample_name = os.path.basename(os.path.splitext(filename)[0])
-            dose,response,experiment = line.strip().split('\t')
-            data.append((float(dose),float(response)),experiment)
+            dose,response = line.strip().split('\t')
+            data.append((float(dose),float(response)))
     fit_drm(data)
 
 if 0:

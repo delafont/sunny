@@ -56,7 +56,7 @@
                     {% endfor %}
                     </form>
                 </div>
-            <div>
+            </div>
         </div>
         <div id="log"><div class='log_title'>((R output))</div><div class='log_content'></div></div>
     </div>
@@ -68,6 +68,7 @@
         _JSON_URL_ = "{% url 'graph:json_response' %}";
         _NEW_SAMPLE_URL_ = "{% url 'graph:new_sample' %}";
         _CLEAR_ALL_DB_URL_ = "{% url 'graph:clear_all_db' %}";
+        _SAMPLE_DATA_URL_ = "{% static 'graph/BIBF_k.txt' %}";
         _IMG_URL_ = "{% static 'img' %}";
         on_page_load();
         $('#add_mes').click(function() {
@@ -93,6 +94,9 @@
         $('#file_upload').change(function(){
             var file = $(this)[0].files[0];
             import_file(file);
+        });
+        $('#load_sample_button').click(function() {
+            load_sample_data();
         });
     });
     </script>

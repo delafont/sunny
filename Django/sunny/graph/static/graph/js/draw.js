@@ -10,6 +10,7 @@ var _CHART_;
 var _ACTIVE_GRAPH_IDS_ = [];
 var _ACTIVE_TABLE_ID_;
 var _IMG_URL_;
+var _SAMPLE_DATA_URL_;
 
 /********************************* GRAPH **********************************/
 
@@ -466,3 +467,6 @@ function update_samples_list(sample){
     }
 }
 
+function load_sample_data(){
+    console.log('Not yet implemented')
+}

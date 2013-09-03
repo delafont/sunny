@@ -3,32 +3,14 @@ from django.template import RequestContext, loader
 from django.core.serializers import serialize
 from django.utils import simplejson
 from util import sha1
-from fitting import fit_drm
-from math import log10
+from fitting import *
 import os
 import itertools
 
 from graph.models import Measurement, Sample
 
-def _create_test_data():
-    sam1 = Sample(name="MyTestSample")
-    sam1.save()
-    #mes3 = Measurement(dose=11,response=17,sample=sam1)
-    #mes3.save()
-    #measure_list = ["%s\n"%m for m in Measurement.objects.all()]
-    #for filename in os.path.listdir("/Users/delafont/Dropbox/Workspace/Sunniva/input"):
-    filename = "../../data/BIBF_k.txt"
-    with open(filename) as f:
-        f.readline()
-        for line in f:
-            sample_name = os.path.basename(os.path.splitext(filename)[0])
-            dose,response,experiment = line.strip().split('\t')
-            mes = Measurement(dose=float(dose),response=float(response), \
-                              sample=sam1,experiment=int(experiment))
-            mes.save()
 
 def index(request):
-    #_create_test_data()
     samples = Sample.objects.all()
     template = loader.get_template('graph/index.html')
     context = RequestContext(request, {
@@ -41,7 +23,6 @@ def json_response(request):
     """Return a JSON {
         'points': {sample.id: {experiment: [data]}},
         'curves': {sample.id: {experiment: [data]}},
-        'fitted': {sample.id: {experiment: [data]}},
         'samples': [{'id': sample.id, ...}],
         'bounds': [xmin,xmax,ymin,ymax],
         'loglist': ["logstring1",...]
@@ -55,7 +36,6 @@ def json_response(request):
         # Replace measurements for the corresponding samples
         Measurement.objects.filter(sample__in=newdata['measurements']).delete()
         for newid in newdata["measurements"]:
-            print newid
             for mes in newdata["measurements"][newid]:
                 Measurement.objects.create(dose=mes[0], response=mes[1], \
                                            experiment=mes[2], sample=samples.get(id=newid))
@@ -70,55 +50,65 @@ def json_response(request):
                 "Create a DefaultSample"
 
     # Compute the curves and normalize the data points
-    points = {}; curves = {}; fitteds = {}; loglist = []
+    points={}; curves={}; loglist=[]; BMC={}
     xmin = xmax = ymin = ymax = 0
+    nbins = 100
     if samples:
         measurements = {}
         for s in samples:
-            points[s.id]={}; curves[s.id]={}; fitteds[s.id]={}
+            norm_points = []
+            points[s.id]={}; curves[s.id]={}
             measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
-            # Group by experiment
-            measurements = dict((key,list(vals)) for key,vals in itertools.groupby(measurements,lambda x:x.experiment))
+            # Group by experiment, select the best model and apply it to all together
+            measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
+            fit_name = model_selection(measurements)
+            loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
+            # Compute the curves
             for exp,pts in measurements.iteritems():
                 pts = [(x.dose,x.response) for x in pts]
                 min_x = min(x[0] for x in pts)
                 max_x = max(x[0] for x in pts)
                 min_y = min(0,min(x[1] for x in pts))
                 max_y = max(100,max(x[1] for x in pts))
-                nbins = 100
-                inc = float(log10(max_x)-log10(min_x))/nbins
-                intervals = [log10(min_x)+k*inc for k in range(nbins+1)]
-                intervals = [10**x for x in intervals]
-                norm_pts,curve,fitted,log = fit_drm(pts, interpolate=intervals, norm=True)
+                intervals = create_bins(min_x,max_x,nbins)
+                # Model each experiment separately to get the curves
+                model,norm_pts,log = fit_drm(pts, fit_name, norm=True)
+                curve = compute_fitting_curve(model, interpolate=intervals)
                 points[s.id][exp] = norm_pts
                 curves[s.id][exp] = curve
-                #fitteds[s.id][exp] = fitted
+                norm_points.extend(norm_pts)
                 if len(curve) == 0: loglist.append("Failed to fit the model.")
                 loglist.append(log)
                 xmin = min(xmin,min_x)
                 xmax = max(xmax,max_x)
                 ymin = min(ymin,min_y)
                 ymax = max(ymax,max_y)
+            # Calculate the BMC
+            bmc = calculate_BMC(norm_points, fit_name)
+            if isinstance(bmc,basestring): # error string
+                loglist.append('BMC not found for sample %s:' % s.name)
+                loglist.append(bmc)
+                BMC[s.id] = {}
+            else:
+                BMC[s.id] = BMC
         samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
     else:
-        points = {}#{-1: {-1:[]} }
-        curves = {}#{-1: {-1:[]} }
-        #fitteds = {}#{-1: {-1:[]} }
+        samples = {}
         loglist.append('No points to fit.')
-        samples = {}#{-1:{'id':-1, 'name':''}}
 
     # Export
     data = {'points': points,
             'curves': curves,
-            #'fitted': fitteds,
             'samples': samples,
             'bounds': [xmin,xmax,ymin,ymax],
             'loglist': loglist,
+            'BMC': BMC.get('15'),
            }
     return HttpResponse(simplejson.dumps(data), content_type="application/json")
 
 
 def new_sample(request):
+    """Check if the given sample is new. If it is, return a new instance."""
     newsample = simplejson.loads(request.body)
     # Check if the file already is in the database, whatever its name is
     found = Sample.objects.filter(sha1=newsample['sha1'])

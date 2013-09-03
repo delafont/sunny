@@ -34,7 +34,7 @@ function draw_graph(){
                 var color = colors[idx % (colors.length * nexp)];
                 series.push.apply(series, [{
                     type: 'scatter',
-                    name: 'DR - '+sample.name+' - '+ exp,
+                    name: sample.name+'['+exp+']',
                     data: points[exp],
                     tooltip: {valuePrefix: exp},
                     marker: {radius:2.5, symbol:symbol},
@@ -45,8 +45,10 @@ function draw_graph(){
                     name: 'Fit - '+sample.name+' - '+ exp,
                     data: curves[exp],
                     enableMouseTracking: false,
+                    stickyTracking: false,
                     marker: {enabled: false},
-                    legendIndex: nsamples+index,
+                    linkedTo: index,
+                    //legendIndex: nsamples+index,
                     color: color,
                 }]);
                 idx++;
@@ -64,7 +66,7 @@ function draw_graph(){
                 min: _DATA_.bounds[2],
                 max: _DATA_.bounds[3],
                },
-        legend: {enabled: false}, // fix: make groups
+        legend: {enabled: true}, // fix: make groups
         series: series
     });
     print_log(_DATA_.loglist);
@@ -264,11 +266,12 @@ function update_event(){
 // Clear Measurement and Sample tables from the database, and clear localStorage
 function clear_all_db(){
     console.log(">>> Clear All DB");
+    localStorage.clear();
     $.post(_CLEAR_ALL_DB_URL_,true,function(e){
         get_data_and_redraw();
         //location.reload();
     });
-    localStorage.clear();
+    $('#samples_container form').empty();
 }
 // Return the union of graph- and table active samples
 function all_active_samples(){

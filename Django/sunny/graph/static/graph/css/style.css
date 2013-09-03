@@ -3,12 +3,16 @@
 /************** Main containers *************/
 body{}
 #buttons_container{
+    float: left;
     margin-bottom: 10px;
     width: 500px;
 }
-#samples_container{
+#loading{
     float: left;
-    margin-left: 10px;
+    width: 50px;
+}
+#mid{
+    clear: both;
 }
 #input_table_container{
     margin-top: 0px;
@@ -19,24 +23,28 @@ body{}
     float: left;
     margin-left: 20px;
 }
+#samples_container{
+    float: left;
+    margin-left: 10px;
+}
 
 /************** Buttons *************/
 /* Red cross as a 'Remove' button */
 /* Green plus as an 'Add' button */
-.remove, #add{
+.remove_mes, .remove_sam, #add_mes{
     text-align: center;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 20px;
     font-weight: bold;
 }
-.remove, #add:hover{
+.remove_mes, .remove_sam, #add_mes:hover{
     cursor: pointer;
 }
-.remove{
+.remove_mes, .remove_sam{
     color: red;
     font-size: 15px;
 }
-#add{
+#add_mes{
     color: green;
 }
 

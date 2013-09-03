@@ -7,39 +7,55 @@ var _NEW_SAMPLE_URL_;
 var _CLEAR_ALL_DB_URL_;
 var _DATA_;
 var _CHART_;
-var _ACTIVE_GRAPH_IDS_;
+var _ACTIVE_GRAPH_IDS_ = [];
 var _ACTIVE_TABLE_ID_;
+var _IMG_URL_;
 
 /********************************* GRAPH **********************************/
+
+// Default colors:
 
 function draw_graph(){
     console.log(">>> Draw Graph");
     var series = [];
-    for (i in _DATA_.samples){
-        var sample = _DATA_.samples[i];
-        var points = _DATA_.points[sample.id];
-        var curves = _DATA_.curves[sample.id];
-        for (exp in points){
-            series.push.apply(series, [{
-                type: 'scatter',
-                name: 'DR - '+sample.name+' - '+ exp,
-                data: points[exp],
-                tooltip: {valuePrefix: exp},
-                marker: {radius:2.5},
-                //color: '#2F7ED8',
-            }, {
-                type: 'spline',
-                name: 'Fit - '+sample.name+' - '+ exp,
-                data: curves[exp],
-                enableMouseTracking: false,
-                marker: {enabled: false},
-                //color: 'black',  //'#8BBC21',
-            }]);
+    var nsamples = _ACTIVE_GRAPH_IDS_.length;
+    var colors = ['#0d233a','#2f7ed8','#8bbc21','#910000','#1aadce',
+                  '#492970','#f28f43','#77a1e5','#c42525','#a6c96a'];
+    var symbols = ["circle","square","diamond","triangle","triangle-down"];
+    var idx = 0;
+    $.each(_ACTIVE_GRAPH_IDS_, function(index,sample_id){
+        var sample = _DATA_.samples[sample_id];
+        var points = _DATA_.points[sample_id];
+        var curves = _DATA_.curves[sample_id];
+        var symbol = symbols[index % symbols.length]
+        if (points){
+            var nexp = Object.keys(points).length ;
+            $.each(points, function(exp){
+                var color = colors[idx % (colors.length * nexp)];
+                series.push.apply(series, [{
+                    type: 'scatter',
+                    name: 'DR - '+sample.name+' - '+ exp,
+                    data: points[exp],
+                    tooltip: {valuePrefix: exp},
+                    marker: {radius:2.5, symbol:symbol},
+                    legendIndex: index,
+                    color: color,
+                }, {
+                    type: 'spline',
+                    name: 'Fit - '+sample.name+' - '+ exp,
+                    data: curves[exp],
+                    enableMouseTracking: false,
+                    marker: {enabled: false},
+                    legendIndex: nsamples+index,
+                    color: color,
+                }]);
+                idx++;
+            });
         }
-    }
+    });
     _CHART_ = new Highcharts.Chart({
         chart: {renderTo: 'graph_container'},
-        title: {text: 'BMC LL4 model'},
+        title: {text: 'BMC model'},
         xAxis: {title: {text: 'Dose'},
                 type: 'logarithmic',
                },
@@ -48,11 +64,17 @@ function draw_graph(){
                 min: _DATA_.bounds[2],
                 max: _DATA_.bounds[3],
                },
-        legend: {enabled: true},
+        legend: {enabled: false}, // fix: make groups
         series: series
     });
     print_log(_DATA_.loglist);
     return _CHART_;
+}
+function add_series(){
+
+}
+function remove_series(){
+
 }
 // Remove all series in the graph
 function clear_graph(){
@@ -61,62 +83,111 @@ function clear_graph(){
     }
 }
 
+/******************************* ON PAGE LOAD *********************************/
+
+// On page reload: read localStorage, check boxes, get data and redraw table+graph
+function on_page_load(){
+    load_active_samples();
+    check_active_samples();
+    get_data_and_redraw();
+}
+function show_loading_gif(){
+    $('#loading').append($('<img>', {
+        src: _IMG_URL_+'/loading.gif',
+        alt: "[loading.gif]",
+        height: "50", width: "50",
+    }));
+}
+function hide_loading_gif(){
+    $('#loading img').remove();
+}
+function bind_remove_sample_buttons(){
+    $('.remove_sam').click(function() {
+        //$(this.parentNode).remove();
+        //remove_sample();
+    });
+}
+
 /******************************* SAMPLE SWITCH *********************************/
 
 // Switch the displayed table according to the selected checkboxes, and redraw.
 function change_sample_graph(button){
     console.log(">>> Change Samples Graph -->");
-    selected_sample_ids = [];
+    _ACTIVE_GRAPH_IDS_ = [];
     $('input:checkbox[name=samples_graph]:checked').each(function(){
-        selected_sample_ids.push(parseInt($(this).val()));
+        _ACTIVE_GRAPH_IDS_.push(parseInt($(this).val()));
     });
-    update_local('active_samples',selected_sample_ids)
-    //$.get(_JSON_URL_,
-    //      JSON.stringify(selected_sample_ids),
-    //      function(data_response){
-    //           create_table(data_response);
-    //           draw_graph(data_response);
-    //      }
-    //)
-    console.log('>>> Selected graph samples:',selected_sample_ids);
-    return selected_sample_ids;
+    update_local('active_samples',_ACTIVE_GRAPH_IDS_);
+    // check if all samples marked as 'graph active' are in _DATA_
+    var already_loaded = _ACTIVE_GRAPH_IDS_.every(function(x){return $.inArray(x,_DATA_.curves)});
+    if (already_loaded){
+        draw_graph();
+    } else {
+        get_data_and_redraw();
+    }
+    return _ACTIVE_GRAPH_IDS_;
 }
 function change_sample_table(button){
     console.log(">>> Change Sample Table -->");
-    selected_sample_id = parseInt($(button).val());
-    update_local('active_table',selected_sample_id)
-    console.log(_DATA_.points,selected_sample_id)
-    console.log(_DATA_.points[selected_sample_id])
-    create_table(_DATA_.points[selected_sample_id]);
-    console.log('>>> Selected table sample:',selected_sample_id);
-    return selected_sample_id;
+    _ACTIVE_TABLE_ID_ = parseInt($(button).val());
+    update_local('active_table',[_ACTIVE_TABLE_ID_])
+    create_table(_DATA_.points[_ACTIVE_TABLE_ID_]);
+    return _ACTIVE_TABLE_ID_;
 }
-
-/******************************* LOCAL STORAGE *********************************/
-
 // Fetch in `localStorage` which samples were plotted and re-check the respective checkboxes
 function boxcheck_active_samples(){
-    console.log(">>> BoxCheck Active Samples");
     var active_ids = get_local('active_samples');
-    for (as in active_ids){
-        $('input:checkbox[name=samples_graph][value='+as+']').prop('checked',true);
-    }
-    _ACTIVE_GRAPH_IDS_ = active_ids;
+    $.each(active_ids,function(i,sample_id){
+        $('input:checkbox[name=samples_graph][value='+sample_id+']').prop('checked',true);
+    });
     return active_ids;
 }
 // Fetch in `localStorage` which table was active and re-check the respective radio button
 function radiocheck_active_table(){
-    console.log(">>> RadioCheck Active Table");
-    var active_ids = get_local('active_samples');
     var active_id = get_local('active_table')[0];
+    if (active_id == undefined){
+        active_id = $('input:radio[name=samples_table]:first').val()
+    }
     $('input:radio[name=samples_table][value='+active_id+']').prop('checked',true);
-    _ACTIVE_TABLE_ID_ = active_id;
     return active_id;
 }
-// Keep existing, add a new sample to the localStorage
+// Both of the above
+function check_active_samples(){
+    console.log(">>> Check Radio/Boxes Of Active Samples:",_ACTIVE_GRAPH_IDS_,_ACTIVE_TABLE_ID_);
+    boxcheck_active_samples();
+    radiocheck_active_table();
+}
+// Set global variables from localStorage
+function load_active_samples(){
+    console.log(">>> Load Active Samples (localStorage)");
+    _ACTIVE_GRAPH_IDS_ = get_local('active_samples');
+    _ACTIVE_TABLE_ID_ = get_local('active_table')[0];
+}
+function remove_sample(sample_id){
+    _ACTIVE_GRAPH_IDS_.splice($.inArray(sample_id,_ACTIVE_GRAPH_IDS_), 1);
+    if (sample_id == _ACTIVE_TABLE_ID_){
+        if (_ACTIVE_GRAPH_IDS_.length > 0) {
+            _ACTIVE_TABLE_ID_ = _ACTIVE_GRAPH_IDS_[0];
+        } else {
+            _ACTIVE_TABLE_ID_ = undefined;
+        }
+    }
+    update_local('active_samples',_ACTIVE_GRAPH_IDS_);
+    update_local('active_table',[_ACTIVE_TABLE_ID_]);
+    delete _DATA_.points[sample_id];
+    delete _DATA_.curves[sample_id];
+    delete _DATA_.samples[sample_id];
+    create_table();
+}
+
+/******************************* LOCAL STORAGE *********************************/
+
+// keys: 'active_samples', 'active_table'
+
+// Keep existing, add a list of new ids to the localStorage under *key*
 function add_to_local(key,newids){
     console.log(">>> Add to Active Samples", newid);
-    ids = get_local('active_samples');
+    ids = get_local(key);
     for (i in newids){
         var newid = newids[i];
         if ($.inArray(newid,ids) == -1){
@@ -126,70 +197,97 @@ function add_to_local(key,newids){
     update_local(key,ids)
     return ids;
 }
-// If there are ids corresponding to *key*, return a list of them.
+// If there are ids corresponding to *key*, return a list of them
 function get_local(key){
     var val = localStorage.getItem(key);
     if (val){ ids = JSON.parse(val); }
     else { ids = []; }
     return ids;
 }
-// Replace the current active samples in the localStorage
+// Replace the current list of ids for *key* in the localStorage
 function update_local(key,ids){
     localStorage.setItem(key,JSON.stringify(ids));
+    return ids;
 }
 
 /********************************** SERVER EXCHANGE **********************************/
 
-// Clear Measurement and Sample tables from the database, and clear localStorage
-function clear_all_db(){
-    console.log(">>> Clear All DB");
-    $.post(_CLEAR_ALL_DB_URL_,true,function(e){
-        location.reload();
-    });
-    localStorage.clear();
+/* Update data (POST), compute the fitting curves and redraw. *measurements* must be
+   of the form `{sample_id:[(dose,response,exp),]}`.
+   Measurements are modified in the DB according to *measurements*.
+   Samples determine the POST response and ultimately the graph and table.
+*/
+function post_data_and_redraw(measurements){
+    console.log(">>> Post Data And Redraw");
+    show_loading_gif();
+    var sample_ids = all_active_samples();
+    var tosend = {'measurements':measurements, 'samples':sample_ids};
+    $.post(_JSON_URL_,
+        JSON.stringify(tosend),
+        function(data_response) {
+            update_all(data_response);
+        }, "json"
+    );
+}
+// Update data (GET) for all active ids, update plot and table
+function get_data_and_redraw(){
+    console.log(">>> Get Data And Redraw");
+    show_loading_gif();
+    var sample_ids = all_active_samples();
+    $.getJSON(_JSON_URL_,
+        JSON.stringify(sample_ids),
+        function(data_response){
+            update_all(data_response);
+        }
+    );
+}
+// Update _DATA_, recreate the table, redraw
+function update_all(newdata){
+    _DATA_ = newdata;
+    create_table();
+    draw_graph();
+    hide_loading_gif();
 }
 // Send the (possibly edited) table data, and the active samples for redrawing
 function update_event(){
     console.log(">>> Update Event");
-    var measurements = read_data_from_table();
+    var measurements = {};
     if (_ACTIVE_TABLE_ID_){
-        measurements = {_ACTIVE_TABLE_ID_:measurements};
-        samples = _ACTIVE_GRAPH_IDS_;
+        measurements[_ACTIVE_TABLE_ID_] = read_data_from_table();
+    }
     //} else if (measurements) { // custom entries
     //    measurements = {-1: measurements};
     //    samples = {-1: {'id':-1,'name':'custom','sha1':''}}
-    } else {
-        measurements = {};
-        samples = _ACTIVE_GRAPH_IDS_;
-    }
-    var tosend = {'measurements':measurements, 'samples':samples};
-    post_data_and_redraw(tosend);
+    post_data_and_redraw(measurements);
+    check_active_samples();
 }
-/* Update data (POST) and redraw - upon clicking the Update button
-   *tosend* must be of the form
-
-       {'measurements': {sample_id:[(dose,response,exp),]},
-        'samples': [sample_ids] or {sample_id:...} }
-
-   Measurements are modified in the DB according to the first.
-   Samples determine the POST response and ultimately the graph.
-*/
-function post_data_and_redraw(tosend){
-    console.log(">>> Post Data And Redraw");
-    $.post(_JSON_URL_,
-           JSON.stringify(tosend),
-           function(data_response) {
-                _DATA_ = data_response;
-                draw_graph();
-           }, "json"
-    );
+// Clear Measurement and Sample tables from the database, and clear localStorage
+function clear_all_db(){
+    console.log(">>> Clear All DB");
+    $.post(_CLEAR_ALL_DB_URL_,true,function(e){
+        get_data_and_redraw();
+        //location.reload();
+    });
+    localStorage.clear();
+}
+// Return the union of graph- and table active samples
+function all_active_samples(){
+    //var sample_ids = _ACTIVE_GRAPH_IDS_.slice(0);
+    //if ($.inArray(_ACTIVE_TABLE_ID_,sample_ids) == -1) {
+    //    sample_ids.push(_ACTIVE_TABLE_ID_);
+    //}
+    var sample_ids = [];
+    $('#samples_container input').each(function(i,elt){
+        sample_ids.push($(elt).val());
+    })
+    return sample_ids;
 }
 
 /********************************** TABLE ***********************************/
 
 // Read data from table
 function read_data_from_table(){
-    console.log(">>> Get Data From Table");
+    console.log(">>> Read Data From Table");
     var measurements = [];
     $('#input_table tr.datarow').each(function(index,v){
         var fields = $('input',v);
@@ -204,8 +302,10 @@ function read_data_from_table(){
 }
 // Create a table from given *points*, a dict {exp:[(1,2,exp),]}
 function create_table(points){
-    console.log(">>> Create Table");
-    console.log('points',points)
+    console.log(">>> Create Table", points);
+    if (typeof(points)==='undefined') {
+        points = _DATA_.points[_ACTIVE_TABLE_ID_];
+    }
     $('#input_table .datarow').remove();
     if (!points){
         add_newline('','','');
@@ -224,12 +324,12 @@ function create_table(points){
 }
 // Add a row to the input table with a Remove button, with class 'datarow'
 function add_newline(d,r,e,position='last') {
-    if(typeof(d)==='undefined') d=''; // dose
-    if(typeof(r)==='undefined') r=''; // response
-    if(typeof(e)==='undefined') e=''; // experiment
+    if (typeof(d)==='undefined') d=''; // dose
+    if (typeof(r)==='undefined') r=''; // response
+    if (typeof(e)==='undefined') e=''; // experiment
     var newline = '<td><input class="dose_in"></td><td><input class="response_in"></td>'
                 + '<td><input class="experiment_in"></td>';
-    var delete_button = $('<td>').addClass('remove').html('x')
+    var delete_button = $('<td>').addClass('remove_mes').html('x')
                                  .click(function() { $(this.parentNode).remove(); });
     if (position=='last'){
         $('#input_table tbody').append('<tr></tr>');
@@ -311,17 +411,14 @@ function import_file(file){
                    function(data_response){
                        //if (data_response['new'] == true) {}
                        newsample.id = data_response['id'];
-                       add_to_local('active_samples',[newsample.id]);
-                       update_local('active_table',[newsample.id]);
-                       boxcheck_active_samples();
-                       radiocheck_active_table();
+                       _ACTIVE_GRAPH_IDS_ = add_to_local('active_samples',[newsample.id]);
+                       _ACTIVE_TABLE_ID_ = update_local('active_table',[newsample.id])[0];
+                       check_active_samples();
                        _DATA_.samples[newsample.id] = newsample;
-                       tosend = {'measurements': {},
-                                 'samples': _ACTIVE_GRAPH_IDS_ };
-                       tosend.measurements[newsample.id] = read_data_from_table();
-                       post_data_and_redraw(tosend);
-                       console.log(1,_DATA_.points)
                        update_samples_list(newsample);
+                       var measurements = {};
+                       measurements[newsample.id] = read_data_from_table();
+                       post_data_and_redraw(measurements);
                    }, "json"
             );
     }
@@ -332,9 +429,10 @@ function import_file(file){
 }
 
 function update_samples_list(sample){
-    console.log('>>> Update samples list');
+    console.log('>>> Update samples boxes/radio');
     // checkboxes
     var thisinput = $('#graph_samples_container input[value='+sample.id+']');
+    var delete_button = $('<span>').addClass('remove_sam').append('x');
     if (thisinput.length > 0){
         thisinput.append(sample.name);
     } else {
@@ -346,10 +444,11 @@ function update_samples_list(sample){
         }).change(function() {
             change_sample_graph(this);
         }).attr('checked', true);
-        $('#graph_samples_container form').append(newinput).append(sample.name).append("<br>");
+        $('#graph_samples_container form').append(newinput).append(sample.name).append(delete_button).append("<br>");
     }
     // radio buttons
     var thisinput = $('#table_samples_container input[value='+sample.id+']');
+    var delete_button = $('<span>').addClass('remove_sam').append('x');
     if (thisinput.length > 0){
         thisinput.append(sample.name);
     } else {
@@ -360,7 +459,7 @@ function update_samples_list(sample){
         }).change(function() {
             change_sample_table(this);
         }).attr('checked', true);
-        $('#table_samples_container form').append(newinput).append(sample.name).append("<br>");
+        $('#table_samples_container form').append(newinput).append(sample.name).append(delete_button).append("<br>");
     }
 }
 

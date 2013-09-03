@@ -28,31 +28,36 @@
                 <button type='button' id='clear_button'>Clear</button>
                 <button type='button' id='clear_local'>Clear localStorage</button><br>
         </div>
-        <div id="input_table_container">
-            <table id='input_table' class='input_table'>
-                <thead><tr><th>Dose</th><th>Response</th><th>Exp</th><th id='add'>+</th></tr></thead>
-                <tbody id='tbody'></tbody>
-            </table>
+        <div id="loading"></div>
+        <div id="mid">
+            <div id="input_table_container">
+                <table id='input_table' class='input_table'>
+                    <thead><tr><th>Dose</th><th>Response</th><th>Exp</th><th id='add_mes'>+</th></tr></thead>
+                    <tbody id='tbody'></tbody>
+                </table>
+            </div>
+            <div id="graph_container"></div>
+            <div id='samples_container'>
+                <div id="graph_samples_container">
+                    Samples to display:
+                    <form>
+                    {% for sample in samples %}
+                        <input type='checkbox' name='samples_graph' value='{{ sample.id }}'/>{{ sample.name }}
+                        <span class='remove_sam'>x</span><br>
+                    {% endfor %}
+                    </form>
+                </div>
+                <div id="table_samples_container">
+                    Edit sample:
+                    <form>
+                    {% for sample in samples %}
+                        <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
+                        <span class='remove_sam'>x</span><br>
+                    {% endfor %}
+                    </form>
+                </div>
+            <div>
         </div>
-        <div id="graph_container"></div>
-        <div id='samples_container'>
-            <div id="graph_samples_container">
-                Samples displayed:
-                <form>
-                {% for sample in samples %}
-                    <input type='checkbox' name='samples_graph' value='{{ sample.id }}'/>{{ sample.name }}<br>
-                {% endfor %}
-                </form>
-            </div>
-            <div id="table_samples_container">
-                Edit sample:
-                <form>
-                {% for sample in samples %}
-                    <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}<br>
-                {% endfor %}
-                </form>
-            </div>
-        <div>
         <div id="log"><div class='log_title'>((R output))</div><div class='log_content'></div></div>
     </div>
 
@@ -63,15 +68,9 @@
         _JSON_URL_ = "{% url 'graph:json_response' %}";
         _NEW_SAMPLE_URL_ = "{% url 'graph:new_sample' %}";
         _CLEAR_ALL_DB_URL_ = "{% url 'graph:clear_all_db' %}";
-        // On page reload
-        $.getJSON(_JSON_URL_, function(json){
-            _DATA_ = json;
-            _ACTIVE_GRAPH_IDS_ = boxcheck_active_samples();
-            _ACTIVE_TABLE_ID_ = radiocheck_active_table();
-            _CHART_ = draw_graph();
-            create_table();
-        });
-        $('#add').click(function() {
+        _IMG_URL_ = "{% static 'img' %}";
+        on_page_load();
+        $('#add_mes').click(function() {
             add_newline('','','',position='first');
         });
         $('#update_button').click(function() {

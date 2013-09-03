@@ -55,19 +55,19 @@ def json_response(request):
         # Replace measurements for the corresponding samples
         Measurement.objects.filter(sample__in=newdata['measurements']).delete()
         for newid in newdata["measurements"]:
+            print newid
             for mes in newdata["measurements"][newid]:
                 Measurement.objects.create(dose=mes[0], response=mes[1], \
                                            experiment=mes[2], sample=samples.get(id=newid))
-    # Upon changing sample (radio buttons)
-    elif request.method == 'GET' and request.GET:
-        sample_ids = simplejson.loads(request.GET.keys()[0])
-        samples = Sample.objects.filter(id__in=sample_ids)
-
-    # OnLoad, take the first
+    # OnLoad, or upon changing sample (radio buttons)
     elif request.method == 'GET':
-        samples = list(Sample.objects.all()[:1])
-        if not samples:
-            "Create a DefaultSample"
+        if request.GET:
+            sample_ids = simplejson.loads(request.GET.keys()[0])
+            samples = Sample.objects.filter(id__in=sample_ids)
+        else: # no sample exists/is specified: take the first in the DB
+            samples = list(Sample.objects.all()[:1])
+            if not samples:
+                "Create a DefaultSample"
 
     # Compute the curves and normalize the data points
     points = {}; curves = {}; fitteds = {}; loglist = []

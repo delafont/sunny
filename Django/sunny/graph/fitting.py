@@ -5,6 +5,8 @@ from rpy2.robjects.packages import importr
 from rpy2.rinterface import RRuntimeError
 from numpy import asarray, round as nround
 
+print "import"
+drc = importr('drc')
 
 def list2r(L):
     """Transform a Python list into a string in R format: [1,2,'C'] -> "c(1,2,'C')" ."""
@@ -16,18 +18,18 @@ def fit_drm(data,interpolate=range(0,10000,10), norm=True):
     """:param data: a list of couples (dose,response)"""
     R_output = ""
     dose,response = asarray(zip(*data))
-    drc = importr('drc')
     fitted = ro.r('fitted')
     ro.r.assign('dose',numpy2ri(dose))
     ro.r.assign('response',numpy2ri(response))
     fit_name = 'LL.4'
     fit_fct = ro.r(fit_name+'()')
     # Model selection
-    bmdrcdata = ro.r('')
-    linreg = ro.r('')
-    mselect = ro.r('bestModel')
-    selected_model = mselect(bmdrcdata,linreg)
-    print selected_model
+    import_model_selection()
+    #bmdrcdata = ro.r('')
+    #linreg = ro.r('')
+    #mselect = ro.r('bestModel')
+    #selected_model = mselect(bmdrcdata,linreg)
+    #print selected_model
     # Apply the model
     try:
         model = drc.drm(ro.Formula('response~dose'),fct=fit_fct)
@@ -85,10 +87,11 @@ def import_normalize():
         return(list(norm=norm, fixedP=fixedP, KoefName=KoefName, AnzK=AnzK))
         } """)
 
-def model_selection():
+def import_model_selection():
     """ """
+    # bmdrcdata: data.frame from original file dose-res-exp
     ro.r("""
-    bestModel <- function(bmdrcdata, linreg) {
+    bestModel <- function(bmdrcdata) {
         modelList <- list(LL.4(), LL.5(), W1.4(), W2.4(), LL.3())
         modell <- NULL
         for(n in seq(length(modelList))) {
@@ -100,7 +103,7 @@ def model_selection():
         if (class(modell)=="try-error") { # no model found
             mynames <- NULL
         } else {
-            best <- mselect(modell, fctList=modelList, linreg=linreg)
+            best <- mselect(modell, fctList=modelList)
             mynames <- rownames(best)
         }
         print(mynames)

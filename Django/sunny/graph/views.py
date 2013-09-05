@@ -62,18 +62,25 @@ def json_response(request):
             # Group by experiment, select the best model and apply it to all together
             measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
             fit_name = model_selection(measurements)
+            if not fit_name:
+                loglist.append('No model for sample %s.' % (s.name))
+                # Add anchor and retry
             loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
             # Compute the curves
             for exp,pts in measurements.iteritems():
-                pts = [(x.dose,x.response) for x in pts]
+                pts = [(x.dose,x.response,x.experiment) for x in pts]
                 min_x = min(x[0] for x in pts)
                 max_x = max(x[0] for x in pts)
                 min_y = min(0,min(x[1] for x in pts))
                 max_y = max(100,max(x[1] for x in pts))
-                intervals = create_bins(min_x,max_x,nbins)
-                # Model each experiment separately to get the curves
-                model,norm_pts,log = fit_drm(pts, fit_name, norm=True)
-                curve = compute_fitting_curve(model, interpolate=intervals)
+                if fit_name:
+                    # Model each experiment separately to get the curves
+                    intervals = create_bins(min_x,max_x,nbins)
+                    model,norm_pts,log = fit_drm(pts, fit_name, norm=True)
+                    curve = compute_fitting_curve(model, interpolate=intervals)
+                else:
+                    norm_pts = list(pts)
+                    curve = []
                 points[s.id][exp] = norm_pts
                 curves[s.id][exp] = curve
                 norm_points.extend(norm_pts)
@@ -84,13 +91,16 @@ def json_response(request):
                 ymin = min(ymin,min_y)
                 ymax = max(ymax,max_y)
             # Calculate the BMC
-            bmc = calculate_BMC(norm_points, fit_name)
+            if fit_name:
+                bmc = calculate_BMC(norm_points, fit_name)
+            else:
+                bmc = ''
             if isinstance(bmc,basestring): # error string
-                loglist.append('BMC not found for sample %s:' % s.name)
+                loglist.append("BMC not found for sample %s." % s.name)
                 loglist.append(bmc)
                 BMC[s.id] = {}
             else:
-                BMC[s.id] = BMC
+                BMC[s.id] = bmc.get('15')
         samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
     else:
         samples = {}
@@ -102,7 +112,7 @@ def json_response(request):
             'samples': samples,
             'bounds': [xmin,xmax,ymin,ymax],
             'loglist': loglist,
-            'BMC': BMC.get('15'),
+            'BMC': BMC,
            }
     return HttpResponse(simplejson.dumps(data), content_type="application/json")
 

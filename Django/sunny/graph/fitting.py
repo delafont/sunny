@@ -40,13 +40,13 @@ def fit_drm(data, fit_name='LL.4', norm=True):
             return "R: "+str(re)
     R_output = ""
     data = asarray(zip(*data))
-    dose = data[0]; response = data[1]
+    dose = data[0]; response = data[1]; experiment = data[2]
     model = model_drm(fit_name,dose,response)
     if isinstance(model,basestring): # error string
         return None, data, R_output
     if norm:
         norm_response = normalize_response(response,model,fit_name)
-        norm_data = zip(dose,nround(norm_response,2))
+        norm_data = zip(dose,nround(norm_response,2),experiment)
         # Re-fit normalized data
         model = model_drm(fit_name,dose,norm_response)
         if isinstance(model,basestring):
@@ -81,7 +81,11 @@ def model_selection(data):
     ro.r.assign('response',numpy2ri(response))
     ro.r.assign('experiment',numpy2ri(experiment))
     bmdrcdata = ro.r('data.frame(dose=dose,response=response,experiment=experiment)')
-    selected_model = ro.r('bestModel')(bmdrcdata)[0]
+    selected_models = ro.r('bestModel')(bmdrcdata)
+    if selected_models == ro.rinterface.NULL: # No model found
+        selected_model = None
+    else:
+        selected_model = selected_models[0]
     return selected_model
 
 

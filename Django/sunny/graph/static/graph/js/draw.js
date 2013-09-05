@@ -14,11 +14,10 @@ var _SAMPLE_DATA_URL_;
 
 /********************************* GRAPH **********************************/
 
-// Default colors:
-
 function draw_graph(){
     console.log(">>> Draw Graph");
     var series = [];
+    var bmc_lines = []; var bmc_bands = [];
     var nsamples = _ACTIVE_GRAPH_IDS_.length;
     var colors = ['#0d233a','#2f7ed8','#8bbc21','#910000','#1aadce',
                   '#492970','#f28f43','#77a1e5','#c42525','#a6c96a'];
@@ -28,6 +27,7 @@ function draw_graph(){
         var sample = _DATA_.samples[sample_id];
         var points = _DATA_.points[sample_id];
         var curves = _DATA_.curves[sample_id];
+        var bmc = _DATA_.BMC[sample_id]
         var symbol = symbols[index % symbols.length]
         if (points){
             var nexp = Object.keys(points).length ;
@@ -55,19 +55,41 @@ function draw_graph(){
                 idx++;
             });
         }
+        if (bmc){
+            var color = colors[idx % (colors.length * nexp)]
+            bmc_lines.push.apply(bmc_lines, [{
+                value: bmc[0],
+                width: 1,
+                color: color,
+                label: {
+                    text: 'BMC',
+                    style: {color: '#606060'},
+                }
+            }, {
+                value: bmc[1],
+                width: 1,
+                color: color,
+                dashStyle: 'Dash',
+            }]);
+        }
+
     });
+
     _CHART_ = new Highcharts.Chart({
         chart: {renderTo: 'graph_container'},
         title: {text: 'BMC model'},
-        xAxis: {title: {text: 'Dose'},
+        xAxis: {title: {text: 'Concentration'},
                 type: 'logarithmic',
+                //gridLineWidth: 1,
+                plotLines: bmc_lines,
                },
-        yAxis: {title: {text: 'Response (% of control)'},
+        yAxis: {title: {text: 'Viability (% of control)'},
                 type: 'linear',
                 min: _DATA_.bounds[2],
                 max: _DATA_.bounds[3],
+                //gridLineWidth: 1,
                },
-        legend: {enabled: true}, // fix: make groups
+        legend: {enabled: true},
         series: series
     });
     print_log(_DATA_.loglist);
@@ -281,7 +303,7 @@ function all_active_samples(){
     //    sample_ids.push(_ACTIVE_TABLE_ID_);
     //}
     var sample_ids = [];
-    $('#samples_container input').each(function(i,elt){
+    $('#samples_container input:radio').each(function(i,elt){
         sample_ids.push($(elt).val());
     })
     return sample_ids;
@@ -353,17 +375,6 @@ function add_newline(d,r,e,position='last') {
     })
 }
 
-/********************************** LOG ***********************************/
-
-// Print the R output - or more - inside the #log div
-function print_log(loglist){
-    var logbox = $('#log .log_content');
-    logbox.text('');
-    $.each(loglist, function(index,logstring){
-        logbox.append("<p>"+logstring+"</p>");
-    })
-}
-
 /********************************** FILE IMPORT ***********************************/
 
 // Dynamic file import - upon clicking the "Upload input file" button
@@ -381,7 +392,8 @@ function import_file(file){
             L = L.split('\t');
             dose = L[0];
             response = parseFloat(L[1]).toFixed(2);
-            experiment = L[2];
+            if (L[2] == undefined) {experiment = '1';}
+            else {experiment = L[2];}
             // Update the input table
             if (L.length > 1){
                 if (i < grid.length){ // replace existing lines
@@ -470,3 +482,15 @@ function update_samples_list(sample){
 function load_sample_data(){
     console.log('Not yet implemented')
 }
+
+/********************************** LOG ***********************************/
+
+// Print the R output - or more - inside the #log div
+function print_log(loglist){
+    var logbox = $('#log .log_content');
+    logbox.text('');
+    $.each(loglist, function(index,logstring){
+        logbox.append("<p>"+logstring+"</p>");
+    })
+}
+

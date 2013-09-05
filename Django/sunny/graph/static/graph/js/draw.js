@@ -37,7 +37,6 @@ function draw_graph(){
                     type: 'scatter',
                     name: sample.name+'['+exp+']',
                     data: points[exp],
-                    tooltip: {valuePrefix: exp},
                     marker: {radius:2.5, symbol:symbol},
                     legendIndex: index,
                     color: color,

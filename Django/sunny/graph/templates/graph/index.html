@@ -52,7 +52,8 @@
                     <form>
                     {% for sample in samples %}
                         <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
-                        <span class='remove_sam'>x</span><br>
+                        <span class='remove_sam'>x</span>
+                        <a href="{% url 'getfile' sample.id %}" class='dl_norm_data'>Download</a><br>
                     {% endfor %}
                     </form>
                 </div>

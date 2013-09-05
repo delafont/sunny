@@ -11,6 +11,7 @@ var _ACTIVE_GRAPH_IDS_ = [];
 var _ACTIVE_TABLE_ID_;
 var _IMG_URL_;
 var _SAMPLE_DATA_URL_;
+var _GETFILE_URL_;
 
 /********************************* GRAPH **********************************/
 
@@ -464,6 +465,7 @@ function update_samples_list(sample){
     // radio buttons
     var thisinput = $('#table_samples_container input[value='+sample.id+']');
     var delete_button = $('<span>').addClass('remove_sam').append('x');
+    //var dl_button = $('<a>', {href:_GETFILE_URL_, 'class':'dl_norm_data'}).append('Download');
     if (thisinput.length > 0){
         thisinput.append(sample.name);
     } else {
@@ -474,7 +476,8 @@ function update_samples_list(sample){
         }).change(function() {
             change_sample_table(this);
         }).attr('checked', true);
-        $('#table_samples_container form').append(newinput).append(sample.name).append(delete_button).append("<br>");
+        $('#table_samples_container form').append(newinput).append(sample.name).append(delete_button)
+            .append(dl_button).append("<br>");
     }
 }
 

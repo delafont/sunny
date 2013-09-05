@@ -1,5 +1,8 @@
 from django.http import HttpResponse
 from django.template import RequestContext, loader
+from django.core.files import File
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.serializers import serialize
 from django.utils import simplejson
 from util import sha1
@@ -61,6 +64,8 @@ def json_response(request):
             measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
             # Group by experiment, select the best model and apply it to all together
             measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
+            print Sample.objects.all()
+            print measurements
             fit_name = model_selection(measurements)
             if not fit_name:
                 loglist.append('No model for sample %s.' % (s.name))
@@ -101,12 +106,19 @@ def json_response(request):
                 BMC[s.id] = {}
             else:
                 BMC[s.id] = bmc.get('15')
-        samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
+            # Export normalized data to text file
+            if not (s.textfile and default_storage.exists(os.path.join(os.path.dirname(s.textfile.path),s.sha1)) ):
+                file_content = '\t'.join(['dose','response','experiment'])+'\n'
+                for p in norm_points:
+                    file_content += '\t'.join(['%s'%x for x in p])+'\n'
+                file_content = ContentFile(file_content)
+                s.textfile.save(s.sha1,file_content)
     else:
-        samples = {}
+        samples = []
         loglist.append('No points to fit.')
 
     # Export
+    samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
     data = {'points': points,
             'curves': curves,
             'samples': samples,

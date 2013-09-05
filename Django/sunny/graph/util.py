@@ -1,3 +1,7 @@
+
+import os
+import hashlib
+
 def sha1(file_path):
     """
     Return the sha1 hex digest of a file.
@@ -11,3 +15,4 @@ def sha1(file_path):
     except:
         print "Error: impossible to generate a SHA1: %s does not exist anymore." % file_path
     return sha1.hexdigest()
+

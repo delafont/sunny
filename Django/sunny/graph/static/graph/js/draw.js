@@ -297,7 +297,7 @@ function update_event(){
 // Clear Measurement and Sample tables from the database, and clear localStorage
 function clear_all_db(){
     console.log(">>> Clear All DB");
-    _CHART_.destroy();
+    if (_CHART_) {_CHART_.destroy();}
     localStorage.clear();
     $.post(_CLEAR_ALL_DB_URL_,true,function(e){
         get_data_and_redraw();

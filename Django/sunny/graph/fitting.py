@@ -14,21 +14,6 @@ def list2r(L):
     LL = ["'%s'"%v if isinstance(v,basestring) else str(v) for v in L] # add quotes if elements are strings
     return "c(%s)" % ','.join(LL)
 
-def create_bins(min_x,max_x,nbins=100):
-    if min_x == 0: min_x = 1e-10
-    if max_x == 0: max_x = 1e-10
-    inc = float(log10(max_x)-log10(min_x))/nbins
-    intervals = [log10(min_x)+k*inc for k in range(nbins+1)]
-    intervals = [10**x for x in intervals]
-    return intervals
-
-def normalize_response(response,model,fit_name):
-    constraints = ro.r('constraints')
-    param = constraints(model, fit_name)
-    norm_response = response/(param.rx2('norm')[0]/100.)
-    fixedP = param.rx2('fixedP')
-    return norm_response, fixedP
-
 def fit_drm(data, fit_name='LL.4', normalize=True):
     """:param data: a list of couples (dose,response,experiment)"""
     def model_drm(fit_name,dose,response,fixed=''):
@@ -42,9 +27,15 @@ def fit_drm(data, fit_name='LL.4', normalize=True):
             return model
         except RRuntimeError, re:
             return "R: "+str(re)
+    def normalize_response(response,model,fit_name):
+        constraints = ro.r('constraints')
+        param = constraints(model, fit_name)
+        norm_response = response/(param.rx2('norm')[0]/100.)
+        fixedP = param.rx2('fixedP')
+        return norm_response, fixedP
     R_output = ""
-    data = asarray(zip(*data))
-    dose = data[0]; response = data[1]; experiment = data[2]
+    data_array = asarray(zip(*data))
+    dose = data_array[0]; response = data_array[1]; experiment = data_array[2]
     model = model_drm(fit_name,dose,response)
     if isinstance(model,basestring): # error string
         R_output += model
@@ -106,6 +97,14 @@ def calculate_anchor(pooled_data,fit_name):
     else:
         anchor = sorted(below_5_pooled, key=lambda x:x[1])[-1]
     return anchor
+
+def create_bins(min_x,max_x,nbins=100):
+    if min_x == 0: min_x = 1e-10
+    if max_x == 0: max_x = 1e-10
+    inc = float(log10(max_x)-log10(min_x))/nbins
+    intervals = [log10(min_x)+k*inc for k in range(nbins+1)]
+    intervals = [10**x for x in intervals]
+    return intervals
 
 def update_bounds(pts,bounds,sid):
     min_x = min(x[0] for x in pts)

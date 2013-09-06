@@ -7,7 +7,7 @@ from django.core.serializers import serialize
 from django.utils import simplejson
 from util import sha1
 from fitting import *
-import os
+import os, sys
 import itertools
 
 from graph.models import Measurement, Sample
@@ -32,6 +32,8 @@ def json_response(request):
     }
     `samples` determines which data will be returned.
     """
+    samples = []
+
     # "Update" button or similar
     if request.method == 'POST':
         newdata = simplejson.loads(request.body)
@@ -53,76 +55,75 @@ def json_response(request):
                 "Create a DefaultSample"
 
     # Compute the curves and normalize the data points
-    points={}; curves={}; loglist=[]; BMC={}
-    xmin = xmax = ymin = ymax = 0
-    nbins = 100
+    points={}; curves={}; models={}; BMC={}; bounds={}
+    loglist=[]; log=''; nbins=100
+    xmin = ymin = sys.maxint
+    xmax = ymax = -sys.maxint
     if samples:
-        measurements = {}
+        # Pool samples, select the best model and apply it to all together
         for s in samples:
-            norm_points = []
-            points[s.id]={}; curves[s.id]={}
+            print '>>> Sample',s.name
+            points[s.id]={}; curves[s.id]={}; bounds[s.id]=[xmin,xmax,ymin,ymax]
             measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
-            # Group by experiment, select the best model and apply it to all together
             measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
-            print Sample.objects.all()
-            print measurements
-            fit_name = model_selection(measurements)
-            if not fit_name:
-                loglist.append('No model for sample %s.' % (s.name))
-                # Add anchor and retry
-            loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
-            # Compute the curves
+            measurements_pooled = [(x.dose,x.response,x.experiment) for exp in measurements for x in measurements[exp]]
+            fit_name = model_selection(measurements_pooled)
+            # Calculate the anchor point in case it will be needed
+            if fit_name:
+                anchor = calculate_anchor(measurements_pooled,fit_name)
+                loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
+            else:
+                loglist.append('No model found for sample %s.' % (s.name))
+            # Apply best model to individual datasets
             for exp,pts in measurements.iteritems():
+                print '>>> Experiment',exp
                 pts = [(x.dose,x.response,x.experiment) for x in pts]
-                min_x = min(x[0] for x in pts)
-                max_x = max(x[0] for x in pts)
-                min_y = min(0,min(x[1] for x in pts))
-                max_y = max(100,max(x[1] for x in pts))
                 if fit_name:
-                    # Model each experiment separately to get the curves
-                    intervals = create_bins(min_x,max_x,nbins)
-                    model,norm_pts,log = fit_drm(pts, fit_name, norm=True)
+                    # Look if there is data < 5%, else add anchor point
+                    below5 = [p for p in pts if p[1]<5]
+                    if len(below5) == 0:
+                        anchor_mes = Measurement.objects.create(dose=anchor[0], response=anchor[1], experiment=exp, sample=s)
+                        measurements[exp].append(anchor_mes)
+                        pts.append((anchor[0],anchor[1],exp))
+                    model,pts,log = fit_drm(pts, fit_name, normalize=True)
+                    models[exp] = model
+                    loglist.append(log)
+                    #print 'convergence',model.rx2(2).rx2('convergence')
+                bounds = update_bounds(pts,bounds,s.id)
+                points[s.id][exp] = pts
+            # Compute the curves
+            intervals = create_bins(bounds[s.id][0],bounds[s.id][1],nbins)
+            for exp,model in models.iteritems():
+                if model:
+                    models[exp] = model
                     curve = compute_fitting_curve(model, interpolate=intervals)
                 else:
-                    norm_pts = list(pts)
                     curve = []
-                points[s.id][exp] = norm_pts
-                curves[s.id][exp] = curve
-                norm_points.extend(norm_pts)
                 if len(curve) == 0: loglist.append("Failed to fit the model.")
-                loglist.append(log)
-                xmin = min(xmin,min_x)
-                xmax = max(xmax,max_x)
-                ymin = min(ymin,min_y)
-                ymax = max(ymax,max_y)
+                curves[s.id][exp] = curve
             # Calculate the BMC
-            if fit_name:
-                bmc = calculate_BMC(norm_points, fit_name)
-            else:
-                bmc = ''
+            points_pooled = [p for exp,pts in points[s.id].iteritems() for p in pts]
+            bmc = calculate_BMC(points_pooled, fit_name) if fit_name else ''
             if isinstance(bmc,basestring): # error string
                 loglist.append("BMC not found for sample %s." % s.name)
                 loglist.append(bmc)
-                BMC[s.id] = {}
+                BMC[s.id] = []
             else:
                 BMC[s.id] = bmc.get('15')
             # Export normalized data to text file
             if not (s.textfile and default_storage.exists(os.path.join(os.path.dirname(s.textfile.path),s.sha1)) ):
                 file_content = '\t'.join(['dose','response','experiment'])+'\n'
-                for p in norm_points:
+                for p in points_pooled:
                     file_content += '\t'.join(['%s'%x for x in p])+'\n'
                 file_content = ContentFile(file_content)
                 s.textfile.save(s.sha1,file_content)
-    else:
-        samples = []
-        loglist.append('No points to fit.')
 
     # Export
     samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
     data = {'points': points,
             'curves': curves,
             'samples': samples,
-            'bounds': [xmin,xmax,ymin,ymax],
+            'bounds': bounds,
             'loglist': loglist,
             'BMC': BMC,
            }

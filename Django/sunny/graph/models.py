@@ -31,4 +31,3 @@ def mymodel_delete(sender, instance, **kwargs):
     # Pass false so FileField doesn't save the model.
     instance.textfile.delete(False)
     #instance.images.delete(False)
-

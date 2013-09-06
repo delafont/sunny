@@ -15,24 +15,28 @@ def list2r(L):
     return "c(%s)" % ','.join(LL)
 
 def create_bins(min_x,max_x,nbins=100):
+    if min_x == 0: min_x = 1e-10
+    if max_x == 0: max_x = 1e-10
     inc = float(log10(max_x)-log10(min_x))/nbins
     intervals = [log10(min_x)+k*inc for k in range(nbins+1)]
     intervals = [10**x for x in intervals]
     return intervals
 
 def normalize_response(response,model,fit_name):
-    import_normalize()
     constraints = ro.r('constraints')
     param = constraints(model, fit_name)
     norm_response = response/(param.rx2('norm')[0]/100.)
-    return norm_response
+    fixedP = param.rx2('fixedP')
+    return norm_response, fixedP
 
-def fit_drm(data, fit_name='LL.4', norm=True):
-    """:param data: a list of couples (dose,response)"""
-    def model_drm(fit_name,dose,response):
+def fit_drm(data, fit_name='LL.4', normalize=True):
+    """:param data: a list of couples (dose,response,experiment)"""
+    def model_drm(fit_name,dose,response,fixed=''):
         ro.r.assign('dose',numpy2ri(dose))
         ro.r.assign('response',numpy2ri(response))
-        fit_fct = ro.r(fit_name+'()')
+        if fixed:
+            fixed = 'fixed='+list2r(list(fixed))
+        fit_fct = ro.r(fit_name+'('+fixed+')')
         try:
             model = drc.drm(ro.Formula('response~dose'),fct=fit_fct)
             return model
@@ -43,13 +47,15 @@ def fit_drm(data, fit_name='LL.4', norm=True):
     dose = data[0]; response = data[1]; experiment = data[2]
     model = model_drm(fit_name,dose,response)
     if isinstance(model,basestring): # error string
+        R_output += model
         return None, data, R_output
-    if norm:
-        norm_response = normalize_response(response,model,fit_name)
+    if normalize:
+        norm_response,fixedP = normalize_response(response,model,fit_name)
         norm_data = zip(dose,nround(norm_response,2),experiment)
         # Re-fit normalized data
-        model = model_drm(fit_name,dose,norm_response)
+        model = model_drm(fit_name,dose,norm_response, fixed=fixedP)
         if isinstance(model,basestring):
+            R_output += model
             return None, norm_data, R_output
         return model, norm_data, R_output
     else:
@@ -60,22 +66,22 @@ def compute_fitting_curve(model, interpolate=range(0,10000,10)):
     curve = zip(interpolate,list(curve))
     return curve
 
-def calculate_BMC(data, fit_name='LL.4', norm=True):
-    model,norm_data,R_output = fit_drm(data, fit_name, norm)
+def calculate_BMC(data, fit_name='LL.4', normalize=True):
+    """:param data: list of tuples (dose,response,experiment)"""
+    model,norm_data,R_output = fit_drm(data, fit_name, normalize)
     if model:
-        BMC = ro.r('ED')(model,ro.IntVector([10,15]),interval=ro.StrVector(["delta"]),\
+        BMC = ro.r('ED')(model,ro.IntVector([10,15,50]),interval=ro.StrVector(["delta"]),\
                          level=0.90,type="relative",display=False)
         BMC = ro.r('round')(BMC,4)
-        BMC = reshape(asarray(BMC.rx(ro.IntVector([1,2,5,6,7,8]))), (3,-1)).T
+        BMC = reshape(asarray(BMC.rx(ro.IntVector([1,2,3,7,8,9,10,11,12]))), (3,-1)).T
         # BMC : [[Estimate1,Lower1,Upper1],[Estimate2,Lower2,Upper2]]
-        BMC = {'10':list(BMC[0]), '15':list(BMC[1])}
+        BMC = {'10':list(BMC[0]), '15':list(BMC[1]), '50':list(BMC[2])}
         return BMC
     else:
         return R_output
 
 def model_selection(data):
-    import_model_selection()
-    data = [(x.dose,x.response,x.experiment) for v in data.values() for x in v]
+    """:param data: list of tuples (dose,response,experiment)"""
     dose,response,experiment = asarray(zip(*data))
     ro.r.assign('dose',numpy2ri(dose))
     ro.r.assign('response',numpy2ri(response))
@@ -87,6 +93,30 @@ def model_selection(data):
     else:
         selected_model = selected_models[0]
     return selected_model
+
+def calculate_anchor(pooled_data,fit_name):
+    """:param pooled_data: list of tuples (dose,response,experiment)"""
+    below_5_pooled = [m for m in pooled_data if m[1]<5]
+    if len(below_5_pooled) == 0:
+        ec50 = calculate_BMC(pooled_data, fit_name).get('50',[0])[0]
+        if ec50:
+            anchor = (20*ec50,0)
+        else:
+            anchor = (1000000,0) # ?
+    else:
+        anchor = sorted(below_5_pooled, key=lambda x:x[1])[-1]
+    return anchor
+
+def update_bounds(pts,bounds,sid):
+    min_x = min(x[0] for x in pts)
+    max_x = max(x[0] for x in pts)
+    min_y = min(0,min(x[1] for x in pts))
+    max_y = max(100,max(x[1] for x in pts))
+    bounds[sid][0] = min(bounds[sid][0], min_x)
+    bounds[sid][1] = max(bounds[sid][1], max_x)
+    bounds[sid][2] = min(bounds[sid][2], min_y)
+    bounds[sid][3] = max(bounds[sid][3], max_y)
+    return bounds
 
 
 ################################ R SHIT #######################################
@@ -187,6 +217,9 @@ def import_model_selection():
     }
     """)
 
+# Auto import on app start
+import_model_selection()
+import_normalize()
 
 
 # plot(fit, type="all", broken=FALSE, xlim=c(0, max(d$dose)), ylim=c(0,100), lty="dashed", lwd=1.3, cex.lab=1.2, cex.main=2, cex=2)

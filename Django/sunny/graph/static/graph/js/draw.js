@@ -23,14 +23,20 @@ function draw_graph(){
     var colors = ['#0d233a','#2f7ed8','#8bbc21','#910000','#1aadce',
                   '#492970','#f28f43','#77a1e5','#c42525','#a6c96a'];
     var symbols = ["circle","square","diamond","triangle","triangle-down"];
+    var xmin = 1; var xmax = 1; var ymin = 1; var ymax = 1;
     var idx = 0;
     $.each(_ACTIVE_GRAPH_IDS_, function(index,sample_id){
         var sample = _DATA_.samples[sample_id];
         var points = _DATA_.points[sample_id];
         var curves = _DATA_.curves[sample_id];
         var bmc = _DATA_.BMC[sample_id]
+        var bounds = _DATA_.bounds[sample_id];
         var symbol = symbols[index % symbols.length]
         if (points){
+            xmin = Math.min(xmin,bounds[0])
+            xmax = Math.max(xmax,bounds[1])
+            ymin = Math.min(ymin,bounds[2])
+            ymax = Math.max(ymax,bounds[3])
             var nexp = Object.keys(points).length ;
             $.each(points, function(exp){
                 var color = colors[idx % (colors.length * nexp)];
@@ -48,7 +54,7 @@ function draw_graph(){
                     enableMouseTracking: false,
                     stickyTracking: false,
                     marker: {enabled: false},
-                    linkedTo: index,
+                    //linkedTo: index,
                     //legendIndex: nsamples+index,
                     color: color,
                 }]);
@@ -80,13 +86,15 @@ function draw_graph(){
         title: {text: 'BMC model'},
         xAxis: {title: {text: 'Concentration'},
                 type: 'logarithmic',
+                min: xmin,
+                max: xmax,
                 //gridLineWidth: 1,
                 plotLines: bmc_lines,
                },
         yAxis: {title: {text: 'Viability (% of control)'},
                 type: 'linear',
-                min: _DATA_.bounds[2],
-                max: _DATA_.bounds[3],
+                min: ymin,
+                max: ymax,
                 //gridLineWidth: 1,
                },
         legend: {enabled: true},
@@ -289,6 +297,7 @@ function update_event(){
 // Clear Measurement and Sample tables from the database, and clear localStorage
 function clear_all_db(){
     console.log(">>> Clear All DB");
+    _CHART_.destroy();
     localStorage.clear();
     $.post(_CLEAR_ALL_DB_URL_,true,function(e){
         get_data_and_redraw();
@@ -476,8 +485,7 @@ function update_samples_list(sample){
         }).change(function() {
             change_sample_table(this);
         }).attr('checked', true);
-        $('#table_samples_container form').append(newinput).append(sample.name).append(delete_button)
-            .append(dl_button).append("<br>");
+        $('#table_samples_container form').append(newinput).append(sample.name).append(delete_button).append("<br>");
     }
 }
 

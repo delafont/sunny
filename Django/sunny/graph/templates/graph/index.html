@@ -52,8 +52,11 @@
                     <form>
                     {% for sample in samples %}
                         <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
-                        <span class='remove_sam'>x</span>
-                        <a href="{% url 'getfile' sample.id %}" class='dl_norm_data'>Download</a><br>
+                        <span class='remove_sam'>x</span><br>
+                        <a href="{% url 'getfile' sample.id %}" class='dl_norm_data'>
+                            <img src='' alt='Download'></a> -
+                        <a href="{% url 'getfile' sample.id %}" class='dl_5pics'>
+                            <img src='' alt='5 pictures'></a>
                     {% endfor %}
                     </form>
                 </div>
@@ -96,9 +99,9 @@
             var file = $(this)[0].files[0];
             import_file(file);
         });
-        $('#load_sample_button').click(function() {
-            load_sample_data();
-        });
+        //$('#load_sample_button').click(function() {
+        //    load_sample_data();
+        //});
     });
     </script>
 

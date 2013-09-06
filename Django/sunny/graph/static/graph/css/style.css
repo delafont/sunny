@@ -71,6 +71,8 @@ body{}
 #graph_samples_container{
     margin-bottom: 20px;
 }
+#graph_samples_container a{
+}
 
 /************** Log *************/
 #log{

@@ -1,19 +1,23 @@
-from django.http import HttpResponse
-from django.template import RequestContext, loader
-from django.core.files import File
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from django.core.serializers import serialize
-from django.utils import simplejson
-from util import sha1
-from fitting import *
+### Standard imports
 import os, sys
 import itertools
 
+### Django stuff
 from graph.models import Measurement, Sample
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.utils import simplejson
+#from django.core.serializers import serialize
+
+### Custom functions
+from fitting import *
+#from util import sha1
 
 
 def index(request):
+    """Render the main page on load"""
     samples = Sample.objects.all()
     template = loader.get_template('graph/index.html')
     context = RequestContext(request, {
@@ -27,14 +31,15 @@ def json_response(request):
         'points': {sample.id: {experiment: [data]}},
         'curves': {sample.id: {experiment: [data]}},
         'samples': [{'id': sample.id, ...}],
-        'bounds': [xmin,xmax,ymin,ymax],
-        'loglist': ["logstring1",...]
+        'bounds': {sample.id: [xmin,xmax,ymin,ymax]},
+        'loglist': ["logstring1",...],
+        'BMC': {sample.id: bmc},
     }
     `samples` determines which data will be returned.
     """
     samples = []
 
-    # "Update" button or similar
+    # POST: New data - file upload, "Update" button or similar
     if request.method == 'POST':
         newdata = simplejson.loads(request.body)
         samples = Sample.objects.filter(id__in=newdata['samples'])
@@ -44,7 +49,7 @@ def json_response(request):
             for mes in newdata["measurements"][newid]:
                 Measurement.objects.create(dose=mes[0], response=mes[1], \
                                            experiment=mes[2], sample=samples.get(id=newid))
-    # OnLoad, or upon changing sample (radio buttons)
+    # GET: OnLoad - requesting existing samples
     elif request.method == 'GET':
         if request.GET:
             sample_ids = simplejson.loads(request.GET.keys()[0])
@@ -54,7 +59,6 @@ def json_response(request):
             if not samples:
                 "Create a DefaultSample"
 
-    # Compute the curves and normalize the data points
     points={}; curves={}; models={}; BMC={}; bounds={}
     loglist=[]; log=''; nbins=100
     xmin = ymin = sys.maxint

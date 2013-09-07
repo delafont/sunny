@@ -8,7 +8,6 @@ from django.utils import simplejson
 
 ### Custom functions
 from fitting import *
-#from util import sha1
 
 
 def index(request):
@@ -91,9 +90,9 @@ def clear_all_db(request):
     return index(request)
 
 def create_images(request):
+    """Create the 5 R plots and add them to Sample.images"""
     sample_id = simplejson.loads(request.GET.keys()[0][0])
     sample = Sample.objects.filter(id=sample_id)
-    context = RequestContext(request, {
-            'images': sample.images,
-        })
-    return HttpResponse(context)
+    "R stuff here"
+    sample.images = None
+    return HttpResponse(1)

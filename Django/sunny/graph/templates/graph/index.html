@@ -1,5 +1,6 @@
 
 {% extends "base.html" %}
+{% load url from future %}
 {% load staticfiles %}
 
 {% block app_js %}
@@ -55,7 +56,7 @@
                         <span class='remove_sam'>x</span><br>
                         <a href="{% url 'getfile' sample.id %}" class='dl_norm_data'>
                             <img src='' alt='Download'></a> -
-                        <a href="{% url 'getfile' sample.id %}" class='dl_5pics'>
+                        <a href="{% url 'getimages' sample.id %}" class='dl_5pics'>
                             <img src='' alt='5 pictures'></a>
                     {% endfor %}
                     </form>

@@ -1,12 +1,92 @@
 
+### Django stuff
+from graph.models import Measurement
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+
+### rpy2
 import rpy2.robjects as ro
 from rpy2.robjects.numpy2ri import numpy2ri
 from rpy2.robjects.packages import importr
 from rpy2.rinterface import RRuntimeError
+
+### Standard imports
 from numpy import asarray, round as nround, reshape
 from math import log10
+import os,sys,itertools
 
-drc = importr('drc')
+
+################################ MAIN CALL ####################################
+
+
+def fit_etc(samples):
+    points={}; curves={}; models={}; BMC={}; bounds={}
+    loglist=[]; log=''; nbins=100
+    xmin = ymin = sys.maxint
+    xmax = ymax = -sys.maxint
+    if samples:
+        # Pool samples, select the best model and apply it to all together
+        for s in samples:
+            print '>>> Sample',s.name
+            points[s.id]={}; curves[s.id]={}; bounds[s.id]=[xmin,xmax,ymin,ymax]
+            measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
+            measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
+            measurements_pooled = [(x.dose,x.response,x.experiment) for exp in measurements for x in measurements[exp]]
+            fit_name = model_selection(measurements_pooled)
+            # Calculate the anchor point in case it will be needed
+            if fit_name:
+                anchor = calculate_anchor(measurements_pooled,fit_name)
+                loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
+            else:
+                loglist.append('No model found for sample %s.' % (s.name))
+            # Apply best model to individual datasets
+            for exp,pts in measurements.iteritems():
+                print '>>> Experiment',exp
+                pts = [(x.dose,x.response,x.experiment) for x in pts]
+                if fit_name:
+                    # Look if there is data < 5%, else add anchor point
+                    below5 = [p for p in pts if p[1]<5]
+                    if len(below5) == 0:
+                        anchor_mes = Measurement.objects.create(dose=anchor[0], response=anchor[1], experiment=exp, sample=s)
+                        measurements[exp].append(anchor_mes)
+                        pts.append((anchor[0],anchor[1],exp))
+                    model,pts,log = fit_drm(pts, fit_name, normalize=True)
+                    models[exp] = model
+                    loglist.append(log)
+                    #print 'convergence',model.rx2(2).rx2('convergence')
+                bounds = update_bounds(pts,bounds,s.id)
+                points[s.id][exp] = pts
+            # Compute the curves
+            intervals = create_bins(bounds[s.id][0],bounds[s.id][1],nbins)
+            for exp,model in models.iteritems():
+                if model:
+                    models[exp] = model
+                    curve = compute_fitting_curve(model, interpolate=intervals)
+                else:
+                    curve = []
+                if len(curve) == 0: loglist.append("Failed to fit the model.")
+                curves[s.id][exp] = curve
+            # Calculate the BMC
+            points_pooled = [p for exp,pts in points[s.id].iteritems() for p in pts]
+            bmc = calculate_BMC(points_pooled, fit_name) if fit_name else ''
+            if isinstance(bmc,basestring): # error string
+                loglist.append("BMC not found for sample %s." % s.name)
+                loglist.append(bmc)
+                BMC[s.id] = []
+            else:
+                BMC[s.id] = bmc.get('15')
+            # Export normalized data to text file
+            if not (s.textfile and default_storage.exists(os.path.join(os.path.dirname(s.textfile.path),s.sha1)) ):
+                file_content = '\t'.join(['dose','response','experiment'])+'\n'
+                for p in points_pooled:
+                    file_content += '\t'.join(['%s'%x for x in p])+'\n'
+                file_content = ContentFile(file_content)
+                s.textfile.save(s.sha1,file_content)
+    return points,curves,bounds,loglist,BMC
+
+
+################################## FITTING #####################################
+
 
 def list2r(L):
     """Transform a Python list into a string in R format: [1,2,'C'] -> "c(1,2,'C')" ."""
@@ -93,7 +173,8 @@ def calculate_anchor(pooled_data,fit_name):
         if ec50:
             anchor = (20*ec50,0)
         else:
-            anchor = (1000000,0) # ?
+            xmax = max(m[0] for m in pooled_data)
+            anchor = (200*xmax,0) # ?
     else:
         anchor = sorted(below_5_pooled, key=lambda x:x[1])[-1]
     return anchor
@@ -118,7 +199,7 @@ def update_bounds(pts,bounds,sid):
     return bounds
 
 
-################################ R SHIT #######################################
+################################## R SHIT #####################################
 
 
 def import_normalize():
@@ -216,7 +297,12 @@ def import_model_selection():
     }
     """)
 
+
+########################### AUTO IMPORTS AT START #############################
+
+
 # Auto import on app start
+drc = importr('drc')
 import_model_selection()
 import_normalize()
 

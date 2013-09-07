@@ -4,7 +4,7 @@ class Sample(models.Model):
     name = models.CharField(max_length=100,default='')
     sha1 = models.CharField(max_length=20,default='') # hash of the file's content
     textfile = models.FileField(upload_to="text/")
-    images = models.ImageField(upload_to="images/")
+    images = models.FileField(upload_to="images/")
 
     def __unicode__(self):
         return "<[%s] %s, %s, %s>" % (self.id,self.name,self.sha1,self.textfile)

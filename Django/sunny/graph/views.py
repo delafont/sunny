@@ -104,16 +104,16 @@ def getimages(request,pk):
     sample = Sample.objects.get(id=pk)
     measurements = Measurement.objects.filter(sample=pk)
     measurements = [(x.dose,x.response,x.experiment) for x in measurements]
-    template = "sunny/media/images/fit_images"
+    template = "sunny/media/images/fit_images_%s" % pk
     generate_images(measurements,template+'.png')
     with tarfile.open(template+".tar.gz", "w:gz") as tar:
         for filename in [template+'_%d.png'%(x+1) for x in range(6)]:
             tar.add(filename,arcname=os.path.basename(filename),recursive=False)
             os.remove(filename)
-    sample.images.save('5images.tar.gz',File(open(template+".tar.gz")),save=True)
+    sample.images.save('5images_%s.tar.gz'%pk, File(open(template+".tar.gz")),save=True)
     os.remove(template+'.tar.gz')
     response = HttpResponse(FileWrapper(sample.images), content_type='application/gzip')
-    response['Content-Disposition'] = 'attachment; filename='+sample.name+'.gzip'
+    response['Content-Disposition'] = 'attachment; filename=5images_%s.tar.gz' % pk
     return response
 
 

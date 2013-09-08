@@ -29,5 +29,7 @@ from django.dispatch.dispatcher import receiver
 @receiver(post_delete, sender=Sample)
 def mymodel_delete(sender, instance, **kwargs):
     # Pass false so FileField doesn't save the model.
-    instance.textfile.delete(False)
-    instance.images.delete(False)
+    try: instance.textfile.delete(False)
+    except: pass
+    try: instance.images.delete(False)
+    except: pass

@@ -1,3 +1,4 @@
+* Add the BMC/BMCL values on the chart
 * Custom sample names
 * Custom sample entry from table
 * User specified units for the x axis
@@ -6,4 +7,4 @@
 * Ability to remove samples from list (and DB)
 * User table / session / cookie
 * Update only what is not yet in _DATA_ (?)
-* Put producton version online
+* Put production version online

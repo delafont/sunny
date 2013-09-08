@@ -18,19 +18,19 @@
 {% block app_content %}
 
     <div id="global_container">
-        <div id="buttons_container">
-            <span id='upload_button_desc'>Upload input file:</span>
-                <input type='file' name='file_upload' id='file_upload'><br>
-            <!--<span>Load sample data:</span>
-                <button type='button' id='load_sample_button'>Load</button><br>-->
-            <!--<span id='update_button_desc'>Update the graph:</span>-->
-                <button type='button' id='update_button'>Update</button><br>
-            <!--<span>Clear:</span>-->
-                <button type='button' id='clear_button'>Clear</button>
-                <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
-        </div>
-        <div id="loading"></div>
         <div id="banner">
+            <div id="buttons_container">
+                <span id='upload_button_desc'>Upload input file:</span>
+                    <input type='file' name='file_upload' id='file_upload'><br>
+                <!--<span>Load sample data:</span>
+                    <button type='button' id='load_sample_button'>Load</button><br>-->
+                <!--<span id='update_button_desc'>Update the graph:</span>-->
+                    <button type='button' id='update_button'>Update</button><br>
+                <!--<span>Clear:</span>-->
+                    <button type='button' id='clear_button'>Clear</button>
+                    <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
+            </div>
+            <div id="loading"></div>
             <!--<div id="app_title">Benchmark Concentration Modelling</div>-->
             <div id="logos_container">
                 <img src="{% static 'img/konstanz_logo.jpg' %}" width="130" height='63' alt='konstanz_logo'>

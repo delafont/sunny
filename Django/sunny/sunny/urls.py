@@ -1,27 +1,9 @@
 from django.conf.urls import patterns, include, url
+from graph.views import getfile, getimages
 
 # Uncomment the next two lines to enable the admin:
 #from django.contrib import admin
 #admin.autodiscover()
-
-
-def getfile(request,pk):
-    from graph.models import Sample
-    from django.http import HttpResponse
-    from django.core.servers.basehttp import FileWrapper
-    sample = Sample.objects.get(id=pk)
-    response = HttpResponse(FileWrapper(sample.textfile), content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename='+sample.name+'.txt'
-    return response
-
-def getimages(request,pk):
-    from graph.models import Sample
-    from django.http import HttpResponse
-    from django.core.servers.basehttp import FileWrapper
-    sample = Sample.objects.get(id=pk)
-    response = HttpResponse(FileWrapper(sample.images), content_type='application/gzip')
-    response['Content-Disposition'] = 'attachment; filename='+sample.name+'.gzip'
-    return response
 
 
 urlpatterns = patterns('',

@@ -4,6 +4,7 @@ from graph.models import Measurement, Sample
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.utils import simplejson
+from django.core.servers.basehttp import FileWrapper
 #from django.core.serializers import serialize
 
 ### Custom functions
@@ -89,10 +90,27 @@ def clear_all_db(request):
     Sample.objects.all().delete()
     return index(request)
 
-def create_images(request):
-    """Create the 5 R plots and add them to Sample.images"""
-    sample_id = simplejson.loads(request.GET.keys()[0][0])
-    sample = Sample.objects.filter(id=sample_id)
-    "R stuff here"
-    sample.images = None
-    return HttpResponse(1)
+#def create_images(request):
+#    """Create the 5 R plots and add them to Sample.images"""
+#    sample_id = simplejson.loads(request.GET.keys()[0][0])
+#    sample = Sample.objects.filter(id=sample_id)
+#    "R stuff here"
+#    sample.images = None
+#    return HttpResponse(1)
+
+def getfile(request,pk):
+    sample = Sample.objects.get(id=pk)
+    response = HttpResponse(FileWrapper(sample.textfile), content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename='+sample.name+'.txt'
+    return response
+
+def getimages(request,pk):
+    sample = Sample.objects.get(id=pk)
+    measurements = Measurement.objects.filter(sample=pk)
+    measurements = [(x.dose,x.response,x.experiment) for x in measurements]
+    sample.images = generate_images(measurements)
+    response = HttpResponse(FileWrapper(sample.images), content_type='application/gzip')
+    response['Content-Disposition'] = 'attachment; filename='+sample.name+'.gzip'
+    return response
+
+

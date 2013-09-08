@@ -49,7 +49,7 @@ function draw_graph(){
                     color: color,
                 }, {
                     type: 'spline',
-                    name: 'Fit - '+sample.name+' - '+ exp,
+                    name: sample.name+'['+exp+']',
                     data: curves[exp],
                     enableMouseTracking: false,
                     stickyTracking: false,
@@ -76,6 +76,10 @@ function draw_graph(){
                 width: 1,
                 color: color,
                 dashStyle: 'Dash',
+                label: {
+                    text: 'BMCL',
+                    style: {color: '#606060'},
+                }
             }]);
         }
 

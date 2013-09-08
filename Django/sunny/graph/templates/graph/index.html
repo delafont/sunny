@@ -13,23 +13,30 @@
 {% block app_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'graph/css/style.css' %}" />
 {% endblock %}
-{% block title %}My amazing web app{% endblock %}
+{% block title %}Benchmark Concentration Modelling{% endblock %}
 
 {% block app_content %}
 
     <div id="global_container">
         <div id="buttons_container">
-            <span id='update_button_desc'>Update the graph:</span>
-                <button type='button' id='update_button'>Update</button><br>
             <span id='upload_button_desc'>Upload input file:</span>
                 <input type='file' name='file_upload' id='file_upload'><br>
             <!--<span>Load sample data:</span>
                 <button type='button' id='load_sample_button'>Load</button><br>-->
-            <span>Clear:</span>
+            <!--<span id='update_button_desc'>Update the graph:</span>-->
+                <button type='button' id='update_button'>Update</button><br>
+            <!--<span>Clear:</span>-->
                 <button type='button' id='clear_button'>Clear</button>
                 <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
         </div>
         <div id="loading"></div>
+        <div id="banner">
+            <!--<div id="app_title">Benchmark Concentration Modelling</div>-->
+            <div id="logos_container">
+                <img src="{% static 'img/konstanz_logo.jpg' %}" width="130" height='63' alt='konstanz_logo'>
+                <img src="{% static 'img/epfl_logo.png' %}" width="130" height='63' alt='epfl_logo'>
+            </div>
+        </div>
         <div id="mid">
             <div id="input_table_container">
                 <table id='input_table' class='input_table'>
@@ -55,9 +62,9 @@
                         <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
                         <span class='remove_sam'>x</span><br>
                         <a href="{% url 'getfile' sample.id %}" class='dl_norm_data'>
-                            <img src='' alt='Download'></a> -
+                            <img src='' alt='Download Normalized data'></a><br>
                         <a href="{% url 'getimages' sample.id %}" class='dl_5pics'>
-                            <img src='' alt='5 pictures'></a><br>
+                            <img src='' alt='Download R graphs'></a><br>
                     {% endfor %}
                     </form>
                 </div>

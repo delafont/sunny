@@ -7,11 +7,16 @@ body{
 #buttons_container{
     float: left;
     margin-bottom: 10px;
-    width: 500px;
+    width: 30%;
 }
 #loading{
     float: left;
     width: 50px;
+}
+#banner{}
+#logos_container{
+    float: right;
+    width: 30%;
 }
 #mid{
     clear: both;
@@ -24,10 +29,12 @@ body{
 #graph_container{
     float: left;
     margin-left: 20px;
+    margin-top: 30px;
 }
 #samples_container{
     float: left;
-    margin-left: 10px;
+    margin-left: 20px;
+    margin-top: 30px;
 }
 
 /************** Buttons *************/
@@ -51,6 +58,17 @@ body{
     color: green;
 }
 
+/************** Logos *************/
+
+#banner img{
+    float: right;
+    margin: 5px;
+}
+#banner #app_title{
+    float: left;
+    text-align: center;
+}
+
 /************** Input tables *************/
 .input_table{
     border-spacing: 0;
@@ -66,7 +84,6 @@ body{
 .input_table input.dose_in{ width: 60px; }
 .input_table input.response_in{ width: 60px; }
 .input_table input.experiment_in{ width: 30px; }
-.input_table input.sample_in{ width: 80px; }
 
 /************** Samples list *************/
 
@@ -89,7 +106,7 @@ body{
     margin-bottom: 15px;
 }
 #log .log_content{
-    color: red;
+    color: black;
     font-weight: bold;
 }
 

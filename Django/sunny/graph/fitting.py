@@ -198,7 +198,7 @@ def update_bounds(pts,bounds,sid):
     bounds[sid][3] = max(bounds[sid][3], max_y)
     return bounds
 
-def generate_images(data):
+def generate_images(data,template):
     """:param data: list of tuples (dose,response,experiment)"""
     ro.r("""
     source("graph/R/machPlots.R")
@@ -209,14 +209,11 @@ def generate_images(data):
     ro.r.assign('dose',numpy2ri(dose))
     ro.r.assign('response',numpy2ri(response))
     ro.r.assign('experiment',numpy2ri(experiment))
-    ro.r.assign('outfilename',"fit_images.png")
+    ro.r.assign('outfilename',template)
     ro.r("""
     mydata = data.frame(dose=dose,response=response,experiment=experiment)
-    processData(mydata, title="5pics", xlab="Dose", outfilename=outfilename, cooksfilename='', run=3)
+    processData(mydata, title="DRM", xlab="Dose", outfilename=outfilename, cooksfilename='', run=3)
     """)
-    #gzip outfilename
-    gzipfile = ''
-    return gzipfile
 
 ########################### AUTO IMPORTS AT START #############################
 

@@ -430,7 +430,8 @@ function import_file(file){
         //if (sha1 in all_sha1){
         //    "Do nothing?"
         //} else {
-            var newsample = {'sha1':sha1, 'name':file.name}
+            var sname = file.name.replace(/\.[^/.]+$/, "")
+            var newsample = {'sha1':sha1, 'name':sname}
             $.post(_NEW_SAMPLE_URL_,
                    JSON.stringify(newsample),
                    function(data_response){

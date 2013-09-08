@@ -32,7 +32,7 @@ constraints <- function(objdrc, fctname){
 }
 
 
-bestModel <- function(bmdrcdata) {
+bestModel <- function(bmdrcdata, linreg=FALSE) {
     # bmdrcdata: data.frame from original file, with at least dose and response columns
     modelList <- list(LL.4(), LL.5(), W1.4(), W2.4(), LL.3())
     modell <- NULL

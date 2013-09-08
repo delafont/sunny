@@ -1,7 +1,6 @@
 #kopiert vom Skript vom 27.2.13
 library("gplots")
 library("bmd")
-library("gplots")
 library("splines")
 
 
@@ -115,7 +114,6 @@ processData <- function(mydata, title, xlab, outfilename, cooksfilename, run) {
 # Plot 4
             machPlot(plotData=mydata, plotKurven=curveListe, PNGFileName=outfilename, xlab=xlab,
                      main=title, fctname=fctname,  iBild=4, plotAP=ancht)
-            print("debug: Ende der 1. Normierung")
             #avgdata = potplotdata
 
             print("***************** 2. Ankerpunkte werden definiert *****************")
@@ -146,7 +144,7 @@ processData <- function(mydata, title, xlab, outfilename, cooksfilename, run) {
                colnames(expdata) = c("dose","response")
                expmodel <- mydrm(expdata,fct=fctname)
                parm<-constraints(expmodel, fctname)#switchcase normalization
-               print(paste("Parameters",parm))
+               #print(paste("Parameters",parm))
                # Ankerpunkt toxisch
                #ancht <- data.frame(dose=(EC50[1]*80), #chefl?sung
                print(paste("kleinste Response =", round(min(potplotdata$response[potplotdata$experiment==i]),digits=2)))
@@ -179,7 +177,7 @@ processData <- function(mydata, title, xlab, outfilename, cooksfilename, run) {
                                     experiment=i,
                                     stringsAsFactors=F)
                   gutekurven<-rbind(gutekurven,goodcurves)
-                  print("braucht kein Ankerpunkt")
+                  #print("braucht kein Ankerpunkt")
                }
             } #Ende for unique potplotdata$experiment
 

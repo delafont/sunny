@@ -5,10 +5,14 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.utils import simplejson
 from django.core.servers.basehttp import FileWrapper
+from django.core.files import File
 #from django.core.serializers import serialize
 
 ### Custom functions
 from fitting import *
+
+### Usual imports
+import tarfile
 
 
 def index(request):
@@ -90,14 +94,6 @@ def clear_all_db(request):
     Sample.objects.all().delete()
     return index(request)
 
-#def create_images(request):
-#    """Create the 5 R plots and add them to Sample.images"""
-#    sample_id = simplejson.loads(request.GET.keys()[0][0])
-#    sample = Sample.objects.filter(id=sample_id)
-#    "R stuff here"
-#    sample.images = None
-#    return HttpResponse(1)
-
 def getfile(request,pk):
     sample = Sample.objects.get(id=pk)
     response = HttpResponse(FileWrapper(sample.textfile), content_type='text/plain')
@@ -108,7 +104,14 @@ def getimages(request,pk):
     sample = Sample.objects.get(id=pk)
     measurements = Measurement.objects.filter(sample=pk)
     measurements = [(x.dose,x.response,x.experiment) for x in measurements]
-    sample.images = generate_images(measurements)
+    template = "sunny/media/images/fit_images"
+    generate_images(measurements,template+'.png')
+    with tarfile.open(template+".tar.gz", "w:gz") as tar:
+        for filename in [template+'_%d.png'%(x+1) for x in range(6)]:
+            tar.add(filename,arcname=os.path.basename(filename),recursive=False)
+            os.remove(filename)
+    sample.images.save('5images.tar.gz',File(open(template+".tar.gz")),save=True)
+    os.remove(template+'.tar.gz')
     response = HttpResponse(FileWrapper(sample.images), content_type='application/gzip')
     response['Content-Disposition'] = 'attachment; filename='+sample.name+'.gzip'
     return response

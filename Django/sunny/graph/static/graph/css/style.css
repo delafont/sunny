@@ -27,6 +27,7 @@ body{
 }
 #input_table_container{
     margin-top: 0px;
+    margin-bottom: 20px;
     padding: 0px 10px;
     float: left;
 }

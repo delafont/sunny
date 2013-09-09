@@ -8,3 +8,4 @@
 * User table / session / cookie
 * Update only what is not yet in _DATA_ (?)
 * Put production version online
+* Row ids of the table linked to points ids on the graph

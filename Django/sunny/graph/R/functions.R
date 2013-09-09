@@ -1,4 +1,4 @@
-
+##############
 constraints <- function(objdrc, fctname){
     parameter <- matrix(coef(objdrc))
     switch(fctname,

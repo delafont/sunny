@@ -82,7 +82,6 @@ function draw_graph(){
                 }
             }]);
         }
-
     });
 
     _CHART_ = new Highcharts.Chart({
@@ -104,7 +103,8 @@ function draw_graph(){
         legend: {enabled: true},
         series: series
     });
-    print_log(_DATA_.loglist);
+    print_log();
+    update_results();
     return _CHART_;
 }
 function add_series(){
@@ -168,6 +168,7 @@ function change_sample_table(button){
     console.log(">>> Change Sample Table -->");
     _ACTIVE_TABLE_ID_ = parseInt($(button).val());
     update_local('active_table',[_ACTIVE_TABLE_ID_])
+    update_results();
     create_table(_DATA_.points[_ACTIVE_TABLE_ID_]);
     return _ACTIVE_TABLE_ID_;
 }
@@ -308,6 +309,7 @@ function clear_all_db(){
         //location.reload();
     });
     $('#samples_container form').empty();
+    $('#results').empty();
 }
 // Return the union of graph- and table active samples
 function all_active_samples(){
@@ -501,11 +503,22 @@ function load_sample_data(){
 /********************************** LOG ***********************************/
 
 // Print the R output - or more - inside the #log div
-function print_log(loglist){
+function print_log(){
     var logbox = $('#log .log_content');
     logbox.text('');
-    $.each(loglist, function(index,logstring){
+    $.each(_DATA_.loglist, function(index,logstring){
         logbox.append("<p>"+logstring+"</p>");
     })
 }
 
+/********************************** LOG ***********************************/
+
+function update_results(){
+    var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
+    if (bmc){
+        var bmc_val = $('<p>', {text: 'BMC : '+bmc[0]});
+        var bmcl_val = $('<p>', {text: 'BMCL : '+bmc[1]});
+        //var nextval = $('<p>', {text: 'Next : '+next_val});
+        $('#results').empty().append(bmc_val).append(bmcl_val);
+    }
+}

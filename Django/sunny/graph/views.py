@@ -33,6 +33,7 @@ def json_response(request):
         'bounds': {sample.id: [xmin,xmax,ymin,ymax]},
         'loglist': ["logstring1",...],
         'BMC': {sample.id: bmc},
+        'anchors': {sample.id: anchor},
     }
     `samples` determines which data will be returned.
     """
@@ -58,7 +59,7 @@ def json_response(request):
             if not samples:
                 "Create a DefaultSample"
 
-    points,curves,bounds,loglist,BMC = fit_etc(samples)
+    points,curves,bounds,loglist,BMC,anchors = fit_etc(samples)
 
     # Export
     samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
@@ -68,6 +69,7 @@ def json_response(request):
             'bounds': bounds,
             'loglist': loglist,
             'BMC': BMC,
+            'anchors': anchors,
            }
     return HttpResponse(simplejson.dumps(data), content_type="application/json")
 

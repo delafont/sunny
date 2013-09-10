@@ -20,7 +20,7 @@ import os,sys,itertools
 
 
 def fit_etc(samples):
-    points={}; curves={}; models={}; BMC={}; bounds={}
+    points={}; curves={}; models={}; BMC={}; bounds={}; anchors={}
     loglist=[]; log=''; nbins=100
     xmin = ymin = sys.maxint
     xmax = ymax = -sys.maxint
@@ -53,6 +53,7 @@ def fit_etc(samples):
                     if len(below5) == 0:
                         loglist.append('Anchor added to sample %s, exp. %s: (%.2f,%.2f)' \
                                         % (s.name, exp, anchor[0], anchor[1]))
+                        anchors[s.id] = anchor
                         pts.append((anchor[0],anchor[1],exp))
                     print "* Fit experiment %d" % exp
                     model,pts,log = fit_drm(pts, fit_name, normalize=True)
@@ -89,7 +90,7 @@ def fit_etc(samples):
                     file_content += '\t'.join(['%s'%x for x in p])+'\n'
                 file_content = ContentFile(file_content)
                 s.textfile.save(s.sha1,file_content)
-    return points,curves,bounds,loglist,BMC
+    return points,curves,bounds,loglist,BMC,anchors
 
 
 ################################## FITTING #####################################

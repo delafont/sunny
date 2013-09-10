@@ -31,6 +31,7 @@ function draw_graph(){
         var curves = _DATA_.curves[sample_id];
         var bmc = _DATA_.BMC[sample_id]
         var bounds = _DATA_.bounds[sample_id];
+        var anchors = _DATA_.anchors[sample_id];
         var symbol = symbols[index % symbols.length]
         if (points){
             xmin = Math.min(xmin,bounds[0])
@@ -60,6 +61,14 @@ function draw_graph(){
                 }]);
                 idx++;
             });
+        }
+        if (anchors){
+            console.log(anchors)
+            series.push({
+                type: 'scatter',
+                marker: {symbol:'diamond', radius:7, fillColor:'#c42525'},
+                data: [anchors],
+            })
         }
         if (bmc){
             var color = colors[idx % (colors.length * nexp)]

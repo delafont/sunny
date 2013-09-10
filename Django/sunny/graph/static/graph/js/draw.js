@@ -304,12 +304,12 @@ function clear_all_db(){
     console.log(">>> Clear All DB");
     if (_CHART_) {_CHART_.destroy();}
     localStorage.clear();
+    $('#samples_container form').empty();
+    $('#results').empty();
     $.post(_CLEAR_ALL_DB_URL_,true,function(e){
         get_data_and_redraw();
         //location.reload();
     });
-    $('#samples_container form').empty();
-    $('#results').empty();
 }
 // Return the union of graph- and table active samples
 function all_active_samples(){

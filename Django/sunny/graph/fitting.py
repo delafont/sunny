@@ -32,19 +32,20 @@ def fit_etc(samples):
             measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
             measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
             measurements_pooled = [(x.dose,x.response,x.experiment) for exp in measurements for x in measurements[exp]]
-            print "Model selection"
+            print "* Model selection"
             fit_name = model_selection(measurements_pooled)
             print fit_name
             # Calculate the anchor point in case it will be needed
             if fit_name:
-                print "Calculate anchor"
+                print "* Calculate anchor"
                 anchor = calculate_anchor(measurements_pooled,fit_name)
                 loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
+                print 'Anchor:', anchor
             else:
                 loglist.append('No model found for sample %s.' % (s.name))
             # Apply best model to individual datasets
+            print '* Fit individual datasets',exp
             for exp,pts in measurements.iteritems():
-                print '>>> Experiment',exp
                 pts = [(x.dose,x.response,x.experiment) for x in pts]
                 if fit_name:
                     # Look if there is data < 5%, else add anchor point
@@ -52,10 +53,8 @@ def fit_etc(samples):
                     if len(below5) == 0:
                         loglist.append('Anchor added to sample %s, exp. %s: (%.2f,%.2f)' \
                                         % (s.name, exp, anchor[0], anchor[1]))
-                        anchor_mes = Measurement.objects.create(dose=anchor[0], response=anchor[1], experiment=exp, sample=s)
-                        measurements[exp].append(anchor_mes)
                         pts.append((anchor[0],anchor[1],exp))
-                    print "Fit experiment %d" % exp
+                    print "* Fit experiment %d" % exp
                     model,pts,log = fit_drm(pts, fit_name, normalize=True)
                     models[exp] = model
                     loglist.append(log)
@@ -155,7 +154,6 @@ def calculate_BMC(data, fit_name='LL.4', normalize=True):
         BMC = reshape(asarray(BMC.rx(ro.IntVector([1,2,3,7,8,9,10,11,12]))), (3,-1)).T
         # BMC : [[Estimate1,Lower1,Upper1],[Estimate2,Lower2,Upper2]]
         BMC = {'10':list(BMC[0]), '15':list(BMC[1]), '50':list(BMC[2])}
-        print 'BMC',BMC
         return BMC
     else:
         return R_output
@@ -179,12 +177,11 @@ def calculate_anchor(pooled_data,fit_name):
     below_5_pooled = [m for m in pooled_data if m[1]<5]
     if len(below_5_pooled) == 0:
         ec50 = calculate_BMC(pooled_data, fit_name).get('50',[0])[0]
-        print ec50
+        xmax = max(m[0] for m in pooled_data)
         if ec50:
-            anchor = (20*ec50,0)
+            anchor = (min(80*ec50,80*xmax),0)
         else:
-            xmax = max(m[0] for m in pooled_data)
-            anchor = (80*xmax,0) # ?
+            anchor = (80*xmax,0)
     else:
         anchor = sorted(below_5_pooled, key=lambda x:x[1])[-1]
     return anchor

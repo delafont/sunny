@@ -34,7 +34,6 @@ def fit_etc(samples):
             measurements_pooled = [(x.dose,x.response,x.experiment) for exp in measurements for x in measurements[exp]]
             print "* Model selection"
             fit_name = model_selection(measurements_pooled)
-            print fit_name
             # Calculate the anchor point in case it will be needed
             if fit_name:
                 print "* Calculate anchor"

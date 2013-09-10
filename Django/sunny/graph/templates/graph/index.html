@@ -61,11 +61,11 @@
                     <form>
                     {% for sample in samples %}
                         <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
-                        <span class='remove_sam'>x</span><br>
+                        <span class='remove_sam'>x</span>
                         <a href="{% url 'getfile' sample.id %}" class='dl_norm_data'>
-                            <img src='' alt='Download Normalized data'></a><br>
+                            <img src="{% static 'img/dl_file.gif' %}" alt='Download Normalized data'></a>
                         <a href="{% url 'getimages' sample.id %}" class='dl_5pics'>
-                            <img src='' alt='Download R graphs'></a><br>
+                            <img src="{% static 'img/dl_plots.png' %}" alt='Download R graphs'></a>
                     {% endfor %}
                     </form>
                 </div>

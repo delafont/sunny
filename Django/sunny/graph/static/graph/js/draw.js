@@ -36,11 +36,11 @@ function draw_graph(){
         if (points){
             xmin = Math.min(xmin,bounds[0])
             xmax = Math.max(xmax,bounds[1])
-            ymin = Math.min(ymin,bounds[2])
+            ymin = Math.min(-1,ymin,bounds[2])
             ymax = Math.max(ymax,bounds[3])
             var nexp = Object.keys(points).length ;
             $.each(points, function(exp){
-                var color = colors[idx % (colors.length * nexp)];
+                var color = colors[idx % colors.length];
                 series.push.apply(series, [{
                     type: 'scatter',
                     name: sample.name+'['+exp+']',
@@ -63,31 +63,29 @@ function draw_graph(){
             });
         }
         if (anchors){
+            var color = colors[(idx-1) % colors.length];
             console.log(anchors)
             series.push({
                 type: 'scatter',
-                marker: {symbol:'diamond', radius:7, fillColor:'#c42525'},
+                marker: {symbol:'diamond', radius:7, fillColor:color},
                 data: [anchors],
+                name: 'anchor',
             })
         }
         if (bmc){
-            var color = colors[idx % (colors.length * nexp)]
+            var color = colors[(idx-1) % colors.length];
             bmc_lines.push.apply(bmc_lines, [{
                 value: bmc[0],
                 width: 1,
                 color: color,
-                label: {
-                    text: 'BMC',
-                    style: {color: '#606060'},
+                label: {text: 'BMC', style: {color: '#606060'},
                 }
             }, {
                 value: bmc[1],
                 width: 1,
                 color: color,
                 dashStyle: 'Dash',
-                label: {
-                    text: 'BMCL',
-                    style: {color: '#606060'},
+                label: {text: 'BMCL', style: {color: '#606060'},
                 }
             }]);
         }
@@ -115,12 +113,6 @@ function draw_graph(){
     print_log();
     update_results();
     return _CHART_;
-}
-function add_series(){
-
-}
-function remove_series(){
-
 }
 // Remove all series in the graph
 function clear_graph(){

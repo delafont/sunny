@@ -1,13 +1,19 @@
-* Add the BMC/BMCL values on the chart
 * Custom sample names
 * Custom sample entry from table
-* User specified units for the x axis
 * DataTables for the table layout
-* BMC lines color wrt splines colors
+
+* User specified units for the x axis
+
 * Ability to remove samples from list (and DB)
+
 * User table / session / cookie
+
 * Update only what is not yet in _DATA_ (?)
+
 * Put production version online
+
 * Row ids of the table linked to points ids on the graph
+
 * Small pictures for the downloads
-* Report and highlight the anchor point, if any
+
+* What if the R script failed but user asks for 5 pictures

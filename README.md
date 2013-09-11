@@ -35,25 +35,23 @@ by clicking on "Downloads", or by cloning the git repository with::
 Local server
 ============
 
-1. Install the required libs
-2. Clone the repository ('sunny/')
+1. Install the required libs.
+2. Clone the repository ('sunny/').
 3. Enter the newly created 'sunny/' directory, and run
-    `python manage.py syncdb` (to create the database)
+    `python manage.py syncdb` (to create the database).
 4. Run the local development server with the command
-    `python manage.py runserver`
-    You get a message of the type:
+    `python manage.py runserver`. You get a message of the type:
     *Development server is running at http://127.0.0.1:8000/*
 5. Start a web browser and got to `http://127.0.0.1:8000/**graph**`
-    (or the adress given above.)
-    The app should start.
+    (or the adress given above). The app should start.
 
 Apache server
 =============
 
-1. Install the required libs
-2. Clone the repository ('sunny/')
+1. Install the required libs.
+2. Clone the repository ('sunny/').
 3. Enter the newly created 'sunny/' directory, and run
-    `python manage.py syncdb` (to create the database)
+    `python manage.py syncdb` (to create the database).
 ...
 
 Full documentation

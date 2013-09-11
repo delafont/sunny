@@ -5,32 +5,17 @@
 - commented 'django.middleware.csrf.CsrfViewMiddleware' in MIDDLEWARE_CLASSES
 
 
-    <div id="tabs">
-        <ul>
-            <li><a href="#fragment-1">One</a></li>
-            <li><a href="#fragment-2">Two</a></li>
-        </ul>
-         <div id="fragment-1">
-            <p>First tab is active by default:</p>
-            <pre><code>$( "#tabs" ).tabs(); </code></pre>
-        </div>
-         <div id="fragment-2">
-            Lorem ipsum dolor sit amet
-        </div>
 
-    </div>
-    <script type="text/javascript" >
-    $(function(){
-        $('#tabs').tabs();
-    })
-    </script>
+* Setting Apache server
+- Need Apache 2.x
+- made the 404.html and 500.html templates
+- made a new settings_production.py aside the settings.py.
+    The settings file must be indicated to Apache as the DJANGO_SETTINGS_MODULE.
+- Apache will need mod_python 3.x
+- Good to have X-asdfdask for file transfers
+- Doc:
 
+    * The free online Apache documentation, available via http://www.djangoproject.com/r/apache/docs/
+    * Pro Apache, Third Edition (Apress, 2004) by Peter Wainwright, available via http://www.djangoproject.com/r/books/pro-apache/
+    * Apache: The Definitive Guide, Third Edition (O’Reilly, 2002) by Ben Laurie and Peter Laurie, available via http://www.djangoproject.com/r/books/pro-apache/
 
-
-
-
-
-
-    <!--<script type="text/javascript" >
-        var csrftoken = $.cookie('csrftoken');
-    </script>-->

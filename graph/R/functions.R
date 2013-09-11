@@ -87,3 +87,11 @@ cleanupDrcData <- function() {
         rm("globaldrcdata", envir=globalenv())
     }
 }
+
+
+
+#------------------------------------------------------#
+# This code was written by Sunniva Foerster            #
+# Universitat Konstanz, Germany                        #
+# Sunniva.Foerster@uni-konstanz.de                     #
+#------------------------------------------------------#

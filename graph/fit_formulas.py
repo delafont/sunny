@@ -34,3 +34,11 @@ def weibull(x,e,b,c=0,d=1,f=1):
 def weibull_mode(x,e,b,c=0,d=1,f=1):
     if b==1: return 0
     else: return e*((b-1)/b)**(1/b)
+
+
+#------------------------------------------------------#
+# This code was written by Julien Delafontaine         #
+# Bioinformatics and Biostatistics Core Facility, EPFL #
+# http://bbcf.epfl.ch/                                 #
+# webmaster.bbcf@epfl.ch                               #
+#------------------------------------------------------#

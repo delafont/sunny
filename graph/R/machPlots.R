@@ -200,3 +200,12 @@ if(!(is.na(PNGFileName))) {
     }
 }}
 
+
+
+#------------------------------------------------------#
+# This code was written by Sunniva Foerster            #
+# Universitat Konstanz, Germany                        #
+# Sunniva.Foerster@uni-konstanz.de                     #
+#------------------------------------------------------#
+
+

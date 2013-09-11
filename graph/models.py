@@ -34,3 +34,11 @@ def mymodel_delete(sender, instance, **kwargs):
     except: pass
     try: instance.images.delete(False)
     except: pass
+
+
+#------------------------------------------------------#
+# This code was written by Julien Delafontaine         #
+# Bioinformatics and Biostatistics Core Facility, EPFL #
+# http://bbcf.epfl.ch/                                 #
+# webmaster.bbcf@epfl.ch                               #
+#------------------------------------------------------#

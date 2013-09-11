@@ -119,3 +119,9 @@ def getimages(request,pk):
     return response
 
 
+#------------------------------------------------------#
+# This code was written by Julien Delafontaine         #
+# Bioinformatics and Biostatistics Core Facility, EPFL #
+# http://bbcf.epfl.ch/                                 #
+# webmaster.bbcf@epfl.ch                               #
+#------------------------------------------------------#

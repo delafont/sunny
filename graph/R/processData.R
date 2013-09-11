@@ -293,3 +293,9 @@ processData <- function(mydata, title, xlab, outfilename, cooksfilename, run) {
    } #Ende if model is not linear
    } #Ende model was found
 } #Ende processData
+
+#------------------------------------------------------#
+# This code was written by Sunniva Foerster            #
+# Universitat Konstanz, Germany                        #
+# Sunniva.Foerster@uni-konstanz.de                     #
+#------------------------------------------------------#

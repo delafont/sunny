@@ -234,3 +234,10 @@ ro.r("""source("graph/R/functions.R")""")
 # points(d$dose, fitted(fit)[1:length(d$dose)], col='blue')
 # fit$curve[[1]](seq(10000))
 
+
+#------------------------------------------------------#
+# This code was written by Julien Delafontaine         #
+# Bioinformatics and Biostatistics Core Facility, EPFL #
+# http://bbcf.epfl.ch/                                 #
+# webmaster.bbcf@epfl.ch                               #
+#------------------------------------------------------#

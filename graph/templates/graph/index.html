@@ -31,11 +31,10 @@
                     <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
             </div>
             <div id="logos_container">
-                <div class='banner-right-filler'></div> <!--similar to the left "loading" div-->
+                <div id="loading"></div>
                 <img src="{% static 'img/konstanz_logo.jpg' %}" width="130" height='63' alt='konstanz_logo'>
                 <img src="{% static 'img/epfl_logo.png' %}" width="130" height='63' alt='epfl_logo'>
             </div>
-            <div id="loading"></div>
             <div id="results"></div>
             <!--placed after because the two others are float + this one has overflow:hidden-->
         </div>

@@ -30,13 +30,14 @@
                     <button type='button' id='clear_button'>Clear</button>
                     <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
             </div>
-            <div id="loading"></div>
-            <!--<div id="app_title">Benchmark Concentration Modelling</div>-->
-            <div id="results"></div>
             <div id="logos_container">
+                <div class='banner-right-filler'></div> <!--similar to the left "loading" div-->
                 <img src="{% static 'img/konstanz_logo.jpg' %}" width="130" height='63' alt='konstanz_logo'>
                 <img src="{% static 'img/epfl_logo.png' %}" width="130" height='63' alt='epfl_logo'>
             </div>
+            <div id="loading"></div>
+            <div id="results"></div>
+            <!--placed after because the two others are float + this one has overflow:hidden-->
         </div>
 
         <div id="mid">
@@ -72,7 +73,7 @@
             </div>
             <div id="graph_container">
                 <!--placed after because the two others are float + this one has overflow:hidden-->
-                <div class='top-filler'></div>
+                <div class='graph-top-filler'></div>
                 <div id="chart"></div>
             </div>
         </div>

@@ -49,25 +49,29 @@
             <div id='samples_container'>
                 <div id="graph_samples_container">
                     Samples to display:
-                    <form>
+                    <ul>
                     {% for sample in samples %}
+                        <li>
                         <input type='checkbox' name='samples_graph' value='{{ sample.id }}'/>{{ sample.name }}
-                        <span class='remove_sam'>x</span><br>
+                        <span class='remove_sam'>x</span>
+                        </li>
                     {% endfor %}
-                    </form>
+                    </ul>
                 </div>
                 <div id="table_samples_container">
                     Edit sample:
-                    <form>
+                    <ul>
                     {% for sample in samples %}
+                        <li>
                         <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
                         <span class='remove_sam'>x</span>
                         <a href="{% url 'getfile' sample.id %}" class='dl_norm_data'>
                             <img src="{% static 'img/dl_file.gif' %}" alt='Download Normalized data'></a>
                         <a href="{% url 'getimages' sample.id %}" class='dl_5pics'>
-                            <img src="{% static 'img/dl_plots.png' %}" alt='Download R graphs'></a><br>
+                            <img src="{% static 'img/dl_plots.png' %}" alt='Download R graphs'></a>
+                        </li>
                     {% endfor %}
-                    </form>
+                    </ul>
                 </div>
             </div>
             <div id="graph_container">
@@ -86,6 +90,7 @@
         // Set global variables
         _JSON_URL_ = "{% url 'graph:json_response' %}";
         _NEW_SAMPLE_URL_ = "{% url 'graph:new_sample' %}";
+        _REMOVE_SAMPLE_URL_ = "{% url 'graph:remove_sample' %}";
         _CLEAR_ALL_DB_URL_ = "{% url 'graph:clear_all_db' %}";
         _SAMPLE_DATA_URL_ = "{% static 'graph/BIBF_k.txt' %}";
         _IMG_URL_ = "{% static 'img' %}";
@@ -107,6 +112,9 @@
         });
         $('input:radio[name=samples_table]').change(function() {
             change_sample_table(this);
+        });
+        $('.remove_sam').click(function() {
+            remove_sample_onclick(this);
         });
         if (window.File && window.FileReader && window.FileList && window.Blob) {}
         else {alert('The File APIs are not fully supported in this browser.');}

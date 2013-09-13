@@ -90,6 +90,11 @@ def new_sample(request):
         response = {'new':False, 'id':old.id, 'name':newsample['name']}
     return HttpResponse(simplejson.dumps(response), content_type="application/json") # new sample
 
+def remove_sample(request):
+    sample_id = request.body
+    Sample.objects.get(id=sample_id).delete()
+    Measurement.objects.filter(sample=sample_id).delete()
+    return HttpResponse(None)
 
 def clear_all_db(request):
     Measurement.objects.all().delete()

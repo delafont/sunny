@@ -113,11 +113,13 @@ body{
 }
 
 /************** Samples list *************/
-
 #graph_samples_container{
     margin-bottom: 20px;
 }
-#graph_samples_container a{
+#graph_samples_container ul,
+#table_samples_container ul{
+    padding: 0;
+    list-style-type: none;
 }
 
 /************** Log *************/

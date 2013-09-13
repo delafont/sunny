@@ -4,6 +4,7 @@
 
 var _JSON_URL_;
 var _NEW_SAMPLE_URL_;
+var _REMOVE_SAMPLE_URL_;
 var _CLEAR_ALL_DB_URL_;
 var _DATA_;
 var _CHART_;
@@ -64,7 +65,6 @@ function draw_graph(){
         }
         if (anchors){
             var color = colors[(idx-1) % colors.length];
-            console.log(anchors)
             series.push({
                 type: 'scatter',
                 marker: {symbol:'diamond', radius:7, fillColor:color},
@@ -137,7 +137,7 @@ function show_loading_gif(){
     }));
 }
 function hide_loading_gif(){
-    $('#loading img').remove();
+    $('#loading img:first').remove();
 }
 function bind_remove_sample_buttons(){
     $('.remove_sam').click(function() {
@@ -202,21 +202,31 @@ function load_active_samples(){
     _ACTIVE_GRAPH_IDS_ = get_local('active_samples');
     _ACTIVE_TABLE_ID_ = get_local('active_table')[0];
 }
+// On click on the red cross in fron of sample sames in the list
+function remove_sample_onclick(button){
+    console.log('>>> Remove Sample')
+    var this_li = $(button).parent();
+    var sample_id = $('input', this_li).val();
+    remove_sample(sample_id);
+    $('#samples_container input[value='+sample_id+']').parent('li').remove();
+}
 function remove_sample(sample_id){
-    _ACTIVE_GRAPH_IDS_.splice($.inArray(sample_id,_ACTIVE_GRAPH_IDS_), 1);
-    if (sample_id == _ACTIVE_TABLE_ID_){
-        if (_ACTIVE_GRAPH_IDS_.length > 0) {
-            _ACTIVE_TABLE_ID_ = _ACTIVE_GRAPH_IDS_[0];
-        } else {
-            _ACTIVE_TABLE_ID_ = undefined;
+    $.each(_DATA_, function(key,val){
+        if (val[sample_id]){
+            delete _DATA_[key][sample_id];
         }
+    });
+    _ACTIVE_GRAPH_IDS_.splice($.inArray(sample_id,_ACTIVE_GRAPH_IDS_), 1); // remove
+    for (var sid in _DATA_.samples) {break;} // first sample id found
+    if (sample_id == _ACTIVE_TABLE_ID_){ // if we remove the currently selected table id
+        _ACTIVE_TABLE_ID_ = sid;
     }
     update_local('active_samples',_ACTIVE_GRAPH_IDS_);
     update_local('active_table',[_ACTIVE_TABLE_ID_]);
-    delete _DATA_.points[sample_id];
-    delete _DATA_.curves[sample_id];
-    delete _DATA_.samples[sample_id];
+    $.post(_REMOVE_SAMPLE_URL_, sample_id);
+    check_active_samples();
     create_table();
+    draw_graph();
 }
 
 /******************************* LOCAL STORAGE *********************************/
@@ -305,7 +315,7 @@ function clear_all_db(){
     console.log(">>> Clear All DB");
     if (_CHART_) {_CHART_.destroy();}
     localStorage.clear();
-    $('#samples_container form').empty();
+    $('#samples_container ul').empty();
     $('#results').empty();
     $.post(_CLEAR_ALL_DB_URL_,true,function(e){
         get_data_and_redraw();
@@ -463,9 +473,10 @@ function import_file(file){
 
 function update_samples_list(sample){
     console.log('>>> Update samples boxes/radio');
-    // checkboxes
+    // Checkboxes
     var thisinput = $('#graph_samples_container input[value='+sample.id+']');
-    var delete_button = $('<span>').addClass('remove_sam').append('x');
+    var delete_button = $('<span>').addClass('remove_sam').append('x')
+        .click(function(){remove_sample_onclick(this);});
     if (thisinput.length > 0){
         thisinput.append(sample.name);
     } else {
@@ -477,12 +488,13 @@ function update_samples_list(sample){
         }).change(function() {
             change_sample_graph(this);
         }).attr('checked', true);
-        $('#graph_samples_container form').append(newinput).append(sample.name).append(delete_button).append("<br>");
+        $('#graph_samples_container ul').append($('<li>').append(newinput)
+            .append(sample.name).append(delete_button));
     }
-    // radio buttons
+    // Radio buttons
     var thisinput = $('#table_samples_container input[value='+sample.id+']');
-    var delete_button = $('<span>').addClass('remove_sam').append('x');
-    //var dl_button = $('<a>', {href:_GETFILE_URL_, 'class':'dl_norm_data'}).append('Download');
+    var delete_button = $('<span>').addClass('remove_sam').append('x')
+        .click(function(){remove_sample_onclick(this);});
     if (thisinput.length > 0){
         thisinput.append(sample.name);
     } else {
@@ -493,7 +505,8 @@ function update_samples_list(sample){
         }).change(function() {
             change_sample_table(this);
         }).attr('checked', true);
-        $('#table_samples_container form').append(newinput).append(sample.name).append(delete_button).append("<br>");
+        $('#table_samples_container ul').append($('<li>').append(newinput)
+            .append(sample.name).append(delete_button));
     }
 }
 

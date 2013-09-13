@@ -4,6 +4,7 @@
 body{
     background-color: #96B0EB;
     min-width: 870px;
+    max-width: 1400px;
 }
 
 #banner{
@@ -47,6 +48,7 @@ body{
 }
 #graph_container{
     overflow: hidden;
+    max-width: 900px;
 }
 #samples_container{
     float: right;

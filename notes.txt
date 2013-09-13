@@ -19,3 +19,4 @@
     * Pro Apache, Third Edition (Apress, 2004) by Peter Wainwright, available via http://www.djangoproject.com/r/books/pro-apache/
     * Apache: The Definitive Guide, Third Edition (O’Reilly, 2002) by Ben Laurie and Peter Laurie, available via http://www.djangoproject.com/r/books/pro-apache/
 
+- </usr/sbin/>apachectl controls the httpd execution

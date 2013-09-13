@@ -38,6 +38,7 @@
                 <img src="{% static 'img/epfl_logo.png' %}" width="130" height='63' alt='epfl_logo'>
             </div>
         </div>
+
         <div id="mid">
             <div id="input_table_container">
                 <table id='input_table' class='input_table'>
@@ -45,7 +46,6 @@
                     <tbody id='tbody'></tbody>
                 </table>
             </div>
-            <div id="graph_container"></div>
             <div id='samples_container'>
                 <div id="graph_samples_container">
                     Samples to display:
@@ -70,7 +70,13 @@
                     </form>
                 </div>
             </div>
+            <div id="graph_container">
+                <!--placed after because the two others are float + this one has overflow:hidden-->
+                <div class='top-filler'></div>
+                <div id="chart"></div>
+            </div>
         </div>
+
         <div id="log"><div class='log_title'>((R output))</div><div class='log_content'></div></div>
     </div>
 

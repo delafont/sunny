@@ -92,7 +92,7 @@ function draw_graph(){
     });
 
     _CHART_ = new Highcharts.Chart({
-        chart: {renderTo: 'graph_container'},
+        chart: {renderTo: 'chart'},
         title: {text: 'BMC model'},
         xAxis: {title: {text: 'Concentration'},
                 type: 'logarithmic',

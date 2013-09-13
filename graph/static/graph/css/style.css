@@ -3,6 +3,7 @@
 /************** Main containers *************/
 body{
     background-color: #96B0EB;
+    min-width: 870px;
 }
 
 #banner{
@@ -12,6 +13,7 @@ body{
     float: left;
     margin-bottom: 10px;
     margin-left: 10px;
+    margin-right: 10px;
 }
 #loading{
     float: left;

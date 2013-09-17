@@ -57,7 +57,18 @@ body{
     margin-top: 30px;
 }
 
-/************** Buttons *************/
+/************** +- Buttons *************/
+#update_button{
+    color: blue;
+}
+#new_sample_button{
+    color: green;
+}
+#clear_button{
+    color: red;
+}
+
+/************** +- Buttons *************/
 /* Red cross as a 'Remove' button */
 /* Green plus as an 'Add' button */
 .remove_mes, .remove_sam, #add_mes{
@@ -91,7 +102,7 @@ body{
     margin-right: 10px;
 }
 
-/************** Input tables *************/
+/************** Input table *************/
 .input_table{
     border-spacing: 0;
     border-collapse: collapse;

@@ -32,6 +32,8 @@ def fit_etc(samples):
             measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
             measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
             measurements_pooled = [(x.dose,x.response,x.experiment) for exp in measurements for x in measurements[exp]]
+            if len(measurements_pooled) == 0:
+                continue
             print "* Model selection"
             fit_name = model_selection(measurements_pooled)
             # Calculate the anchor point in case it will be needed

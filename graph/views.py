@@ -80,10 +80,10 @@ def new_sample(request):
     """Check if the given sample is new. If it is, return a new instance."""
     newsample = simplejson.loads(request.body)
     # Check if the file already is in the database, whatever its name is
+    print 'newsample',newsample
     found = Sample.objects.filter(sha1=newsample['sha1'])
     if not found:
-        newsample = Sample(name=newsample['name'], sha1=newsample['sha1'])
-        newsample.save()
+        newsample = Sample.objects.create(name=newsample['name'], sha1=newsample['sha1'])
         response = {'new':True, 'id':newsample.id, 'name':newsample.name}
     else:
         old = found[0]

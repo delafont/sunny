@@ -148,7 +148,7 @@ function bind_remove_sample_buttons(){
 
 /******************************* SAMPLE SWITCH *********************************/
 
-// Switch the displayed table according to the selected checkboxes, and redraw.
+// Switch the displayed graphs according to the selected checkboxes.
 function change_sample_graph(button){
     console.log(">>> Change Samples Graph -->");
     _ACTIVE_GRAPH_IDS_ = [];
@@ -165,6 +165,7 @@ function change_sample_graph(button){
     }
     return _ACTIVE_GRAPH_IDS_;
 }
+// Switch the displayed table according to the selected radio button.
 function change_sample_table(button){
     console.log(">>> Change Sample Table -->");
     _ACTIVE_TABLE_ID_ = parseInt($(button).val());
@@ -173,6 +174,7 @@ function change_sample_table(button){
     create_table(_DATA_.points[_ACTIVE_TABLE_ID_]);
     return _ACTIVE_TABLE_ID_;
 }
+
 // Fetch in `localStorage` which samples were plotted and re-check the respective checkboxes
 function boxcheck_active_samples(){
     var active_ids = get_local('active_samples');
@@ -196,21 +198,50 @@ function check_active_samples(){
     boxcheck_active_samples();
     radiocheck_active_table();
 }
-// Set global variables from localStorage
+
+// Set active samples global variables from localStorage
 function load_active_samples(){
     console.log(">>> Load Active Samples (localStorage)");
     _ACTIVE_GRAPH_IDS_ = get_local('active_samples');
     _ACTIVE_TABLE_ID_ = get_local('active_table')[0];
 }
-// On click on the red cross in fron of sample sames in the list
+
+// Create new sample sample on click on the button
+function create_new_sample_onclick(){
+    var newsample_name = prompt("Sample name:");
+    var newsample = {'sha1':random_string(20), 'name':newsample_name};
+    create_table({});
+    create_new_sample(newsample);
+}
+// Check if the sha1 exists in database, if not creates a new Sample instance and updates all
+// *newsample* is an object of the type {'name':.., 'sha1':..}
+function create_new_sample(newsample){
+    console.log(">>> New Sample", newsample)
+    $.post(_NEW_SAMPLE_URL_,
+           JSON.stringify(newsample),
+           function(data_response){
+               newsample.id = data_response['id'];
+               _ACTIVE_GRAPH_IDS_ = add_to_local('active_samples',[newsample.id]);
+               _ACTIVE_TABLE_ID_ = update_local('active_table',[newsample.id])[0];
+               check_active_samples();
+               _DATA_.samples[newsample.id] = newsample;
+               update_samples_list(newsample);
+               var measurements = {};
+               measurements[newsample.id] = read_data_from_table();
+               post_data_and_redraw(measurements);
+           }, "json"
+    );
+}
+
+// Remove sample on click on the red cross in front of the sample name
 function remove_sample_onclick(button){
-    console.log('>>> Remove Sample')
     var this_li = $(button).parent();
     var sample_id = $('input', this_li).val();
     remove_sample(sample_id);
     $('#samples_container input[value='+sample_id+']').parent('li').remove();
 }
 function remove_sample(sample_id){
+    console.log(">>> Remove Sample", sample_id)
     $.each(_DATA_, function(key,val){
         if (val[sample_id]){
             delete _DATA_[key][sample_id];
@@ -220,7 +251,7 @@ function remove_sample(sample_id){
     for (var sid in _DATA_.samples) {break;} // first sample id found
     if (sample_id == _ACTIVE_TABLE_ID_){ // if we remove the currently selected table id
         _ACTIVE_TABLE_ID_ = sid;
-        _ACTIVE_GRAPH_IS_.push(_ACTIVE_TABLE_ID_);
+        _ACTIVE_GRAPH_IDS_.push(_ACTIVE_TABLE_ID_);
     }
     update_local('active_samples',_ACTIVE_GRAPH_IDS_);
     update_local('active_table',[_ACTIVE_TABLE_ID_]);
@@ -356,11 +387,14 @@ function read_data_from_table(){
 // Create a table from given *points*, a dict {exp:[(1,2,exp),]}
 function create_table(points){
     console.log(">>> Create Table", points);
+    $('#input_table .datarow').remove();
+    if (typeof(_ACTIVE_TABLE_ID_)==='undefined') {
+        return
+    }
     if (typeof(points)==='undefined') {
         points = _DATA_.points[_ACTIVE_TABLE_ID_];
     }
-    $('#input_table .datarow').remove();
-    if (!points){
+    if ($.isEmptyObject(points)) {
         add_newline('','','');
     }
     for (exp in points){
@@ -450,21 +484,7 @@ function import_file(file){
         //} else {
             var sname = file.name.replace(/\.[^/.]+$/, "")
             var newsample = {'sha1':sha1, 'name':sname}
-            $.post(_NEW_SAMPLE_URL_,
-                   JSON.stringify(newsample),
-                   function(data_response){
-                       //if (data_response['new'] == true) {}
-                       newsample.id = data_response['id'];
-                       _ACTIVE_GRAPH_IDS_ = add_to_local('active_samples',[newsample.id]);
-                       _ACTIVE_TABLE_ID_ = update_local('active_table',[newsample.id])[0];
-                       check_active_samples();
-                       _DATA_.samples[newsample.id] = newsample;
-                       update_samples_list(newsample);
-                       var measurements = {};
-                       measurements[newsample.id] = read_data_from_table();
-                       post_data_and_redraw(measurements);
-                   }, "json"
-            );
+            create_new_sample(newsample);
     }
     reader.error = function(e){
         console.log('Error while reading file\n', e);

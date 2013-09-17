@@ -21,14 +21,15 @@
         <div id="banner">
             <div id="buttons_container">
                 <span id='upload_button_desc'>Upload input file:</span>
-                    <input type='file' name='file_upload' id='file_upload'><br>
+                <input type='file' name='file_upload' id='file_upload'><br>
                 <!--<span>Load sample data:</span>
-                    <button type='button' id='load_sample_button'>Load</button><br>-->
+                <button type='button' id='load_sample_button'>Load</button><br>-->
                 <!--<span id='update_button_desc'>Update the graph:</span>-->
-                    <button type='button' id='update_button'>Update</button><br>
+                <button type='button' id='update_button'>Update</button><br>
+                <button type='button' id='new_sample_button'>Create new sample</button>
                 <!--<span>Clear:</span>-->
-                    <button type='button' id='clear_button'>Clear</button>
-                    <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
+                <button type='button' id='clear_button'>Clear all</button><br>
+                <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
             </div>
             <div id="logos_container">
                 <div id="loading"></div>
@@ -106,6 +107,9 @@
         });
         $('#clear_local').click(function() {
             localStorage.clear();
+        });
+        $('#new_sample_button').click(function() {
+            create_new_sample_onclick();
         });
         $('input:checkbox[name=samples_graph]').change(function() {
             change_sample_graph(this);

@@ -6,6 +6,7 @@ from django.template import RequestContext, loader
 from django.utils import simplejson
 from django.core.servers.basehttp import FileWrapper
 from django.core.files import File
+from django.contrib import messages
 #from django.core.serializers import serialize
 
 ### Custom functions
@@ -13,6 +14,7 @@ from fitting import *
 
 ### Usual imports
 import tarfile
+import glob
 
 
 def index(request):
@@ -114,7 +116,7 @@ def getimages(request,pk):
     template = "sunny/media/images/fit_images_%s" % pk
     generate_images(measurements,template+'.png')
     with tarfile.open(template+".tar.gz", "w:gz") as tar:
-        for filename in [template+'_%d.png'%(x+1) for x in range(6)]:
+        for filename in glob.glob(template+'*.png'):
             tar.add(filename,arcname=os.path.basename(filename),recursive=False)
             os.remove(filename)
     sample.images.save('5images_%s.tar.gz'%pk, File(open(template+".tar.gz")),save=True)

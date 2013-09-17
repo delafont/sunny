@@ -220,6 +220,7 @@ function remove_sample(sample_id){
     for (var sid in _DATA_.samples) {break;} // first sample id found
     if (sample_id == _ACTIVE_TABLE_ID_){ // if we remove the currently selected table id
         _ACTIVE_TABLE_ID_ = sid;
+        _ACTIVE_GRAPH_IS_.push(_ACTIVE_TABLE_ID_);
     }
     update_local('active_samples',_ACTIVE_GRAPH_IDS_);
     update_local('active_table',[_ACTIVE_TABLE_ID_]);

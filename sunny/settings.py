@@ -167,3 +167,5 @@ LOGGING = {
 }
 
 APPEND_SLASH = True # adds a slash at the end of the URLs
+
+FORCE_SCRIPT_NAME = ''

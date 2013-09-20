@@ -349,6 +349,8 @@ function clear_all_db(){
     localStorage.clear();
     $('#samples_container ul').empty();
     $('#results').empty();
+    _ACTIVE_TABLE_ID_ = undefined;
+    _ACTIVE_GRAPH_IDS_ = [];
     $.post(_CLEAR_ALL_DB_URL_,true,function(e){
         get_data_and_redraw();
         //location.reload();

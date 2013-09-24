@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
 
     # Custom URLs
+    url(r'^$', 'graph.views.login', name='login'),
     url(r'^graph/', include('graph.urls', namespace='graph')),
     url(r'^getfile/(?P<pk>\d+)', getfile, name='getfile'),
     url(r'^getimages/(?P<pk>\d+)', getimages, name='getimages'),

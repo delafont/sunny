@@ -1,12 +1,20 @@
 
 from django.db import models
 
+
+class User(models.Model):
+    name = models.CharField(max_length=100,default='')
+    passw = models.CharField(max_length=100,default='')
+    def __unicode__(self):
+        return "<User %s: %s>" % (self.id,self.name)
+
+
 class Sample(models.Model):
+    user = models.ForeignKey(User)
     name = models.CharField(max_length=100,default='')
     sha1 = models.CharField(max_length=20,default='') # hash of the file's content
     textfile = models.FileField(upload_to="text/")
     images = models.FileField(upload_to="images/")
-
     def __unicode__(self):
         return "<[%s] %s, %s, %s>" % (self.id,self.name,self.sha1,self.textfile)
 
@@ -16,7 +24,6 @@ class Measurement(models.Model):
     dose = models.FloatField()
     response = models.FloatField()
     experiment = models.IntegerField(default=-1)
-
     def __unicode__(self):
         return "<[%s] (%s, %s), s%s-e%s>" % (self.id,self.dose,self.response,self.sample.id,self.experiment)
 

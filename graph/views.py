@@ -1,13 +1,12 @@
 
 ### Django stuff
-from graph.models import Measurement, Sample
-from django.http import HttpResponse
+from graph.models import Measurement, Sample, User
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
 from django.utils import simplejson
 from django.core.servers.basehttp import FileWrapper
 from django.core.files import File
-from django.contrib import messages
-#from django.core.serializers import serialize
+from django import forms
 
 ### Custom functions
 from fitting import *
@@ -16,14 +15,36 @@ from fitting import *
 import tarfile
 import glob
 
+if len(User.objects.all()) == 0:
+    user = User.objects.create(name='me',passw='')
+else:
+    user = User.objects.all()[0]
+
+
+class LoginForm(forms.Form):
+    login = forms.CharField(max_length=100, required=True)
+    password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput)
+
+
+def login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            # Process the data in form.cleaned_data
+            # ...
+            return HttpResponseRedirect('/graph/') # Redirect to the app
+    else:
+        form = LoginForm() # An empty form
+    template = loader.get_template('graph/login.html')
+    context = RequestContext(request, {'login_form':form})
+    return HttpResponse(template.render(context))
+
 
 def index(request):
-    """Render the main page on load"""
+    """Render the app's page on load"""
     samples = Sample.objects.all()
     template = loader.get_template('graph/index.html')
-    context = RequestContext(request, {
-            'samples': samples,
-        })
+    context = RequestContext(request, {'samples': samples,})
     return HttpResponse(template.render(context))
 
 
@@ -83,7 +104,7 @@ def new_sample(request):
     print 'newsample',newsample
     found = Sample.objects.filter(sha1=newsample['sha1'])
     if not found:
-        newsample = Sample.objects.create(name=newsample['name'], sha1=newsample['sha1'])
+        newsample = Sample.objects.create(name=newsample['name'], sha1=newsample['sha1'], user=user)
         response = {'new':True, 'id':newsample.id, 'name':newsample.name}
     else:
         old = found[0]

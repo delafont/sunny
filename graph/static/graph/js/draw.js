@@ -67,7 +67,7 @@ function draw_graph(){
             var color = 'black';// colors[(idx-1) % colors.length];
             series.push({
                 type: 'spline',
-                name: 'Average '+sample.name,
+                name: 'Pooled '+sample.name,
                 data: avgcurve,
                 enableMouseTracking: false,
                 stickyTracking: false,
@@ -80,9 +80,9 @@ function draw_graph(){
             var color = colors[(idx-1) % colors.length];
             series.push({
                 type: 'scatter',
-                marker: {symbol:'diamond', radius:7, fillColor:color},
+                marker: {symbol:'diamond', radius:7, fillColor:'black'},
                 data: [anchors],
-                name: 'anchor',
+                name: 'Anchor '+sample.name,
             })
         }
         if (bmc){

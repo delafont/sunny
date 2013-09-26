@@ -41,7 +41,7 @@ def fit_etc(samples):
                 print "* Calculate anchor"
                 anchor = calculate_anchor(measurements_pooled,fit_name)
                 loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
-                print '  Anchor:', anchor
+                print '.. Anchor:', anchor
                 print "* Fit pooled data"
                 model_pooled,pts_pooled,log_pooled = fit_drm(measurements_pooled, fit_name, normalize=True)
                 if model_pooled:
@@ -66,7 +66,7 @@ def fit_etc(samples):
                                         % (s.name, exp, anchor[0], anchor[1]))
                         anchors[s.id] = anchor
                         pts.append((anchor[0],anchor[1],exp))
-                    print "* Fit experiment %d" % exp
+                    print ".. Experiment %d" % exp
                     model,pts,log = fit_drm(pts, fit_name, normalize=True)
                     models[exp] = model
                     loglist.append(log)
@@ -74,7 +74,7 @@ def fit_etc(samples):
                 bounds = update_bounds(pts,bounds,s.id)
                 points[s.id][exp] = pts
             # Compute the curves
-            print "Compute curves"
+            print "* Compute curves"
             intervals = create_bins(bounds[s.id][0],bounds[s.id][1],nbins)
             for exp,model in models.iteritems():
                 if model:
@@ -85,7 +85,7 @@ def fit_etc(samples):
                 if len(curve) == 0: loglist.append("Failed to fit the model.")
                 curves[s.id][exp] = curve
             # Calculate the BMC
-            print "Calculate BMC"
+            print "* Calculate BMC"
             points_pooled = [p for exp,pts in points[s.id].iteritems() for p in pts]
             bmc = calculate_BMC(points_pooled, fit_name) if fit_name else ''
             if isinstance(bmc,basestring): # error string

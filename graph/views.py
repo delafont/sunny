@@ -57,6 +57,7 @@ def json_response(request):
         'loglist': ["logstring1",...],
         'BMC': {sample.id: bmc},
         'anchors': {sample.id: anchor},
+        'avgcurve': {sample.id: curve_pooled},
     }
     `samples` determines which data will be returned.
     """
@@ -82,7 +83,7 @@ def json_response(request):
             if not samples:
                 "Create a DefaultSample"
 
-    points,curves,bounds,loglist,BMC,anchors = fit_etc(samples)
+    points,curves,bounds,loglist,BMC,anchors,curves_pooled = fit_etc(samples)
 
     # Export
     samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
@@ -93,6 +94,7 @@ def json_response(request):
             'loglist': loglist,
             'BMC': BMC,
             'anchors': anchors,
+            'curve_pooled':curves_pooled,
            }
     return HttpResponse(simplejson.dumps(data), content_type="application/json")
 
@@ -101,7 +103,6 @@ def new_sample(request):
     """Check if the given sample is new. If it is, return a new instance."""
     newsample = simplejson.loads(request.body)
     # Check if the file already is in the database, whatever its name is
-    print 'newsample',newsample
     found = Sample.objects.filter(sha1=newsample['sha1'])
     if not found:
         newsample = Sample.objects.create(name=newsample['name'], sha1=newsample['sha1'], user=user)

@@ -33,6 +33,7 @@ function draw_graph(){
         var bmc = _DATA_.BMC[sample_id]
         var bounds = _DATA_.bounds[sample_id];
         var anchors = _DATA_.anchors[sample_id];
+        var avgcurve = _DATA_.curve_pooled[sample.id];
         var symbol = symbols[index % symbols.length]
         if (points){
             xmin = Math.min(xmin,bounds[0])
@@ -46,6 +47,7 @@ function draw_graph(){
                     type: 'scatter',
                     name: sample.name+'['+exp+']',
                     data: points[exp],
+                    stickyTracking: false,
                     marker: {radius:2.5, symbol:symbol},
                     legendIndex: index,
                     color: color,
@@ -62,6 +64,17 @@ function draw_graph(){
                 }]);
                 idx++;
             });
+            var color = 'black';// colors[(idx-1) % colors.length];
+            series.push({
+                type: 'spline',
+                name: 'Average '+sample.name,
+                data: avgcurve,
+                enableMouseTracking: false,
+                stickyTracking: false,
+                marker: {enabled: false},
+                color: color,
+                dashStyle: 'ShortDash',
+            })
         }
         if (anchors){
             var color = colors[(idx-1) % colors.length];

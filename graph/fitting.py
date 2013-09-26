@@ -20,7 +20,7 @@ import os,sys,itertools
 
 
 def fit_etc(samples):
-    points={}; curves={}; models={}; BMC={}; bounds={}; anchors={}
+    points={}; curves={}; models={}; BMC={}; bounds={}; anchors={}; curves_pooled={}
     loglist=[]; log=''; nbins=100
     xmin = ymin = sys.maxint
     xmax = ymax = -sys.maxint
@@ -41,11 +41,21 @@ def fit_etc(samples):
                 print "* Calculate anchor"
                 anchor = calculate_anchor(measurements_pooled,fit_name)
                 loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
-                print 'Anchor:', anchor
+                print '  Anchor:', anchor
+                print "* Fit pooled data"
+                model_pooled,pts_pooled,log_pooled = fit_drm(measurements_pooled, fit_name, normalize=True)
+                if model_pooled:
+                    minx_pooled = min(x[0] for x in measurements_pooled)
+                    maxx_pooled = max(x[0] for x in measurements_pooled)
+                    intervals_pooled = create_bins(minx_pooled,maxx_pooled,nbins)
+                    curve_pooled = compute_fitting_curve(model_pooled, interpolate=intervals_pooled)
+                else:
+                    curve_pooled = []
+                curves_pooled[s.id] = curve_pooled
             else:
                 loglist.append('No model found for sample %s.' % (s.name))
             # Apply best model to individual datasets
-            print '* Fit individual datasets',exp
+            print '* Fit individual datasets'
             for exp,pts in measurements.iteritems():
                 pts = [(x.dose,x.response,x.experiment) for x in pts]
                 if fit_name:
@@ -91,7 +101,7 @@ def fit_etc(samples):
                     file_content += '\t'.join(['%s'%x for x in p])+'\n'
                 file_content = ContentFile(file_content)
                 s.textfile.save(s.sha1,file_content)
-    return points,curves,bounds,loglist,BMC,anchors
+    return points,curves,bounds,loglist,BMC,anchors,curves_pooled
 
 
 ################################## FITTING #####################################

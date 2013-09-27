@@ -1,19 +1,11 @@
-* Custom sample names
-* Custom sample entry from table
 * DataTables for the table layout
 
 * User specified units for the x axis
 
-* Ability to remove samples from list (and DB)
-
-* User table / session / cookie
+* Users management
 
 * Update only what is not yet in _DATA_ (?)
 
-* Put production version online
-
 * Row ids of the table linked to points ids on the graph
 
-* Small pictures for the downloads
-
-* What if the R script failed but user asks for 5 pictures
+* bug: if created a custom sample, then clear, the table remains.

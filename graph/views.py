@@ -7,6 +7,9 @@ from django.utils import simplejson
 from django.core.servers.basehttp import FileWrapper
 from django.core.files import File
 from django import forms
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib import messages
+from django.shortcuts import render
 
 ### Custom functions
 from fitting import *
@@ -16,36 +19,55 @@ import tarfile
 import glob
 
 if len(User.objects.all()) == 0:
-    user = User.objects.create(name='me',passw='')
+    user = User.objects.create(name='julien.delafontaine@epfl.ch',password=make_password('f0231763'))
 else:
     user = User.objects.all()[0]
 
 
 class LoginForm(forms.Form):
-    login = forms.CharField(max_length=100, required=True)
+    email = forms.CharField(max_length=100, required=True)
     password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput)
-
+    new_account = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
+        authenticated = False
         if form.is_valid():
-            # Process the data in form.cleaned_data
-            # ...
-            return HttpResponseRedirect('/graph/') # Redirect to the app
+            info = form.cleaned_data
+            users_found = User.objects.filter(name=info['email'])
+            if users_found:  # Check password, if ok redirect
+                for user in users_found:
+                    if check_password(info['password'], user.password):
+                        authenticated = True
+                if authenticated:
+                    return render(request, 'graph/index.html', {'User':info['email']})
+                else:
+                    messages.error(request, "Wrong password")
+                    return render(request, 'graph/login.html', {'messages': messages, 'login_form':form})
+            if info.get('new_account'):  # Create a new account and redirect
+                if check_password(info['password'], info.get('new_account')):
+                    User.objects.create(name=info['email'], password=make_password(info['password']))
+                    return render(request, 'graph/index.html', {'User':info['email']})
+                else:
+                    messages.error(request, "You must enter the same password as for the first time.")
+                    return render(request, 'graph/login.html', {'login_form':form})
+            else:  # Ask for creating a new account
+                messages.warning(request, "User not found. \
+                    Enter you password again to create a new account with this email.")
+                content = request.POST.copy()
+                content.update({'new_account':make_password(info['password'])})
+                new_form = LoginForm(content)
+                return render(request, 'graph/login.html', {'login_form':new_form})
     else:
         form = LoginForm() # An empty form
-    template = loader.get_template('graph/login.html')
-    context = RequestContext(request, {'login_form':form})
-    return HttpResponse(template.render(context))
+    return render(request, 'graph/login.html', {'login_form':form})
 
 
 def index(request):
     """Render the app's page on load"""
     samples = Sample.objects.all()
-    template = loader.get_template('graph/index.html')
-    context = RequestContext(request, {'samples': samples,})
-    return HttpResponse(template.render(context))
+    return render(request, 'graph/index.html', {'samples': samples,})
 
 
 def json_response(request):
@@ -62,7 +84,6 @@ def json_response(request):
     `samples` determines which data will be returned.
     """
     samples = []
-
     # POST: New data - file upload, "Update" button or similar
     if request.method == 'POST':
         newdata = simplejson.loads(request.body)
@@ -82,9 +103,7 @@ def json_response(request):
             samples = list(Sample.objects.all()[:1])
             if not samples:
                 "Create a DefaultSample"
-
     points,curves,bounds,loglist,BMC,anchors,curves_pooled = fit_etc(samples)
-
     # Export
     samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
     data = {'points': points,

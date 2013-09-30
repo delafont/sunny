@@ -4,7 +4,7 @@ from django.db import models
 
 class User(models.Model):
     name = models.CharField(max_length=100,default='')
-    passw = models.CharField(max_length=100,default='')
+    password = models.CharField(max_length=100,default='')
     def __unicode__(self):
         return "<User %s: %s>" % (self.id,self.name)
 

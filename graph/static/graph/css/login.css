@@ -1,0 +1,55 @@
+/***************** LOGIN PAGE *****************/
+
+#login_container{
+    width: 300px;
+    margin: auto;
+    padding: 30px 10px;
+    text-align: center;
+    /*border: 1px solid blue;*/
+}
+#login_container table{
+    margin: auto;
+    text-align: left;
+}
+#login_container ul.errorlist{
+    list-style-type: none;
+    padding-left: 0px;
+    margin-left: 0px;
+    text-indent: none;
+    color: red;
+}
+#login_spacer_top{
+    height: 150px;
+}
+
+#login_description{
+    margin: 20px;
+    text-align: center
+}
+#login_description ul.messages{
+    list-style-type: none;
+    padding-left: 0px;
+    margin-left: 0px;
+    text-indent: none;
+}
+#login_description .desc-block,
+#login_description .warning-block,
+#login_description .error-block
+{
+    width: 400px;
+    margin: 0 auto;
+    padding: 10px;
+}
+#login_description .warning-block{
+    background-color: #FDFEA5;
+}
+#login_description .error-block{
+    background-color: #FFA7AC;
+}
+#login_description .desc-block{
+    background-color: #BCFAA9;
+}
+
+input#signin-button{
+    margin-top: 6px;
+}

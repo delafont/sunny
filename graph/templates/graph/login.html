@@ -3,19 +3,30 @@
 {% load staticfiles %}
 
 {% block app_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'graph/css/login.css' %}" />
 {% endblock %}
 
 {% block app_content %}
     <div id='login_spacer_top'></div>
     <div id='login_description'>
-        Please log in. If the login name is new, you will be asked if you want to create a new account.
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                <div class="{{ message.tags }}-block">{{ message }}</div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <div class="desc-block">Please log in with you <b>e-mail</b>. If it is new,
+                 you will be asked if you want to create a new account.</div>
+        {% endif %}
     </div>
     <div id='login_container'>
         <form name="input" action="" method="post">
         <table>
         {{ login_form }}
-        <tr><td><input type="submit" value="Sign in"></td></tr>
+        <tr><td><input id="signin-button" type="submit" value="Sign in"></td></tr>
         </table>
         </form>
     </div>

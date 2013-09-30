@@ -9,7 +9,7 @@ from django.core.files import File
 from django import forms
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 ### Custom functions
 from fitting import *
@@ -27,7 +27,8 @@ else:
 class LoginForm(forms.Form):
     email = forms.CharField(max_length=100, required=True)
     password = forms.CharField(max_length=100, required=True, widget=forms.PasswordInput)
-    new_account = forms.CharField(widget=forms.HiddenInput(), required=False)
+    new_account_log = forms.CharField(widget=forms.HiddenInput(), required=False)
+    new_account_pwd = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 def login(request):
     if request.method == 'POST':
@@ -41,14 +42,19 @@ def login(request):
                     if check_password(info['password'], user.password):
                         authenticated = True
                 if authenticated:
-                    return render(request, 'graph/index.html', {'User':info['email']})
+                    request.session['user'] = info['email']
+                    return redirect('/graph/')
+                    #return render(request, 'graph/index.html', {'User':info['email']})
                 else:
                     messages.error(request, "Wrong password")
-                    return render(request, 'graph/login.html', {'messages': messages, 'login_form':form})
-            if info.get('new_account'):  # Create a new account and redirect
-                if check_password(info['password'], info.get('new_account')):
+                    return render(request, 'graph/login.html', {'login_form':form})
+            if info.get('new_account_log'):  # Create a new account and redirect
+                if check_password(info['password'], info['new_account_pwd']) \
+                and info['email'] == info['new_account_log']:
                     User.objects.create(name=info['email'], password=make_password(info['password']))
-                    return render(request, 'graph/index.html', {'User':info['email']})
+                    request.session['user'] = info['email']
+                    return redirect('/graph/')
+                    #return render(request, 'graph/index.html', {'User':info['email']})
                 else:
                     messages.error(request, "You must enter the same password as for the first time.")
                     return render(request, 'graph/login.html', {'login_form':form})
@@ -56,7 +62,8 @@ def login(request):
                 messages.warning(request, "User not found. \
                     Enter you password again to create a new account with this email.")
                 content = request.POST.copy()
-                content.update({'new_account':make_password(info['password'])})
+                content.update({'new_account_log': info['email'],
+                                'new_account_pwd': make_password(info['password'])})
                 new_form = LoginForm(content)
                 return render(request, 'graph/login.html', {'login_form':new_form})
     else:
@@ -66,8 +73,13 @@ def login(request):
 
 def index(request):
     """Render the app's page on load"""
-    samples = Sample.objects.all()
-    return render(request, 'graph/index.html', {'samples': samples,})
+    if request.session.get('user'):
+        user = User.objects.get(name=request.session['user'])
+        samples = Sample.objects.filter(user=user.id)
+    else:
+        user = None
+        samples = Sample.objects.all()
+    return render(request, 'graph/index.html', {'samples':samples, 'user':user})
 
 
 def json_response(request):
@@ -113,7 +125,7 @@ def json_response(request):
             'loglist': loglist,
             'BMC': BMC,
             'anchors': anchors,
-            'curve_pooled':curves_pooled,
+            'curves_pooled':curves_pooled,
            }
     return HttpResponse(simplejson.dumps(data), content_type="application/json")
 

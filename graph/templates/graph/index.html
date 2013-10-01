@@ -21,12 +21,8 @@
             <div id="buttons_container">
                 <span id='upload_button_desc'>Upload input file:</span>
                 <input type='file' name='file_upload' id='file_upload'><br>
-                <!--<span>Load sample data:</span>
-                <button type='button' id='load_sample_button'>Load</button><br>-->
-                <!--<span id='update_button_desc'>Update the graph:</span>-->
                 <button type='button' id='update_button'>Update</button><br>
                 <button type='button' id='new_sample_button'>New custom sample</button>
-                <!--<span>Clear:</span>-->
                 <button type='button' id='clear_button'>Clear all</button><br>
                 <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
             </div>
@@ -90,13 +86,14 @@
     <script type="text/javascript" >
     $(function(){
         // Set global variables
+        _USER_ = "{{ user }}";
         _JSON_URL_ = "{% url 'graph:json_response' %}";
         _NEW_SAMPLE_URL_ = "{% url 'graph:new_sample' %}";
         _REMOVE_SAMPLE_URL_ = "{% url 'graph:remove_sample' %}";
         _CLEAR_ALL_DB_URL_ = "{% url 'graph:clear_all_db' %}";
-        _SAMPLE_DATA_URL_ = "{% static 'graph/BIBF_k.txt' %}";
         _IMG_URL_ = "{% static 'img' %}";
         on_page_load();
+        console.log(">>> User:",_USER_)
         $('#add_mes').click(function() {
             add_newline('','','',position='first');
         });
@@ -127,9 +124,6 @@
             var file = $(this)[0].files[0];
             import_file(file);
         });
-        //$('#load_sample_button').click(function() {
-        //    load_sample_data();
-        //});
     });
     </script>
 

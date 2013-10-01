@@ -2,6 +2,7 @@
 
 /**************************** GLOBAL VARIABLES ****************************/
 
+var _USER_;
 var _JSON_URL_;
 var _NEW_SAMPLE_URL_;
 var _REMOVE_SAMPLE_URL_;
@@ -11,7 +12,6 @@ var _CHART_;
 var _ACTIVE_GRAPH_IDS_ = [];
 var _ACTIVE_TABLE_ID_;
 var _IMG_URL_;
-var _SAMPLE_DATA_URL_;
 var _GETFILE_URL_;
 
 /********************************* GRAPH **********************************/

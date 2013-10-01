@@ -20,6 +20,7 @@ class Sample(models.Model):
 
 
 class Measurement(models.Model):
+    user = models.ForeignKey(User)
     sample = models.ForeignKey(Sample)
     dose = models.FloatField()
     response = models.FloatField()

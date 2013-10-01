@@ -18,10 +18,8 @@ from fitting import *
 import tarfile
 import glob
 
-if len(User.objects.all()) == 0:
-    user = User.objects.create(name='julien.delafontaine@epfl.ch',password=make_password('f0231763'))
-else:
-    user = User.objects.all()[0]
+
+################################### LOGIN #####################################
 
 
 class LoginForm(forms.Form):
@@ -71,15 +69,21 @@ def login(request):
     return render(request, 'graph/login.html', {'login_form':form})
 
 
+#################################### MAIN #####################################
+
+
 def index(request):
     """Render the app's page on load"""
     if request.session.get('user'):
         user = User.objects.get(name=request.session['user'])
-        samples = Sample.objects.filter(user=user.id)
-    else:
-        user = None
-        samples = Sample.objects.all()
-    return render(request, 'graph/index.html', {'samples':samples, 'user':user})
+    else: # DEBUG
+        if len(User.objects.all()) == 0:
+            user = User.objects.create(name='julien.delafontaine@epfl.ch',password=make_password('f0231763'))
+        else:
+            user = User.objects.all()[0]
+        request.session['user'] = user.name
+    samples = Sample.objects.filter(user=user.id)
+    return render(request, 'graph/index.html', {'samples':samples, 'user':user.name})
 
 
 def json_response(request):
@@ -99,18 +103,20 @@ def json_response(request):
     # POST: New data - file upload, "Update" button or similar
     if request.method == 'POST':
         newdata = simplejson.loads(request.body)
-        samples = Sample.objects.filter(id__in=newdata['samples'])
+        user = User.objects.get(name=request.session['user'])
+        samples = Sample.objects.filter(user=user.id).filter(id__in=newdata['samples'])
         # Replace measurements for the corresponding samples
-        Measurement.objects.filter(sample__in=newdata['measurements']).delete()
+        Measurement.objects.filter(user=user.id).filter(sample__in=newdata['measurements']).delete()
         for newid in newdata["measurements"]:
             for mes in newdata["measurements"][newid]:
                 Measurement.objects.create(dose=mes[0], response=mes[1], \
-                                           experiment=mes[2], sample=samples.get(id=newid))
+                                           experiment=mes[2], sample=samples.get(id=newid), user=user)
     # GET: OnLoad - requesting existing samples
     elif request.method == 'GET':
         if request.GET:
+            user = User.objects.get(name=request.session['user'])
             sample_ids = simplejson.loads(request.GET.keys()[0])
-            samples = Sample.objects.filter(id__in=sample_ids)
+            samples = Sample.objects.filter(user=user, id__in=sample_ids)
         else: # no sample exists/is specified: take the first in the DB
             samples = list(Sample.objects.all()[:1])
             if not samples:
@@ -134,6 +140,7 @@ def new_sample(request):
     """Check if the given sample is new. If it is, return a new instance."""
     newsample = simplejson.loads(request.body)
     # Check if the file already is in the database, whatever its name is
+    user = User.objects.get(name=request.session['user'])
     found = Sample.objects.filter(sha1=newsample['sha1'])
     if not found:
         newsample = Sample.objects.create(name=newsample['name'], sha1=newsample['sha1'], user=user)

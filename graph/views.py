@@ -115,12 +115,12 @@ def json_response(request):
                                            experiment=mes[2], sample=samples.get(id=newid), user=user)
     # GET: OnLoad - requesting existing samples
     elif request.method == 'GET':
+        user = User.objects.get(name=request.session['user'])
         if request.GET:
-            user = User.objects.get(name=request.session['user'])
             sample_ids = simplejson.loads(request.GET.keys()[0])
-            samples = Sample.objects.filter(user=user, id__in=sample_ids)
+            samples = Sample.objects.filter(user=user.id).filter(id__in=sample_ids)
         else: # no sample exists/is specified: take the first in the DB
-            samples = list(Sample.objects.all()[:1])
+            samples = list(Sample.objects.filter(user=user.id)[:1])
             if not samples:
                 "Create a DefaultSample"
     points,curves,bounds,loglist,BMC,anchors,curves_pooled = fit_etc(samples)
@@ -143,7 +143,7 @@ def new_sample(request):
     newsample = simplejson.loads(request.body)
     # Check if the file already is in the database, whatever its name is
     user = User.objects.get(name=request.session['user'])
-    found = Sample.objects.filter(sha1=newsample['sha1'])
+    found = Sample.objects.filter(user=user.id).filter(sha1=newsample['sha1'])
     if not found:
         newsample = Sample.objects.create(name=newsample['name'], sha1=newsample['sha1'], user=user)
         response = {'new':True, 'id':newsample.id, 'name':newsample.name}
@@ -161,8 +161,9 @@ def remove_sample(request):
     return HttpResponse(None)
 
 def clear_all_db(request):
-    Measurement.objects.all().delete()
-    Sample.objects.all().delete()
+    user = User.objects.get(name=request.session['user'])
+    Measurement.objects.filter(user=user.id).delete()
+    Sample.objects.filter(user=user.id).delete()
     return index(request)
 
 def getfile(request,pk):

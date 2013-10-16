@@ -60,10 +60,8 @@ body{
 }
 #footer{
     clear: both;
-    float: right;
-    margin-top: 100px;
-    margin-right: 20px;
-    margin-bottom: 20px;
+    padding-top: 100px;
+    padding-bottom: 20px;
 }
 
 /************** Main Buttons *************/
@@ -156,6 +154,16 @@ body{
     color: black;
     font-weight: bold;
 }
+
+/************** Log *************/
+#footer img.left_logo{
+    margin-left: 10px;
+}
+#footer img.right_logo{
+    float: right;
+    margin-right: 20px;
+}
+
 
 
 /*#------------------------------------------------------#

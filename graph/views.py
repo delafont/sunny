@@ -65,6 +65,9 @@ def login(request):
                 new_form = LoginForm(content)
                 return render(request, 'graph/login.html', {'login_form':new_form})
     else:
+        # logout
+        if 'user' in request.session: del request.session['user']
+        # any other access
         form = LoginForm() # An empty form
     return render(request, 'graph/login.html', {'login_form':form})
 
@@ -76,14 +79,8 @@ def index(request):
     """Render the app's page on load"""
     if request.session.get('user'):
         user = User.objects.get(name=request.session['user'])
-    ### DEBUG MODE ###
     else:
-        if len(User.objects.all()) == 0:
-            user = User.objects.create(name='julien.delafontaine@epfl.ch',password=make_password('f0231763'))
-        else:
-            user = User.objects.all()[0]
-        request.session['user'] = user.name
-    ### / DEBUG MODE ###
+        return redirect('/')
     samples = Sample.objects.filter(user=user.id)
     return render(request, 'graph/index.html', {'samples':samples, 'user':user.name})
 

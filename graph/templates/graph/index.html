@@ -26,17 +26,10 @@
                 <button type='button' id='clear_button'>Clear all</button><br>
                 <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
             </div>
-            <div id="logos_container">
-                <div id="loading"></div>
-                <a href='http://www.uni-konstanz.de/' target="_blank">
-                <img src="{% static 'img/konstanz_logo.jpg' %}" width="130" height='63' alt='konstanz_logo'></a>
-                <a href='http://bbcf.epfl.ch/' target="_blank">
-                <img src="{% static 'img/epfl_logo.png' %}" width="130" height='63' alt='epfl_logo'></a>
-            </div>
             <div id="results"></div>
-            <!--placed after because the two others are float + this one has overflow:hidden-->
+            <div id="loading"></div>
+            <div id="login"><a href="{% url 'login' %}">Log out</a></div>
         </div>
-
         <div id="mid">
             <div id="input_table_container">
                 <table id='input_table' class='input_table'>
@@ -81,6 +74,12 @@
 
         <div id="log"><div class='log_title'>((R output))</div><div class='log_content'></div></div>
     </div>
+    <div id='footer'>
+        <a href='http://www.uni-konstanz.de/' target="_blank">
+        <img src="{% static 'img/konstanz_logo.jpg' %}" width="130" height='63' alt='konstanz_logo'></a>
+        <a href='http://bbcf.epfl.ch/' target="_blank">
+        <img src="{% static 'img/epfl_logo.png' %}" width="130" height='63' alt='epfl_logo'></a>
+    <div>
 
 
     <script type="text/javascript" >

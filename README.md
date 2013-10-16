@@ -34,26 +34,33 @@ by clicking on "Downloads", or by cloning the git repository with::
 
     $ git clone https://github.com/delafont/sunny.git
 
-Local server
+Installation
 ============
 
 1. Install the required libs.
-2. Clone the repository ('bmc/').
-3. Enter the newly created 'bmc/' directory, and run
-    `python manage.py syncdb` (to create the database).
-4. Run the local development server with the command
+2. Clone the repository ('bmc/'). Enter the newly created "bmc/" directory.
+3. Enter the "sunny" folder and create a symbolic link called "settings.py" to the preferred settings file, such as::
+
+    ln -s settings_local.py settings.py
+
+   for local settings.
+   If necessary for server deployment, create a new settings file, call it "settings_<whatever>.py" and link it the same way.
+4. Return to the 'bmc/' directory and create the database::
+
+    `python manage.py syncdb`
+
+Local server
+============
+
+5. Run the local development server with the command
     `python manage.py runserver`. You get a message of the type:
     *Development server is running at http://127.0.0.1:8000/*
-5. Start a web browser and got to `http://127.0.0.1:8000/**graph**`
+6. Start a web browser and got to `http://127.0.0.1:8000/**graph**`
     (or the adress given above). The app should start.
 
 Apache server
 =============
 
-1. Install the required libs.
-2. Clone the repository ('bmc/').
-3. Enter the newly created 'bmc/' directory, and run
-    `python manage.py syncdb` (to create the database).
 ...
 
 Usage

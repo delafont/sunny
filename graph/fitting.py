@@ -20,7 +20,7 @@ import os,sys,itertools
 
 
 def fit_etc(samples):
-    points={}; curves={}; models={}; BMC={}; bounds={}; anchors={}; curves_pooled={}
+    points={}; curves={}; models={}; BMC={}; bounds={}; anchors={}; coeffs={}
     loglist=[]; log=''; nbins=100
     xmin = ymin = sys.maxint
     xmax = ymax = -sys.maxint
@@ -28,7 +28,7 @@ def fit_etc(samples):
         # Pool samples, select the best model and apply it to all together
         for s in samples:
             print '>>> Sample',s.name
-            points[s.id]={}; curves[s.id]={}; bounds[s.id]=[xmin,xmax,ymin,ymax]
+            points[s.id]={}; curves[s.id]={}; bounds[s.id]=[xmin,xmax,ymin,ymax]; coeffs[s.id]={}
             measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
             measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
             measurements_pooled = [(x.dose,x.response,x.experiment) for exp in measurements for x in measurements[exp]]
@@ -49,9 +49,11 @@ def fit_etc(samples):
                     maxx_pooled = max(x[0] for x in measurements_pooled)
                     intervals_pooled = create_bins(minx_pooled,maxx_pooled,nbins)
                     curve_pooled = compute_fitting_curve(model_pooled, interpolate=intervals_pooled)
+                    coeffs[s.id]['pooled'] = get_coeffs(model_pooled, fit_name)
+                    loglist.append('Model parameters: %s' % format_coeffs(coeffs[s.id]['pooled']))
                 else:
                     curve_pooled = []
-                curves_pooled[s.id] = curve_pooled
+                curves[s.id]['pooled'] = curve_pooled
             else:
                 loglist.append('No model found for sample %s.' % (s.name))
             # Apply best model to individual datasets
@@ -69,8 +71,10 @@ def fit_etc(samples):
                     print ".. Experiment %d" % exp
                     model,pts,log = fit_drm(pts, fit_name, normalize=True)
                     models[exp] = model
+                    coeffs[s.id][exp] = get_coeffs(model, fit_name)
                     loglist.append(log)
-                    #print 'convergence',model.rx2(2).rx2('convergence')
+                            #print "Model:", model.rx2(2).rx2('par')
+                            #print 'convergence',model.rx2(2).rx2('convergence')
                 bounds = update_bounds(pts,bounds,s.id)
                 points[s.id][exp] = pts
             # Compute the curves
@@ -101,11 +105,17 @@ def fit_etc(samples):
                     file_content += '\t'.join(['%s'%x for x in p])+'\n'
                 file_content = ContentFile(file_content)
                 s.textfile.save(s.sha1,file_content)
-    return points,curves,bounds,loglist,BMC,anchors,curves_pooled
+    return points,curves,bounds,loglist,BMC,anchors,coeffs
 
 
 ################################## FITTING #####################################
 
+
+param_names = {'LL.3': ['b','d','e'],
+               'LL.4': ['b','d','e'],
+               'LL.5': ['b','d','e','f'],
+               'W1.4': ['b','d','e'],
+               'W2.4': ['b','d','e'],}
 
 def list2r(L):
     """Transform a Python list into a string in R format: [1,2,'C'] -> "c(1,2,'C')" ."""
@@ -150,6 +160,19 @@ def fit_drm(data, fit_name='LL.4', normalize=True):
         return model, norm_data, R_output
     else:
         return model, data, R_output
+
+def get_coeffs(model, fit_name):
+    constraints = ro.r('constraints')
+    coeff_names = [x.strip('=') for x in constraints(model, fit_name).rx2('KoefName')]
+    coeffs = list(model.rx2(2).rx2('par'))
+    return zip(coeff_names,coeffs)
+
+def format_coeffs(coeffs):
+    out = ''
+    for c in coeffs:
+        out += '%s=%.2f, ' % c
+    out.strip(' ,')
+    return out
 
 def compute_fitting_curve(model, interpolate=range(0,10000,10)):
     curve = model.rx2('curve')[0](ro.FloatVector(interpolate))
@@ -233,6 +256,7 @@ def generate_images(data,template):
     mydata = data.frame(dose=dose,response=response,experiment=experiment)
     processData(mydata, title="DRM", xlab="Dose", outfilename=outfilename, cooksfilename='', run=3)
     """)
+
 
 ########################### AUTO IMPORTS AT START #############################
 

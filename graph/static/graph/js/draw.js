@@ -33,7 +33,6 @@ function draw_graph(){
         var bmc = _DATA_.BMC[sample_id]
         var bounds = _DATA_.bounds[sample_id];
         var anchors = _DATA_.anchors[sample_id];
-        var avgcurve = _DATA_.curves_pooled[sample_id];
         var symbol = symbols[index % symbols.length]
         if (points){
             xmin = Math.min(xmin,bounds[0])
@@ -67,7 +66,7 @@ function draw_graph(){
             series.push({
                 type: 'spline',
                 name: 'Pooled '+sample.name,
-                data: avgcurve,
+                data: curves['pooled'],
                 enableMouseTracking: false,
                 stickyTracking: false,
                 marker: {enabled: false},

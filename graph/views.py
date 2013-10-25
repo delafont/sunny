@@ -88,13 +88,13 @@ def index(request):
 def json_response(request):
     """Return a JSON {
         'points': {sample.id: {experiment: [data]}},
-        'curves': {sample.id: {experiment: [data]}},
+        'curves': {sample.id: {'pooled':[data], experiment: [data]}},
         'samples': [{'id': sample.id, ...}],
         'bounds': {sample.id: [xmin,xmax,ymin,ymax]},
         'loglist': ["logstring1",...],
         'BMC': {sample.id: bmc},
         'anchors': {sample.id: anchor},
-        'avgcurve': {sample.id: curve_pooled},
+        'coeffs': {sample.id: {'pooled':[coeffs], experiment: [coeffs]}},
     }
     `samples` determines which data will be returned.
     """
@@ -120,7 +120,7 @@ def json_response(request):
             samples = list(Sample.objects.filter(user=user.id)[:1])
             if not samples:
                 "Create a DefaultSample"
-    points,curves,bounds,loglist,BMC,anchors,curves_pooled = fit_etc(samples)
+    points,curves,bounds,loglist,BMC,anchors,coeffs = fit_etc(samples)
     # Export
     samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
     data = {'points': points,
@@ -130,7 +130,7 @@ def json_response(request):
             'loglist': loglist,
             'BMC': BMC,
             'anchors': anchors,
-            'curves_pooled':curves_pooled,
+            'coeffs': coeffs,
            }
     return HttpResponse(simplejson.dumps(data), content_type="application/json")
 

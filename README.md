@@ -52,26 +52,27 @@ First installation
    If necessary for server deployment, create a new settings file, call it "settings_<whatever>.py" and link it the same way.
 4. Return to the 'bmc/' directory and create the database: `python manage.py syncdb`.
    When asked, do not create a superuser account - unless you know what you are doing.
+5. If necessary, give read and write rights to the database, for instance `chmod 755 sunnydb`.
 
 Local server
 ------------
 
-5. Run the local development server with the command
+* Run the local development server with the command
     `python manage.py runserver`. You get a message of the type:
     *Development server is running at http://127.0.0.1:8000/*
-6. Start a web browser and got to `http://127.0.0.1:8000/**graph**`
+* Start a web browser and got to `http://127.0.0.1:8000/**graph**`
     (or the adress given above). The app should start.
 
 Apache server
 -------------
 
-5. Install the "mod_wsgi" module for Apache so that is runs Python apps.
-6. Install Gunicorn: `sudo pip install gunicorn`.
+* Install the "mod_wsgi" module for Apache so that is runs Python apps.
+* Install Gunicorn: `sudo pip install gunicorn`.
     For more info on Gunicorn deployment, see http://gunicorn.org/ .
-7. Edit the file "gunicorn.py" to change the server address.
-8. Run the server with the command `gunicorn_django -c gunicorn.py`.
+* Edit the file "gunicorn.py" to change the server address.
+* Run the server with the command `gunicorn_django -c gunicorn.py`.
     Alternatively, it is equivalent to `gunicorn -c gunicorn.py sunny.wsgi`
-9. Start a web browser and go to the address you specified in "gunicorn.py". The app should start.
+* Start a web browser and go to the address you specified in "gunicorn.py". The app should start.
 
 Usage
 =====

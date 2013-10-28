@@ -27,22 +27,18 @@ function draw_graph(){
     var xmin = 1; var xmax = 1; var ymin = 1; var ymax = 1;
     var idx = 0;
     $.each(_ACTIVE_GRAPH_IDS_, function(index,sample_id){
-        console.log(11,sample_id)
-        console.log(22,_ACTIVE_GRAPH_IDS_)
-        console.log(_DATA_)
-        console.log(_DATA_.BMC)
         var sample = _DATA_.samples[sample_id];
         var points = _DATA_.points[sample_id];
         var curves = _DATA_.curves[sample_id];
         var bmc = _DATA_.BMC[sample_id];
         var bounds = _DATA_.bounds[sample_id];
         var anchors = _DATA_.anchors[sample_id];
-        var symbol = symbols[index % symbols.length]
+        var symbol = symbols[index % symbols.length];
         if (points){
-            xmin = Math.min(xmin,bounds[0])
-            xmax = Math.max(xmax,bounds[1])
-            ymin = Math.min(-1,ymin,bounds[2])
-            ymax = Math.max(ymax,bounds[3])
+            xmin = Math.min(xmin,bounds[0]);
+            xmax = Math.max(xmax,bounds[1]);
+            ymin = Math.min(-1,ymin,bounds[2]);
+            ymax = Math.max(ymax,bounds[3]);
             var nexp = Object.keys(points).length ;
             $.each(points, function(exp){
                 var color = colors[idx % colors.length];
@@ -76,7 +72,7 @@ function draw_graph(){
                 marker: {enabled: false},
                 color: 'black',
                 dashStyle: 'ShortDash',
-            })
+            });
         }
         if (anchors){
             var color = colors[(idx-1) % colors.length];
@@ -85,7 +81,7 @@ function draw_graph(){
                 marker: {symbol:'diamond', radius:7, fillColor:'black'},
                 data: [anchors],
                 name: 'Anchor '+sample.name,
-            })
+            });
         }
         if (bmc && bmc['10']){
             console.log(bmc)
@@ -232,7 +228,7 @@ function create_new_sample_onclick(){
 // Check if the sha1 exists in database, if not creates a new Sample instance and updates all
 // *newsample* is an object of the type {'name':.., 'sha1':..}
 function create_new_sample(newsample){
-    console.log(">>> New Sample", newsample)
+    console.log(">>> New Sample", newsample);
     $.post(_NEW_SAMPLE_URL_,
            JSON.stringify(newsample),
            function(data_response){
@@ -257,7 +253,7 @@ function remove_sample_onclick(button){
     $('#samples_container input[value='+sample_id+']').parent('li').remove();
 }
 function remove_sample(sample_id){
-    console.log(">>> Remove Sample", sample_id)
+    console.log(">>> Remove Sample", sample_id);
     $.each(_DATA_, function(key,val){
         if (val[sample_id]){
             delete _DATA_[key][sample_id];
@@ -341,11 +337,8 @@ function get_data_and_redraw(){
 // Update _DATA_, recreate the table, redraw
 function update_all(newdata){
     _DATA_ = newdata;
-           console.log(2,_ACTIVE_GRAPH_IDS_)
     create_table();
-           console.log(2,_ACTIVE_GRAPH_IDS_)
     draw_graph();
-           console.log(2,_ACTIVE_GRAPH_IDS_)
     hide_loading_gif();
 }
 // Send the (possibly edited) table data, and the active samples for redrawing
@@ -410,7 +403,7 @@ function create_table(points){
     console.log(">>> Create Table", points);
     $('#input_table .datarow').remove();
     if (typeof(_ACTIVE_TABLE_ID_)==='undefined') {
-        return
+        return;
     }
     if (typeof(points)==='undefined') {
         points = _DATA_.points[_ACTIVE_TABLE_ID_];
@@ -494,7 +487,7 @@ function import_file(file){
                 }
                 return false;
             }
-        })
+        });
         // Create new sample if necessary, read the new table and redraw
         var sha1 = SHA1(e.target.result);
         // is it already on the current samples list?:
@@ -503,7 +496,7 @@ function import_file(file){
         //if (sha1 in all_sha1){
         //    "Do nothing?"
         //} else {
-            var sname = file.name.replace(/\.[^/.]+$/, "")
+            var sname = file.name.replace(/\.[^/.]+$/, "");
             var newsample = {'sha1':sha1, 'name':sname}
             create_new_sample(newsample);
     }
@@ -553,7 +546,7 @@ function update_samples_list(sample){
 }
 
 function load_sample_data(){
-    console.log('Not yet implemented')
+    console.log('Not yet implemented');
 }
 
 /********************************** LOG ***********************************/

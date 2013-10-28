@@ -5,12 +5,13 @@ Fit of dose-response model, with dynamic graph.
 
 Authors:
 
-* Julien Delafontaine - EPFL, BBCF
-* Sunniva Foerster - Universitat Konstanz
+* Julien Delafontaine - EPFL, BBCF (App development)
+* Sunniva Foerster - Universitat Konstanz (Algorithm and R code)
 
 Copyright 2013 EPFL BBCF <julien dot delafontaine at yandex dot com>
 
-For more details about the methods used, refer to: <article...>
+For more details about the methods used, refer to the publication:
+<article...>
 
 Installation
 ============

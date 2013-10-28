@@ -28,17 +28,17 @@ Required R libraries:
 
 Latest source code is available from GitHub::
 
-    http://github.com/delafont/sunny
+    http://github.com/delafont/bmc
 
 by clicking on "Downloads", or by cloning the git repository with::
 
-    $ git clone https://github.com/delafont/sunny.git
+    $ git clone https://github.com/delafont/bmc.git
 
 First installation
 ==================
 
 1. Install the required libs.
-2. Clone the repository ('bmc/'). Enter the newly created "bmc/" directory.
+2. Clone the repository. Enter the newly created "bmc/" directory.
 3. Enter the "sunny" folder and create a symbolic link called "settings.py" to the preferred settings file, such as::
 
     ln -s settings_local.py settings.py
@@ -69,7 +69,7 @@ Apache server
 7. Edit the file "gunicorn.py" to change the server address.
 8. Run the server with the command `gunicorn_django -c gunicorn.py`.
     Alternatively, it is equivalent to `gunicorn -c gunicorn.py sunny.wsgi`
-9. Start a web browser and got to the address you specified in "gunicorn.py". The app should start.
+9. Start a web browser and go to the address you specified in "gunicorn.py". The app should start.
 
 Usage
 =====

@@ -1,5 +1,5 @@
 BMC v.1.0.0
-===========
+***********
 
 Fit of dose-response model, with dynamic graph.
 
@@ -34,8 +34,8 @@ by clicking on "Downloads", or by cloning the git repository with::
 
     $ git clone https://github.com/delafont/sunny.git
 
-Installation
-============
+First installation
+==================
 
 1. Install the required libs.
 2. Clone the repository ('bmc/'). Enter the newly created "bmc/" directory.
@@ -49,8 +49,10 @@ Installation
 
     `python manage.py syncdb`
 
+   When asked, do not create a superuser account - unless you know what you are doing.
+
 Local server
-============
+------------
 
 5. Run the local development server with the command
     `python manage.py runserver`. You get a message of the type:
@@ -59,9 +61,15 @@ Local server
     (or the adress given above). The app should start.
 
 Apache server
-=============
+-------------
 
-...
+4. Install the "mod_wsgi" module for Apache so that is runs Python apps.
+5. Install Gunicorn: `sudo pip install gunicorn`.
+    For more info on Gunicorn deployment, see http://gunicorn.org/ .
+5. Edit the file "gunicorn.py" to change the server address.
+6. Run the server with the command `gunicorn_django -c gunicorn.py`.
+    Alternatively, it is equivalent to `gunicorn -c gunicorn.py sunny.wsgi`
+6. Start a web browser and got to the address you specified in "gunicorn.py". The app should start.
 
 Usage
 =====

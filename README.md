@@ -92,14 +92,15 @@ and the pooled experiments will be added as a dashed curve.
 Repeat to add other samples from other data files to the same figure.
 One can toggle the display of each sample using the checkboxes on the right,
 and edit the data separately for each sample using the radio buttons just below.
-Just remember to click the "Update" button to save changes and update the graph.
 
 The table can be edited by modifying values inside existing fields,
 by creating new points (green "+" sign) or removing points (red "x" in front of each line).
+Use the "Update" button to make the changes effective and update the graph.
 
 One can also create a sample using only the interface.
 Click on the "New custom sample" button; a popup will appear to enter the sample name.
 Upon validation, a new table will appear, with a single empty line.
+Fill the table and use the "Update" button to save the records and update the graph.
 
 The "Clear all" button will erase every dataset that you entered.
 To remove a single dataset, click on the red "x" in front of its name, on the right.

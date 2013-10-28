@@ -13,7 +13,7 @@ Copyright 2013 EPFL BBCF <julien dot delafontaine at yandex dot com>
 For more details about the methods used, refer to the publication:
 <article...>
 
-Installation
+Requirements
 ============
 
 Required Python modules:
@@ -31,9 +31,13 @@ Latest source code is available from GitHub::
 
     http://github.com/delafont/bmc
 
-by clicking on "Downloads", or by cloning the git repository with::
+by clicking on "Download ZIP", or by cloning the git repository with one of::
+
+    $ git clone http://github.com/delafont/bmc.git
 
     $ git clone https://github.com/delafont/bmc.git
+
+    $ git clone git@github.com:delafont/bmc.git
 
 First installation
 ==================

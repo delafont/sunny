@@ -47,16 +47,10 @@ First installation
 
 1. Install the required libs.
 2. Clone the repository. Enter the newly created "bmc/" directory.
-3. Enter the "sunny" folder and create a symbolic link called "settings.py" to the preferred settings file, such as::
-
-       ln -s settings_local.py settings.py
-
-   for local settings.
+3. Enter the "sunny" folder and create a symbolic link called "settings.py" to the preferred settings file, such as
+    `ln -s settings_local.py settings.py` for local settings.
    If necessary for server deployment, create a new settings file, call it "settings_<whatever>.py" and link it the same way.
-4. Return to the 'bmc/' directory and create the database::
-
-       python manage.py syncdb
-
+4. Return to the 'bmc/' directory and create the database: `python manage.py syncdb`.
    When asked, do not create a superuser account - unless you know what you are doing.
 
 Local server

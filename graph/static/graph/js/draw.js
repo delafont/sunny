@@ -27,10 +27,14 @@ function draw_graph(){
     var xmin = 1; var xmax = 1; var ymin = 1; var ymax = 1;
     var idx = 0;
     $.each(_ACTIVE_GRAPH_IDS_, function(index,sample_id){
+        console.log(11,sample_id)
+        console.log(22,_ACTIVE_GRAPH_IDS_)
+        console.log(_DATA_)
+        console.log(_DATA_.BMC)
         var sample = _DATA_.samples[sample_id];
         var points = _DATA_.points[sample_id];
         var curves = _DATA_.curves[sample_id];
-        var bmc = _DATA_.BMC[sample_id]
+        var bmc = _DATA_.BMC[sample_id];
         var bounds = _DATA_.bounds[sample_id];
         var anchors = _DATA_.anchors[sample_id];
         var symbol = symbols[index % symbols.length]
@@ -83,20 +87,21 @@ function draw_graph(){
                 name: 'Anchor '+sample.name,
             })
         }
-        if (bmc){
+        if (bmc && bmc['10']){
+            console.log(bmc)
             var color = colors[(idx-1) % colors.length];
             bmc_lines.push.apply(bmc_lines, [{
-                value: bmc[0],
+                value: bmc['10'][0],
                 width: 1,
                 color: color,
-                label: {text: 'BMC', style: {color: '#606060'},
+                label: {text: 'BMC 10', style: {color: '#606060'},
                 }
             }, {
-                value: bmc[1],
+                value: bmc['10'][1],
                 width: 1,
                 color: color,
                 dashStyle: 'Dash',
-                label: {text: 'BMCL', style: {color: '#606060'},
+                label: {text: 'BMCL 10', style: {color: '#606060'},
                 }
             }]);
         }
@@ -336,8 +341,11 @@ function get_data_and_redraw(){
 // Update _DATA_, recreate the table, redraw
 function update_all(newdata){
     _DATA_ = newdata;
+           console.log(2,_ACTIVE_GRAPH_IDS_)
     create_table();
+           console.log(2,_ACTIVE_GRAPH_IDS_)
     draw_graph();
+           console.log(2,_ACTIVE_GRAPH_IDS_)
     hide_loading_gif();
 }
 // Send the (possibly edited) table data, and the active samples for redrawing
@@ -563,9 +571,9 @@ function print_log(){
 
 function update_results(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
-    if (bmc){
-        var bmc_val = $('<p>', {text: 'BMC : '+bmc[0]});
-        var bmcl_val = $('<p>', {text: 'BMCL : '+bmc[1]});
+    if (bmc && bmc['10']){
+        var bmc_val = $('<p>', {text: 'BMC 10: '+bmc['10'][0]});
+        var bmcl_val = $('<p>', {text: 'BMCL 10 : '+bmc['10'][1]});
         //var nextval = $('<p>', {text: 'Next : '+next_val});
         $('#results').empty().append(bmc_val).append(bmcl_val);
     }

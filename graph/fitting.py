@@ -11,7 +11,7 @@ from rpy2.robjects.packages import importr
 from rpy2.rinterface import RRuntimeError
 
 ### Standard imports
-from numpy import asarray, round as nround, reshape
+from numpy import asarray, round as nround, reshape, isnan
 from math import log10
 import os,sys,itertools
 
@@ -27,13 +27,13 @@ def fit_etc(samples):
     if samples:
         # Pool samples, select the best model and apply it to all together
         for s in samples:
-            print '>>> Sample',s.name
-            points[s.id]={}; curves[s.id]={}; bounds[s.id]=[xmin,xmax,ymin,ymax]; coeffs[s.id]={}
+            print '>>> Sample', s
+            points[s.id]={}; curves[s.id]={}; bounds[s.id]=[xmin,xmax,ymin,ymax]; coeffs[s.id]={}; BMC[s.id]={}
             measurements = Measurement.objects.filter(sample=s.id).order_by('experiment')
             measurements = dict((exp,list(mes)) for exp,mes in itertools.groupby(measurements,lambda x:x.experiment))
             measurements_pooled = [(x.dose,x.response,x.experiment) for exp in measurements for x in measurements[exp]]
             if len(measurements_pooled) == 0:
-                continue
+                continue # !!!
             print "* Model selection"
             fit_name = model_selection(measurements_pooled)
             # Calculate the anchor point in case it will be needed
@@ -70,9 +70,10 @@ def fit_etc(samples):
                         pts.append((anchor[0],anchor[1],exp))
                     print ".. Experiment %d" % exp
                     model,pts,log = fit_drm(pts, fit_name, normalize=True)
-                    models[exp] = model
-                    coeffs[s.id][exp] = get_coeffs(model, fit_name)
-                    loglist.append(log)
+                    if model:
+                        models[exp] = model
+                        coeffs[s.id][exp] = get_coeffs(model, fit_name)
+                        loglist.append(log)
                             #print "Model:", model.rx2(2).rx2('par')
                             #print 'convergence',model.rx2(2).rx2('convergence')
                 bounds = update_bounds(pts,bounds,s.id)
@@ -95,9 +96,9 @@ def fit_etc(samples):
             if isinstance(bmc,basestring): # error string
                 loglist.append("BMC not found for sample %s." % s.name)
                 loglist.append(bmc)
-                BMC[s.id] = []
+                BMC[s.id] = {'10':[0,0,0],'15':[0,0,0],'50':[0,0,0]}
             else:
-                BMC[s.id] = bmc.get('15')
+                BMC[s.id] = bmc
             # Export normalized data to text file
             if not (s.textfile and default_storage.exists(os.path.join(os.path.dirname(s.textfile.path),s.sha1)) ):
                 file_content = '\t'.join(['dose','response','experiment'])+'\n'
@@ -186,9 +187,12 @@ def calculate_BMC(data, fit_name='LL.4', normalize=True):
         BMC = ro.r('ED')(model,ro.IntVector([10,15,50]),interval=ro.StrVector(["delta"]),\
                          level=0.90,type="relative",display=False)
         BMC = ro.r('round')(BMC,4)
-        BMC = reshape(asarray(BMC.rx(ro.IntVector([1,2,3,7,8,9,10,11,12]))), (3,-1)).T
-        # BMC : [[Estimate1,Lower1,Upper1],[Estimate2,Lower2,Upper2]]
-        BMC = {'10':list(BMC[0]), '15':list(BMC[1]), '50':list(BMC[2])}
+        BMC = reshape(asarray(BMC.rx(ro.IntVector([1,2,3, 7,8,9, 10,11,12]))), (3,-1)).T
+        # BMC : [[Estimate1,Lower1,Upper1],[Estimate2,Lower2,Upper2],...]
+        BMC10 = [x if not isnan(x) else 0 for x in BMC[0]]
+        BMC15 = [x if not isnan(x) else 0 for x in BMC[1]]
+        BMC50 = [x if not isnan(x) else 0 for x in BMC[2]]
+        BMC = {'10':BMC10, '15':BMC15, '50':BMC50}
         return BMC
     else:
         return R_output

@@ -8,7 +8,8 @@ Authors:
 * Julien Delafontaine - EPFL, BBCF (App development)
 * Sunniva Foerster - Universitat Konstanz (Algorithm and R code)
 
-Copyright 2013 EPFL BBCF <julien dot delafontaine at yandex dot com>
+Copyright 2013 EPFL BBCF
+julien.delafontaine@yandex.com
 
 For more details about the methods used, refer to the publication:
 <article...>
@@ -33,11 +34,13 @@ Latest source code is available from GitHub::
 
 by clicking on "Download ZIP", or by cloning the git repository with one of::
 
+    $ git clone git@github.com:delafont/bmc.git
+
     $ git clone http://github.com/delafont/bmc.git
 
     $ git clone https://github.com/delafont/bmc.git
 
-    $ git clone git@github.com:delafont/bmc.git
+(choose the one that works on your server).
 
 First installation
 ==================

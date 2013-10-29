@@ -69,6 +69,8 @@ Apache server
 * Install the "mod_wsgi" module for Apache so that is runs Python apps.
 * Install Gunicorn: `sudo pip install gunicorn`.
     For more info on Gunicorn deployment, see http://gunicorn.org/ .
+* Create a configuration file called "gunicorn.py" with the following content:
+    `bind = "127.0.0.1:8000"`, where you replace the server address by yours.
 * Edit the file "gunicorn.py" to change the server address.
 * Run the server with the command `gunicorn_django -c gunicorn.py`.
     Alternatively, it is equivalent to `gunicorn -c gunicorn.py sunny.wsgi`

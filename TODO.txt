@@ -2,10 +2,6 @@
 
 * User specified units for the x axis
 
-* Users management
-
-* Update only what is not yet in _DATA_ (?)
-
 * Row ids of the table linked to points ids on the graph
 
 * bug: if created a custom sample, then clear, the table remains.

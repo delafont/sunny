@@ -5,6 +5,7 @@ body{
     background-color: #96B0EB;
     min-width: 870px;
     max-width: 1400px;
+    padding-left: 10px;
 }
 
 #banner{
@@ -18,10 +19,9 @@ body{
 }
 #results{
     float: left;
-    margin-left: 70px;
-    width: 250px;
+    margin-left: 100px;
     padding: 10px;
-    margin-top: 6px;
+    margin-top: 0px;
     -moz-border-radius: 5px;
     border-radius: 5px;
     background: white;
@@ -51,6 +51,7 @@ body{
 #graph_container{
     overflow: hidden;
     max-width: 800px;
+    margin-right: 20px;
 }
 #samples_container{
     float: right;
@@ -100,7 +101,12 @@ body{
 #results p{
     padding: 6px;
     margin: 0;
-    font-size: 1.3em;
+    font-size: 1.2em;
+}
+#results .otherbmcs span{
+    font-size: 0.6em;
+    margin-right: 10px;
+    margin-left: 6px;
 }
 
 /************** Login *************/
@@ -111,7 +117,7 @@ body{
 .input_table{
     border-spacing: 0;
     border-collapse: collapse;
-    width: 100%
+    width: 200px;
 }
 .input_table tr.datarow{
     font-size: 0.9em;

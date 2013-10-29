@@ -189,9 +189,9 @@ def calculate_BMC(data, fit_name='LL.4', normalize=True):
         BMC = ro.r('round')(BMC,4)
         BMC = reshape(asarray(BMC.rx(ro.IntVector([1,2,3, 7,8,9, 10,11,12]))), (3,-1)).T
         # BMC : [[Estimate1,Lower1,Upper1],[Estimate2,Lower2,Upper2],...]
-        BMC10 = [x if not isnan(x) else 0 for x in BMC[0]]
-        BMC15 = [x if not isnan(x) else 0 for x in BMC[1]]
-        BMC50 = [x if not isnan(x) else 0 for x in BMC[2]]
+        BMC10 = [round(x,4) if not isnan(x) else 0 for x in BMC[0]]
+        BMC15 = [round(x,4) if not isnan(x) else 0 for x in BMC[1]]
+        BMC50 = [round(x,4) if not isnan(x) else 0 for x in BMC[2]]
         BMC = {'10':BMC10, '15':BMC15, '50':BMC50}
         return BMC
     else:

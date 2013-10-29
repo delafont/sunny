@@ -105,7 +105,7 @@ function draw_graph(){
 
     _CHART_ = new Highcharts.Chart({
         chart: {renderTo: 'chart'},
-        title: {text: 'BMC model'},
+        title: {text: ''},
         xAxis: {title: {text: 'Concentration'},
                 type: 'logarithmic',
                 min: xmin,
@@ -357,16 +357,19 @@ function update_event(){
 // Clear Measurement and Sample tables from the database, and clear localStorage
 function clear_all_db(){
     console.log(">>> Clear All DB");
-    if (_CHART_) {_CHART_.destroy();}
-    localStorage.clear();
-    $('#samples_container ul').empty();
-    $('#results').empty();
-    _ACTIVE_TABLE_ID_ = undefined;
-    _ACTIVE_GRAPH_IDS_ = [];
-    $.post(_CLEAR_ALL_DB_URL_,true,function(e){
-        get_data_and_redraw();
-        //location.reload();
-    });
+    var wanna_destroy = confirm("Are you sure?");
+    if (wanna_destroy == true){
+        if (_CHART_) {_CHART_.destroy();}
+        localStorage.clear();
+        $('#samples_container ul').empty();
+        $('#results').empty();
+        _ACTIVE_TABLE_ID_ = undefined;
+        _ACTIVE_GRAPH_IDS_ = [];
+        $.post(_CLEAR_ALL_DB_URL_,true,function(e){
+            get_data_and_redraw();
+            //location.reload();
+        });
+    }
 }
 // Return the union of graph- and table active samples
 function all_active_samples(){
@@ -565,10 +568,22 @@ function print_log(){
 function update_results(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
     if (bmc && bmc['10']){
-        var bmc_val = $('<p>', {text: 'BMC 10: '+bmc['10'][0]});
-        var bmcl_val = $('<p>', {text: 'BMCL 10 : '+bmc['10'][1]});
-        //var nextval = $('<p>', {text: 'Next : '+next_val});
-        $('#results').empty().append(bmc_val).append(bmcl_val);
+        var bmc10_val = $('<p>', {text: 'BMC 10 : '+bmc['10'][0]});
+        var bmcl10_val = $('<p>', {text: 'BMCL 10 : '+bmc['10'][1]});
+        $('#results').empty().append(bmc10_val).append(bmcl10_val);
+        var otherbmcs = $('<div>').addClass('otherbmcs');
+        $('#results').append(otherbmcs);
+        if (bmc['15']){
+            var bmc15_val = $('<span>', {text: 'BMC 15: '+bmc['15'][0]});
+            var bmcl15_val = $('<span>', {text: 'BMCL 15 : '+bmc['15'][1]});
+            otherbmcs.append(bmc15_val).append(bmcl15_val);
+            if (bmc['50']){
+                otherbmcs.append('<br>')
+                var bmc50_val = $('<span>', {text: 'BMC 50: '+bmc['50'][0]});
+                var bmcl50_val = $('<span>', {text: 'BMCL 50 : '+bmc['50'][1]});
+                otherbmcs.append(bmc50_val).append(bmcl50_val);
+            }
+        }
     }
 }
 

@@ -1,7 +1,16 @@
-* DataTables for the table layout
 
-* User specified units for the x axis
+* DataTables for the table layout, and separate edition fields
 
 * Row ids of the table linked to points ids on the graph
 
-* bug: if created a custom sample, then clear, the table remains.
+* User specified units for the x axis
+
+* User specified BMC percentage
+
+* Block import button while already loading
+
+
+KNOWN ISSUES:
+
+* If created a custom sample, then clear, the table remains. (fixed?)
+

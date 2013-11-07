@@ -82,8 +82,19 @@ def index(request):
     else:
         return redirect('/')
     samples = Sample.objects.filter(user=user.id)
-    return render(request, 'graph/index.html', {'samples':samples, 'user':user.name})
-
+    #active_graph_ids = [s.id for s in Sample.objects.filter(graph_active=True, user=user.id)]
+    if not user.active_table_id:
+        if active_graph_ids:
+            user.active_table_id = active_graph_ids[0]
+        elif samples:
+            user.active_table_id = samples[0].id
+    user.save()
+    return render(request, 'graph/index.html',
+                  {'samples':samples,
+                   'user':user.name,
+                   'active_table_id': user.active_table_id,
+                   #'active_graph_ids': active_graph_ids,
+                  })
 
 def json_response(request):
     """Return a JSON {
@@ -116,10 +127,8 @@ def json_response(request):
         if request.GET:
             sample_ids = simplejson.loads(request.GET.keys()[0])
             samples = Sample.objects.filter(user=user.id).filter(id__in=sample_ids)
-        else: # no sample exists/is specified: take the first in the DB
+        else: # no sample exists/is specified
             samples = list(Sample.objects.filter(user=user.id)[:1])
-            if not samples:
-                "Create a DefaultSample"
     points,curves,bounds,loglist,BMC,anchors,coeffs = fit_etc(samples)
     # Export
     samples = dict((s.id,{'id':s.id, 'name':s.name, 'sha1':s.sha1}) for s in samples)
@@ -142,19 +151,28 @@ def new_sample(request):
     user = User.objects.get(name=request.session['user'])
     found = Sample.objects.filter(user=user.id).filter(sha1=newsample['sha1'])
     if not found:
-        newsample = Sample.objects.create(name=newsample['name'], sha1=newsample['sha1'], user=user)
+        newsample = Sample.objects.create(name=newsample['name'], sha1=newsample['sha1'], user=user, graph_active=True)
+        user.active_table_id = newsample.id
         response = {'new':True, 'id':newsample.id, 'name':newsample.name}
     else:
         old = found[0]
         old.name = newsample['name']
         old.save()
+        user.active_table_id = old.id
         response = {'new':False, 'id':old.id, 'name':newsample['name']}
+    user.save()
     return HttpResponse(simplejson.dumps(response), content_type="application/json") # new sample
 
 def remove_sample(request):
     sample_id = request.body
     Sample.objects.get(id=sample_id).delete()
     Measurement.objects.filter(sample=sample_id).delete()
+    return HttpResponse(None)
+
+def update_active_table_id(request):
+    user = User.objects.get(name=request.session['user'])
+    user.active_table_id = request.body
+    user.save()
     return HttpResponse(None)
 
 def clear_all_db(request):

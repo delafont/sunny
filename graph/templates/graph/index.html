@@ -90,10 +90,12 @@
     $(function(){
         // Set global variables
         _USER_ = "{{ user }}";
+        _ACTIVE_TABLE_ID_ = "{{ active_table_id }}";
         _JSON_URL_ = "{% url 'graph:json_response' %}";
         _NEW_SAMPLE_URL_ = "{% url 'graph:new_sample' %}";
         _REMOVE_SAMPLE_URL_ = "{% url 'graph:remove_sample' %}";
         _CLEAR_ALL_DB_URL_ = "{% url 'graph:clear_all_db' %}";
+        _UPDATE_ACTIVE_URL_ = "{% url 'graph:update_active_table_id' %}";
         _IMG_URL_ = "{% static 'img' %}";
         on_page_load();
         console.log(">>> User:",_USER_)

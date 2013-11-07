@@ -13,6 +13,7 @@ var _ACTIVE_GRAPH_IDS_ = [];
 var _ACTIVE_TABLE_ID_;
 var _IMG_URL_;
 var _GETFILE_URL_;
+var _UPDATE_ACTIVE_URL_;
 
 /********************************* GRAPH **********************************/
 
@@ -84,7 +85,6 @@ function draw_graph(){
             });
         }
         if (bmc && bmc['10']){
-            console.log(bmc)
             var color = colors[(idx-1) % colors.length];
             bmc_lines.push.apply(bmc_lines, [{
                 value: bmc['10'][0],
@@ -123,7 +123,7 @@ function draw_graph(){
         series: series
     });
     print_log();
-    update_results();
+    update_BMC_display_block();
     return _CHART_;
 }
 // Remove all series in the graph
@@ -137,6 +137,9 @@ function clear_graph(){
 
 // On page reload: read localStorage, check boxes, get data and redraw table+graph
 function on_page_load(){
+    update_local('active_table',[_ACTIVE_TABLE_ID_]);
+    // Got _ACTIVE_TABLE_ID_ from DB the first time, so that it works across browsers
+    // and sessions, then put it in LocalStorage so that it works faster.
     load_active_samples();
     check_active_samples();
     get_data_and_redraw();
@@ -182,7 +185,8 @@ function change_sample_table(button){
     console.log(">>> Change Sample Table -->");
     _ACTIVE_TABLE_ID_ = parseInt($(button).val());
     update_local('active_table',[_ACTIVE_TABLE_ID_])
-    update_results();
+    $.post(_UPDATE_ACTIVE_URL_, _ACTIVE_TABLE_ID_.toString());
+    update_BMC_display_block();
     create_table(_DATA_.points[_ACTIVE_TABLE_ID_]);
     return _ACTIVE_TABLE_ID_;
 }
@@ -268,6 +272,7 @@ function remove_sample(sample_id){
     update_local('active_samples',_ACTIVE_GRAPH_IDS_);
     update_local('active_table',[_ACTIVE_TABLE_ID_]);
     $.post(_REMOVE_SAMPLE_URL_, sample_id);
+    $.post(_UPDATE_ACTIVE_URL_, _ACTIVE_TABLE_ID_.toString());
     check_active_samples();
     create_table();
     draw_graph();
@@ -563,9 +568,9 @@ function print_log(){
     })
 }
 
-/********************************** LOG ***********************************/
+/************************** BMC DISPLAY BLOCK *****************************/
 
-function update_results(){
+function update_BMC_display_block(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
     if (bmc && bmc['10']){
         var bmc10_val = $('<p>', {text: 'BMC 10 : '+bmc['10'][0]});

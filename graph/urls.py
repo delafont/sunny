@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url(r'^newsample.json/?$', views.new_sample, name='new_sample'),
     url(r'^removesample.json/?$', views.remove_sample, name='remove_sample'),
     url(r'^clear.json/?$', views.clear_all_db, name='clear_all_db'),
+    url(r'^update_active_table_id/?$', views.update_active_table_id, name='update_active_table_id'),
 )
 
 

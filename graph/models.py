@@ -5,6 +5,7 @@ from django.db import models
 class User(models.Model):
     name = models.CharField(max_length=100,default='')
     password = models.CharField(max_length=100,default='')
+    active_table_id = models.IntegerField(null=True, blank=True)
     def __unicode__(self):
         return "<User %s: %s>" % (self.id,self.name)
 
@@ -15,6 +16,7 @@ class Sample(models.Model):
     sha1 = models.CharField(max_length=20,default='') # hash of the file's content
     textfile = models.FileField(upload_to="text/")
     images = models.FileField(upload_to="images/")
+    graph_active = models.BooleanField()
     def __unicode__(self):
         return "<[%s] %s, %s, %s>" % (self.id,self.name,self.sha1,self.textfile)
 

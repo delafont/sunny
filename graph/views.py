@@ -181,13 +181,13 @@ def clear_all_db(request):
     Sample.objects.filter(user=user.id).delete()
     return index(request)
 
-def getfile(request,pk):
+def getfile(request,pk=None):
     sample = Sample.objects.get(id=pk)
     response = HttpResponse(FileWrapper(sample.textfile), content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename='+sample.name+'.txt'
     return response
 
-def getimages(request,pk):
+def getimages(request,pk=None):
     sample = Sample.objects.get(id=pk)
     measurements = Measurement.objects.filter(sample=pk)
     measurements = [(x.dose,x.response,x.experiment) for x in measurements]

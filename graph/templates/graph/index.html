@@ -58,10 +58,6 @@
                         <li>
                         <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
                         <span class='remove_sam'>x</span>
-                        <a href="{% url 'getfile' sample.id %}" class='dl_norm_data'>
-                            <img src="{% static 'img/dl_file.gif' %}" alt='Download Normalized data'></a>
-                        <a href="{% url 'getimages' sample.id %}" class='dl_5pics'>
-                            <img src="{% static 'img/dl_plots.png' %}" alt='Download R graphs'></a>
                         </li>
                     {% endfor %}
                     </ul>
@@ -96,6 +92,8 @@
         _REMOVE_SAMPLE_URL_ = "{% url 'graph:remove_sample' %}";
         _CLEAR_ALL_DB_URL_ = "{% url 'graph:clear_all_db' %}";
         _UPDATE_ACTIVE_URL_ = "{% url 'graph:update_active_table_id' %}";
+        _GETFILE_URL_ = "{% url 'graph:getfile' 9007199254740992 %}"
+        _GETIMAGES_URL_ = "{% url 'graph:getimages' 9007199254740992 %}"
         _IMG_URL_ = "{% static 'img' %}";
         on_page_load();
         console.log(">>> User:",_USER_);

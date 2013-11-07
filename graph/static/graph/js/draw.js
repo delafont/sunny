@@ -3,17 +3,19 @@
 /**************************** GLOBAL VARIABLES ****************************/
 
 var _USER_;
-var _JSON_URL_;
-var _NEW_SAMPLE_URL_;
-var _REMOVE_SAMPLE_URL_;
-var _CLEAR_ALL_DB_URL_;
 var _DATA_;
 var _CHART_;
 var _ACTIVE_GRAPH_IDS_ = [];
 var _ACTIVE_TABLE_ID_;
+
+var _JSON_URL_;
+var _NEW_SAMPLE_URL_;
+var _REMOVE_SAMPLE_URL_;
+var _CLEAR_ALL_DB_URL_;
 var _IMG_URL_;
-var _GETFILE_URL_;
 var _UPDATE_ACTIVE_URL_;
+var _GETFILE_URL_;
+var _GETIMAGES_URL_;
 
 /********************************* GRAPH **********************************/
 
@@ -278,6 +280,28 @@ function remove_sample(sample_id){
     draw_graph();
 }
 
+// Add/update the icons and their links to download the norm data/the 5 images
+function update_text_and_images(){
+    var slist = $("#table_samples_container ul li");
+    var root = location.protocol + "//" + location.host;
+    var getfile_url = root+_GETFILE_URL_.replace(/\\/g,'/').replace(/\/[^\/]*$/, '');
+    var getimages_url = root+_GETIMAGES_URL_.replace(/\\/g,'/').replace(/\/[^\/]*$/, '');
+    var text_img_url = root+_IMG_URL_+"/dl_file.gif";
+    var img_img_url = root+_IMG_URL_+"/dl_plots.png";
+    $("#table_samples_container ul li a").remove();
+    $("#table_samples_container ul li img").remove();
+    $.each(slist, function(i,x){
+        var sid = $('input',x).val();
+        var s = _DATA_.samples[parseInt(sid)];
+        sid = "/"+sid;
+        var elts = "<a href='"+getfile_url+sid+"' class='dl_norm_data'>"
+                 + "<img src='"+text_img_url+"' alt='Download Normalized data'></a>"
+                 + "<a href='"+getimages_url+sid+"' class='dl_5pics'>"
+                 + "<img src='"+img_img_url+"' alt='Download R graphs'></a>";
+        $(x).append(elts);
+    });
+}
+
 /******************************* LOCAL STORAGE *********************************/
 
 // keys: 'active_samples', 'active_table'
@@ -345,6 +369,9 @@ function update_all(newdata){
     create_table();
     draw_graph();
     hide_loading_gif();
+    load_active_samples();
+    check_active_samples();
+    update_text_and_images();
 }
 // Send the (possibly edited) table data, and the active samples for redrawing
 function update_event(){
@@ -353,9 +380,6 @@ function update_event(){
     if (_ACTIVE_TABLE_ID_){
         measurements[_ACTIVE_TABLE_ID_] = read_data_from_table();
     }
-    //} else if (measurements) { // custom entries
-    //    measurements = {-1: measurements};
-    //    samples = {-1: {'id':-1,'name':'custom','sha1':''}}
     post_data_and_redraw(measurements);
     check_active_samples();
 }
@@ -552,10 +576,6 @@ function update_samples_list(sample){
         $('#table_samples_container ul').append($('<li>').append(newinput)
             .append(sample.name).append(delete_button));
     }
-}
-
-function load_sample_data(){
-    console.log('Not yet implemented');
 }
 
 /********************************** LOG ***********************************/

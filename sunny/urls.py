@@ -1,5 +1,4 @@
 from django.conf.urls import patterns, include, url
-from graph.views import getfile, getimages
 
 # Uncomment the next two lines to enable the admin:
 #from django.contrib import admin
@@ -20,6 +19,4 @@ urlpatterns = patterns('',
     # Custom URLs
     url(r'^$', 'graph.views.login', name='login'),
     url(r'^graph/', include('graph.urls', namespace='graph')),
-    url(r'^getfile/(?P<pk>\d+)', getfile, name='getfile'),
-    url(r'^getimages/(?P<pk>\d+)', getimages, name='getimages'),
 )

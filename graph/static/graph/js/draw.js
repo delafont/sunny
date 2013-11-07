@@ -417,22 +417,23 @@ function create_table(points){
         points = _DATA_.points[_ACTIVE_TABLE_ID_];
     }
     if ($.isEmptyObject(points)) {
-        add_newline('','','');
+        add_newline('','','','last');
     }
     for (exp in points){
         M = points[exp];
         N = M.length;
         if (N==0) { // no measurements yet, add a blank input line
-            add_newline('','','',position='first');
+            add_newline('','','','first');
         } else {
             for (var i=0; i<N; i++){
-                add_newline(M[i][0],M[i][1],exp);
+                add_newline(M[i][0],M[i][1],exp,'last');
             }
         }
     }
 }
 // Add a row to the input table with a Remove button, with class 'datarow'
-function add_newline(d,r,e,position='last') {
+// Position is 'first' or 'last' (element of the table).
+function add_newline(d,r,e,position) {
     if (typeof(d)==='undefined') d=''; // dose
     if (typeof(r)==='undefined') r=''; // response
     if (typeof(e)==='undefined') e=''; // experiment
@@ -442,7 +443,7 @@ function add_newline(d,r,e,position='last') {
                                  .click(function() { $(this.parentNode).remove(); });
     if (position=='last'){
         $('#input_table tbody').append('<tr></tr>');
-        var line = $('#tbody tr:last');
+        var line = $('#tbody tr:'+position);
         line.append(newline).append(delete_button).addClass('datarow');
     } else {
         $('#input_table tbody').prepend('<tr></tr>');
@@ -486,7 +487,7 @@ function import_file(file){
                     $(cells[2]).val(experiment);
                     // sample is not known yet
                 } else { // add necessary lines
-                    add_newline(dose,response,experiment);
+                    add_newline(dose,response,experiment,'last');
                 }
             } else { // remove superfluous lines
                 var glen = grid.length;

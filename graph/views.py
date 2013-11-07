@@ -84,9 +84,9 @@ def index(request):
     samples = Sample.objects.filter(user=user.id)
     #active_graph_ids = [s.id for s in Sample.objects.filter(graph_active=True, user=user.id)]
     if not user.active_table_id:
-        if active_graph_ids:
-            user.active_table_id = active_graph_ids[0]
-        elif samples:
+        #if active_graph_ids:
+        #    user.active_table_id = active_graph_ids[0]
+        if samples:
             user.active_table_id = samples[0].id
     user.save()
     return render(request, 'graph/index.html',

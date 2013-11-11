@@ -146,6 +146,7 @@ function on_page_load(){
     update_local('active_table',[parseInt(_ACTIVE_TABLE_ID_)]);
     _BMC_LEVEL_ = localStorage.getItem('bmc_level');
     if (!_BMC_LEVEL_) {_BMC_LEVEL_ = 10;}
+    $('#bmclevel_selector').val(_BMC_LEVEL_);
     // Got _ACTIVE_TABLE_ID_ from DB the first time, so that it works across browsers
     // and sessions, then put it in LocalStorage so that it works faster.
     load_active_samples();
@@ -161,12 +162,6 @@ function show_loading_gif(){
 }
 function hide_loading_gif(){
     $('#loading img:first').remove();
-}
-function bind_remove_sample_buttons(){
-    $('.remove_sam').click(function() {
-        //$(this.parentNode).remove();
-        //remove_sample();
-    });
 }
 
 /******************************* SAMPLE SWITCH *********************************/
@@ -289,6 +284,7 @@ function remove_sample(sample_id){
     $.post(_UPDATE_ACTIVE_URL_, JSON.stringify(_ACTIVE_TABLE_ID_));
     check_active_samples();
     create_table();
+    update_BMC_display_block();
     draw_graph();
 }
 
@@ -622,10 +618,13 @@ function change_bmc_level(selector){
 }
 function update_BMC_display_block(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
+    console.log(bmc)
     if (bmc && bmc[_BMC_LEVEL_]){
         var bmc_val = $('<p>', {text: 'BMC : '+bmc[_BMC_LEVEL_][0]});
         var bmcl_val = $('<p>', {text: 'BMCL : '+bmc[_BMC_LEVEL_][1]});
         $('#results').empty().append(bmc_val).append(bmcl_val);
+    } else {
+        $('#results').empty();
     }
 }
 

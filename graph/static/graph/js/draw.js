@@ -467,6 +467,7 @@ function create_table(points){
             }
         }
     }
+    //$('#input_table').dataTable();
 }
 // Add a row to the input table with a Remove button, with class 'datarow'
 // Position is 'first' or 'last' (element of the table).

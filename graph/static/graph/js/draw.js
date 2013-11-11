@@ -389,6 +389,7 @@ function update_all(newdata){
     load_active_samples();
     check_active_samples();
     update_text_and_images();
+    $(window).resize();
 }
 // Send the (possibly edited) table data, and the active samples for redrawing
 function update_event(){

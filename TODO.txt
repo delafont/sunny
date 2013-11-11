@@ -12,5 +12,4 @@
 
 KNOWN ISSUES:
 
-* If created a custom sample, then clear, the table remains. (fixed?)
-
+* Chart right margin shifts the plot

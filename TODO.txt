@@ -5,8 +5,6 @@
 
 * User specified units for the x axis
 
-* User specified BMC percentage
-
 * Block import button while already loading
 
 

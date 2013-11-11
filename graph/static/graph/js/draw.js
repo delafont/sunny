@@ -622,8 +622,8 @@ function change_bmc_level(selector){
 function update_BMC_display_block(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
     if (bmc && bmc[_BMC_LEVEL_]){
-        var bmc_val = $('<p>', {text: 'BMC '+_BMC_LEVEL_+' : '+bmc[_BMC_LEVEL_][0]});
-        var bmcl_val = $('<p>', {text: 'BMCL '+_BMC_LEVEL_+' : '+bmc[_BMC_LEVEL_][1]});
+        var bmc_val = $('<p>', {text: 'BMC : '+bmc[_BMC_LEVEL_][0]});
+        var bmcl_val = $('<p>', {text: 'BMCL : '+bmc[_BMC_LEVEL_][1]});
         $('#results').empty().append(bmc_val).append(bmcl_val);
     }
 }

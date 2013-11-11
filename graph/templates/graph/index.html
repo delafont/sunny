@@ -27,7 +27,7 @@
                 <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
             </div>
             <div id="results_container">
-                BMC level:
+                <span class='bmclevel_label'>Level :</span>
                 <select id='bmclevel_selector' name='BMC level'>
                     <option value="10">10</option>
                     <option value="15">15</option>
@@ -36,9 +36,11 @@
                 <div id="results"></div>
             </div>
             <div id="loading"></div>
-            <div id="login"><a href="{% url 'login' %}">Log out</a><br>
-                            <a href="https://github.com/delafont/bmc/blob/master/README.md" target="_blank">
-            Documentation</a></div>
+            <div id="login">
+                <a href="{% url 'login' %}">Log out</a><br>
+                <a href="https://github.com/delafont/bmc/blob/master/README.md" target="_blank">Documentation</a><br>
+                <a href="{% static 'graph/BIBF_k.txt' %}" target='_blank'>Sample file</a>
+            </div>
         </div>
         <div id="mid">
             <div id="input_table_container">
@@ -81,9 +83,13 @@
         <div id="log"><div class='log_title'>((R output))</div><div class='log_content'></div></div>
     </div>
     <div id='footer'>
+        <a href='https://github.com/delafont/bmc' target='_blank'>
+        <img src="{% static 'img/Github_octocat.jpg' %}" width="75" height='63' alt='github_octocat'
+            class='left_logo'></a>
+        <span class='footer_text'>Project hosted on Github, &copy; 2013</span>
         <a href='http://www.uni-konstanz.de/' target="_blank">
         <img src="{% static 'img/konstanz_logo.jpg' %}" width="130" height='63' alt='konstanz_logo'
-            class='left_logo'></a>
+            class='right_logo'></a>
         <a href='http://bbcf.epfl.ch/' target="_blank">
         <img src="{% static 'img/epfl_logo.png' %}" width="130" height='63' alt='epfl_logo'
             class='right_logo'></a>

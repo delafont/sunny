@@ -142,7 +142,8 @@ function clear_graph(){
 
 // On page reload: read localStorage, check boxes, get data and redraw table+graph
 function on_page_load(){
-    update_local('active_table',[_ACTIVE_TABLE_ID_]);
+    if (_ACTIVE_TABLE_ID_ == 'None') {_ACTIVE_TABLE_ID_ = null;}
+    update_local('active_table',[parseInt(_ACTIVE_TABLE_ID_)]);
     _BMC_LEVEL_ = localStorage.getItem('bmc_level');
     if (!_BMC_LEVEL_) {_BMC_LEVEL_ = 10;}
     // Got _ACTIVE_TABLE_ID_ from DB the first time, so that it works across browsers
@@ -192,7 +193,7 @@ function change_sample_table(button){
     console.log(">>> Change Sample Table -->");
     _ACTIVE_TABLE_ID_ = parseInt($(button).val());
     update_local('active_table',[_ACTIVE_TABLE_ID_])
-    $.post(_UPDATE_ACTIVE_URL_, _ACTIVE_TABLE_ID_.toString());
+    $.post(_UPDATE_ACTIVE_URL_, JSON.stringify(_ACTIVE_TABLE_ID_));
     update_BMC_display_block();
     create_table(_DATA_.points[_ACTIVE_TABLE_ID_]);
     return _ACTIVE_TABLE_ID_;
@@ -272,14 +273,20 @@ function remove_sample(sample_id){
     });
     _ACTIVE_GRAPH_IDS_.splice($.inArray(sample_id,_ACTIVE_GRAPH_IDS_), 1); // remove
     for (var sid in _DATA_.samples) {break;} // first sample id found
-    if (sample_id == _ACTIVE_TABLE_ID_){ // if we remove the currently selected table id
-        _ACTIVE_TABLE_ID_ = sid;
-        _ACTIVE_GRAPH_IDS_.push(_ACTIVE_TABLE_ID_);
+    if (sid){
+        if (sample_id == _ACTIVE_TABLE_ID_){ // if we remove the currently selected table id
+            _ACTIVE_TABLE_ID_ = parseInt(sid);
+            if ($.inArray(_ACTIVE_TABLE_ID_,_ACTIVE_GRAPH_IDS_) == -1) {
+                _ACTIVE_GRAPH_IDS_.push(_ACTIVE_TABLE_ID_);
+            }
+        }
+    } else {
+        _ACTIVE_TABLE_ID_ = null;
     }
     update_local('active_samples',_ACTIVE_GRAPH_IDS_);
     update_local('active_table',[_ACTIVE_TABLE_ID_]);
     $.post(_REMOVE_SAMPLE_URL_, sample_id);
-    $.post(_UPDATE_ACTIVE_URL_, _ACTIVE_TABLE_ID_.toString());
+    $.post(_UPDATE_ACTIVE_URL_, JSON.stringify(_ACTIVE_TABLE_ID_));
     check_active_samples();
     create_table();
     draw_graph();
@@ -314,14 +321,16 @@ function update_text_and_images(){
 // Keep existing, add a list of new ids to the localStorage under *key*
 function add_to_local(key,newids){
     console.log(">>> Add to Active Samples", newid);
-    ids = get_local(key);
+    var ids = get_local(key);
     for (i in newids){
         var newid = newids[i];
-        if ($.inArray(newid,ids) == -1){
-            ids.push(newid);
+        if (newid) {
+            if ($.inArray(newid,ids) == -1){
+                ids.push(newid);
+            }
         }
     }
-    update_local(key,ids)
+    update_local(key,ids);
     return ids;
 }
 // If there are ids corresponding to *key*, return a list of them
@@ -332,7 +341,11 @@ function get_local(key){
     return ids;
 }
 // Replace the current list of ids for *key* in the localStorage
-function update_local(key,ids){
+function update_local(key,newids){
+    var ids = [];
+    $.each(newids, function(i,newid){
+        if (newid) {ids.push(newid);}
+    });
     localStorage.setItem(key,JSON.stringify(ids));
     return ids;
 }
@@ -401,16 +414,11 @@ function clear_all_db(){
         _ACTIVE_GRAPH_IDS_ = [];
         $.post(_CLEAR_ALL_DB_URL_,true,function(e){
             get_data_and_redraw();
-            //location.reload();
         });
     }
 }
 // Return the union of graph- and table active samples
 function all_active_samples(){
-    //var sample_ids = _ACTIVE_GRAPH_IDS_.slice(0);
-    //if ($.inArray(_ACTIVE_TABLE_ID_,sample_ids) == -1) {
-    //    sample_ids.push(_ACTIVE_TABLE_ID_);
-    //}
     var sample_ids = [];
     $('#samples_container input:radio').each(function(i,elt){
         sample_ids.push($(elt).val());
@@ -439,19 +447,19 @@ function read_data_from_table(){
 function create_table(points){
     console.log(">>> Create Table", points);
     $('#input_table .datarow').remove();
-    if (typeof(_ACTIVE_TABLE_ID_)==='undefined') {
+    if (!_ACTIVE_TABLE_ID_) { // No sample
         return;
     }
-    if (typeof(points)==='undefined') {
+    if (typeof(points)==='undefined') { // Method called without argument
         points = _DATA_.points[_ACTIVE_TABLE_ID_];
     }
-    if ($.isEmptyObject(points)) {
+    if ($.isEmptyObject(points)) { // New custom sample
         add_newline('','','','last');
     }
     for (exp in points){
         M = points[exp];
         N = M.length;
-        if (N==0) { // no measurements yet, add a blank input line
+        if (N==0) { // No measurements yet, add a blank input line
             add_newline('','','','first');
         } else {
             for (var i=0; i<N; i++){
@@ -528,15 +536,9 @@ function import_file(file){
         });
         // Create new sample if necessary, read the new table and redraw
         var sha1 = SHA1(e.target.result);
-        // is it already on the current samples list?:
-        //all_sha1 = [];
-        //for (i in _DATA_.samples) { all_sha1.push(_DATA_.samples[i].sha1); }
-        //if (sha1 in all_sha1){
-        //    "Do nothing?"
-        //} else {
-            var sname = file.name.replace(/\.[^/.]+$/, "");
-            var newsample = {'sha1':sha1, 'name':sname}
-            create_new_sample(newsample);
+        var sname = file.name.replace(/\.[^/.]+$/, "");
+        var newsample = {'sha1':sha1, 'name':sname};
+        create_new_sample(newsample);
     }
     reader.error = function(e){
         console.log('Error while reading file\n', e);
@@ -602,7 +604,7 @@ function change_bmc_level(selector){
     update_BMC_display_block();
     var bmc_lines = _CHART_.xAxis[0].plotLinesAndBands;
     var color = bmc_lines[0].options.color;
-    //current_bmc_value = bmc_lines[0].options.value);
+    //current_bmc_value = bmc_lines[0].options.value;
     $.each(_ACTIVE_GRAPH_IDS_, function(index,sample_id){
         var bmc = _DATA_.BMC[sample_id];
         _CHART_.xAxis[0].removePlotLine('BMCline_'+sample_id);
@@ -617,7 +619,6 @@ function change_bmc_level(selector){
         });
     });
 }
-
 function update_BMC_display_block(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
     if (bmc && bmc[_BMC_LEVEL_]){

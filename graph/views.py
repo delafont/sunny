@@ -171,7 +171,9 @@ def remove_sample(request):
 
 def update_active_table_id(request):
     user = User.objects.get(name=request.session['user'])
-    user.active_table_id = request.body
+    newid = request.body
+    if newid == 'null': newid = None
+    user.active_table_id = newid
     user.save()
     return HttpResponse(None)
 
@@ -179,6 +181,8 @@ def clear_all_db(request):
     user = User.objects.get(name=request.session['user'])
     Measurement.objects.filter(user=user.id).delete()
     Sample.objects.filter(user=user.id).delete()
+    user.active_table_id = None
+    user.save()
     return index(request)
 
 def getfile(request,pk=None):

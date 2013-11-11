@@ -306,9 +306,9 @@ function update_text_and_images(){
         var s = _DATA_.samples[parseInt(sid)];
         sid = "/"+sid;
         var elts = "<a href='"+getfile_url+sid+"' class='dl_norm_data'>"
-                 + "<img src='"+text_img_url+"' alt='Download Normalized data'></a>"
+                 + "<img src='"+text_img_url+"' title='Download Normalized data'></a>"
                  + "<a href='"+getimages_url+sid+"' class='dl_5pics'>"
-                 + "<img src='"+img_img_url+"' alt='Download R graphs'></a>";
+                 + "<img src='"+img_img_url+"' title='Download R graphs'></a>";
         $(x).append(elts);
     });
 }

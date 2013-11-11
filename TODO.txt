@@ -11,3 +11,5 @@
 KNOWN ISSUES:
 
 * Chart right margin shifts the plot
+
+* Global variables sharing between multiple browser tabs

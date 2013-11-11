@@ -144,11 +144,9 @@ function clear_graph(){
 function on_page_load(){
     if (_ACTIVE_TABLE_ID_ == 'None') {_ACTIVE_TABLE_ID_ = null;}
     update_local('active_table',[parseInt(_ACTIVE_TABLE_ID_)]);
-    _BMC_LEVEL_ = localStorage.getItem('bmc_level');
-    if (!_BMC_LEVEL_) {_BMC_LEVEL_ = 10;}
-    $('#bmclevel_selector').val(_BMC_LEVEL_);
     // Got _ACTIVE_TABLE_ID_ from DB the first time, so that it works across browsers
     // and sessions, then put it in LocalStorage so that it works faster.
+    set_bmc_level();
     load_active_samples();
     check_active_samples();
     get_data_and_redraw();
@@ -162,6 +160,11 @@ function show_loading_gif(){
 }
 function hide_loading_gif(){
     $('#loading img:first').remove();
+}
+function set_bmc_level(){
+    _BMC_LEVEL_ = localStorage.getItem('bmc_level');
+    if (!_BMC_LEVEL_) {_BMC_LEVEL_ = 10;}
+    $('#bmclevel_selector').val(_BMC_LEVEL_);
 }
 
 /******************************* SAMPLE SWITCH *********************************/
@@ -519,7 +522,6 @@ function import_file(file){
                     $(cells[0]).val(dose);
                     $(cells[1]).val(response);
                     $(cells[2]).val(experiment);
-                    // sample is not known yet
                 } else { // add necessary lines
                     add_newline(dose,response,experiment,'last');
                 }
@@ -552,7 +554,6 @@ function update_samples_list(sample){
     if (thisinput.length > 0){
         thisinput.append(sample.name);
     } else {
-        //$('#graph_samples_container input[name=samples_graph]').removeAttr('checked');
         var newinput = $('<input>', {
             type: 'checkbox',
             name: 'samples_graph',
@@ -601,7 +602,6 @@ function change_bmc_level(selector){
     update_BMC_display_block();
     var bmc_lines = _CHART_.xAxis[0].plotLinesAndBands;
     var color = bmc_lines[0].options.color;
-    //current_bmc_value = bmc_lines[0].options.value;
     $.each(_ACTIVE_GRAPH_IDS_, function(index,sample_id){
         var bmc = _DATA_.BMC[sample_id];
         _CHART_.xAxis[0].removePlotLine('BMCline_'+sample_id);
@@ -618,7 +618,6 @@ function change_bmc_level(selector){
 }
 function update_BMC_display_block(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
-    console.log(bmc)
     if (bmc && bmc[_BMC_LEVEL_]){
         var bmc_val = $('<p>', {text: 'BMC : '+bmc[_BMC_LEVEL_][0]});
         var bmcl_val = $('<p>', {text: 'BMCL : '+bmc[_BMC_LEVEL_][1]});

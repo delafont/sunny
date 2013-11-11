@@ -7,6 +7,7 @@ var _DATA_;
 var _CHART_;
 var _ACTIVE_GRAPH_IDS_ = [];
 var _ACTIVE_TABLE_ID_;
+var _BMC_LEVEL_;
 
 var _JSON_URL_;
 var _NEW_SAMPLE_URL_;
@@ -86,20 +87,22 @@ function draw_graph(){
                 name: 'Anchor '+sample.name,
             });
         }
-        if (bmc && bmc['10']){
+        if (bmc && bmc[_BMC_LEVEL_]){
             var color = colors[(idx-1) % colors.length];
             bmc_lines.push.apply(bmc_lines, [{
-                value: bmc['10'][0],
+                id: 'BMCline_'+sample_id,
+                value: bmc[_BMC_LEVEL_][0],
                 width: 1,
                 color: color,
-                label: {text: 'BMC 10', style: {color: '#606060'},
+                label: {text: 'BMC '+_BMC_LEVEL_, style: {color: '#606060'},
                 }
             }, {
-                value: bmc['10'][1],
+                id: 'BMCLline_'+sample_id,
+                value: bmc[_BMC_LEVEL_][1],
                 width: 1,
                 color: color,
                 dashStyle: 'Dash',
-                label: {text: 'BMCL 10', style: {color: '#606060'},
+                label: {text: 'BMCL '+_BMC_LEVEL_, style: {color: '#606060'},
                 }
             }]);
         }
@@ -140,6 +143,8 @@ function clear_graph(){
 // On page reload: read localStorage, check boxes, get data and redraw table+graph
 function on_page_load(){
     update_local('active_table',[_ACTIVE_TABLE_ID_]);
+    _BMC_LEVEL_ = localStorage.getItem('bmc_level');
+    if (!_BMC_LEVEL_) {_BMC_LEVEL_ = 10;}
     // Got _ACTIVE_TABLE_ID_ from DB the first time, so that it works across browsers
     // and sessions, then put it in LocalStorage so that it works faster.
     load_active_samples();
@@ -591,25 +596,34 @@ function print_log(){
 
 /************************** BMC DISPLAY BLOCK *****************************/
 
+function change_bmc_level(selector){
+    _BMC_LEVEL_ = $(selector).val();
+    localStorage.setItem('bmc_level',_BMC_LEVEL_);
+    update_BMC_display_block();
+    var bmc_lines = _CHART_.xAxis[0].plotLinesAndBands;
+    var color = bmc_lines[0].options.color;
+    //current_bmc_value = bmc_lines[0].options.value);
+    $.each(_ACTIVE_GRAPH_IDS_, function(index,sample_id){
+        var bmc = _DATA_.BMC[sample_id];
+        _CHART_.xAxis[0].removePlotLine('BMCline_'+sample_id);
+        _CHART_.xAxis[0].removePlotLine('BMCLline_'+sample_id);
+        _CHART_.xAxis[0].addPlotLine({
+                id: 'BMCline_'+sample_id, value: bmc[_BMC_LEVEL_][0], width: 1, color: color,
+                label: {text: 'BMC '+_BMC_LEVEL_, style: {color: '#606060'}},
+        });
+        _CHART_.xAxis[0].addPlotLine({
+                id: 'BMCLline_'+sample_id, value: bmc[_BMC_LEVEL_][1], width: 1, color: color,
+                label: {text: 'BMCL '+_BMC_LEVEL_, style: {color: '#606060'}}, dashStyle: 'Dash',
+        });
+    });
+}
+
 function update_BMC_display_block(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
-    if (bmc && bmc['10']){
-        var bmc10_val = $('<p>', {text: 'BMC 10 : '+bmc['10'][0]});
-        var bmcl10_val = $('<p>', {text: 'BMCL 10 : '+bmc['10'][1]});
-        $('#results').empty().append(bmc10_val).append(bmcl10_val);
-        var otherbmcs = $('<div>').addClass('otherbmcs');
-        $('#results').append(otherbmcs);
-        if (bmc['15']){
-            var bmc15_val = $('<span>', {text: 'BMC 15: '+bmc['15'][0]});
-            var bmcl15_val = $('<span>', {text: 'BMCL 15 : '+bmc['15'][1]});
-            otherbmcs.append(bmc15_val).append(bmcl15_val);
-            if (bmc['50']){
-                otherbmcs.append('<br>')
-                var bmc50_val = $('<span>', {text: 'BMC 50: '+bmc['50'][0]});
-                var bmcl50_val = $('<span>', {text: 'BMCL 50 : '+bmc['50'][1]});
-                otherbmcs.append(bmc50_val).append(bmcl50_val);
-            }
-        }
+    if (bmc && bmc[_BMC_LEVEL_]){
+        var bmc_val = $('<p>', {text: 'BMC '+_BMC_LEVEL_+' : '+bmc[_BMC_LEVEL_][0]});
+        var bmcl_val = $('<p>', {text: 'BMCL '+_BMC_LEVEL_+' : '+bmc[_BMC_LEVEL_][1]});
+        $('#results').empty().append(bmc_val).append(bmcl_val);
     }
 }
 

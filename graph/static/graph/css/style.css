@@ -17,7 +17,7 @@ body{
     margin-left: 10px;
     margin-right: 10px;
 }
-#results{
+#results_container{
     float: left;
     margin-left: 100px;
     padding: 10px;
@@ -161,7 +161,7 @@ body{
     font-weight: bold;
 }
 
-/************** Log *************/
+/************* Footer *************/
 #footer img.left_logo{
     margin-left: 10px;
 }

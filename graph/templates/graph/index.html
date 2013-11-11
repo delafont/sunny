@@ -26,7 +26,15 @@
                 <button type='button' id='clear_button'>Clear all</button><br>
                 <!--<button type='button' id='clear_local'>Clear localStorage</button>-->
             </div>
-            <div id="results"></div>
+            <div id="results_container">
+                BMC level:
+                <select id='bmclevel_selector' name='BMC level'>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="50">50</option>
+                </select>
+                <div id="results"></div>
+            </div>
             <div id="loading"></div>
             <div id="login"><a href="{% url 'login' %}">Log out</a><br>
                             <a href="https://github.com/delafont/bmc/blob/master/README.md" target="_blank">
@@ -111,6 +119,9 @@
         });
         $('#new_sample_button').click(function() {
             create_new_sample_onclick();
+        });
+        $('#bmclevel_selector').change(function() {
+            change_bmc_level(this);
         });
         $('input:checkbox[name=samples_graph]').change(function() {
             change_sample_graph(this);

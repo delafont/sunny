@@ -109,7 +109,7 @@ function draw_graph(){
     });
 
     _CHART_ = new Highcharts.Chart({
-        chart: {renderTo: 'chart'},
+        chart: {renderTo: 'chart', marginRight: 25, marginTop: 20},
         title: {text: ''},
         xAxis: {title: {text: 'Concentration'},
                 type: 'logarithmic',

@@ -51,6 +51,7 @@ body{
 #graph_container{
     overflow: hidden;
     max-width: 800px;
+    z-index:100;
 }
 #samples_container{
     float: right;

@@ -597,7 +597,7 @@ function print_log(){
     var logbox = $('#log .log_content');
     logbox.text('');
     $.each(_DATA_.loglist, function(index,logstring){
-        logbox.append("<p>"+logstring+"</p>");
+        if (logstring) {logbox.append("<p>"+logstring+"</p>");}
     })
 }
 

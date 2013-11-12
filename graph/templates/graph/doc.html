@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Benchmark concentration modeling web application</title>
+</head>
+
+<body>
+
+
+<h1>Benchmark concentration modeling web application</h1>
+
+<h2>Purpose of the page</h2>
+<p>The Benchmark concentration modeling tool calculates a BMCL (Benchmark Concentration Lower Limit) from in-vitro Toxicity data in a reproducible way to make the determined non-cytotoxic doses for a compound comparable between assays and laboratories. Here is a short tutorial showing how to use this page: ... </p>
+
+<h2>Login</h2>
+<p>To Login please provide an email address and a self-chosen password. Every time you login with your user data the datasets from your previous session are loaded.</p>
+
+<h2>Logout</h2>
+<p>By clicking the logout button all the processed data from the current session are saved and can be readily accessed in the next login.</p>
+
+<h2>Input data</h2>
+<p>A least 3 columns: dose - response - experiment have to be provided. In the dose column the concentrations that were used for the treatment of the cells (e.g. Compound concentration of arsenic was 0.001 nM). The response has to be given as percentage of untreated cells. That means that the user has to subtract the background from the raw data and normalize the data with untreated controls prior to benchmark dose modeling. In the experiment column a whole number has to be given to make it clear from which experiment the dose-response data stem. This allows you to put several samples (of the same treatment) in the same file. If only a single experiment is analyzed this number is 1.</p>
+<p>For example:
+    <table>
+    <thead><tr><td>dose</td><td>response</td><td>experiment</td></tr></thead>
+    <tbody>
+    <tr><td>0.00001</td><td>96.32</td><td>1</td></tr>
+    <tr><td>0.0001</td><td>123.51</td><td>1</td></tr>
+    <tr><td>0.001</td><td>92.63</td><td>1</td></tr>
+    <tr><td>0.01</td><td>97.36</td><td>1</td></tr>
+    </tbody>
+    </table>
+</p>
+
+<h2>New custom sample</h2>
+<p>By pushing the new custom sample button you can specify a name for your sample and manually insert the data in the grid.</p>
+
+<h2>Browse</h2>
+<p>Input data have to be provided in a tab delimited text file format. By clicking on the browse button you can search the file system of your computer and upload the file. Data from Excel can be previously saved as tab delimited text files easily. The data then show then up in the grid on the left side of the screen. </p>
+
+<h2>Update</h2>
+<p>Clicking on the Update Button runs the algorithm in the background. The graph with the fitted model then pops up in the middle of the screen. The data in the grid are now normalized and data points, for example outliers can be edited. Data points can be added by clicking the green plus and removed by clicking on the red cross. After each modification Update has to be clicked again to re-run the algorithm on the edited dataset. </p>
+
+<h2>Dynamic Graph</h2>
+<p>After pushing the Update Button a graph pops up central in the screen that shows the fitted model and the normalized data from each experiment in different colors. By clicking on the line and point symbols in the legend under the graph items can be removed from the graph. In this manner each single experiment can be visualized or the model from the pooled data can be visualized separately. Above the Graph the benchmark concentration (BMC) and the benchmark concentration lower limit (BMCL) are depicted for a Benchmark response (BMR) of 50%, 15% and 10% respectively. Under the graph the chosen model and its parameters are written and also if any errors occur during the modeling it can be found there.</p>
+
+<h2>Download Results</h2>
+<p>The graph can be downloaded in svg, png, jpg and pdf by expanding the menu and clicking on the desired format on the upper right corner of the graph. If another previously made graph has to be downloaded it can be selected from the “samples to display” context menu on the right side of the screen. The normalized data can be downloaded by selecting a dataset from the “edit sample” menu on the right side of the graph and then clicking on the text icon. By clicking on the graph icon next to it a .zip file can be downloaded that shows all the single fitting steps from the algorithm as described in the paper (put link to my paper here).</p>
+
+<h2>Clear all</h2>
+Clicking on the “Clear All” button removes all previously uploaded datasets. You are asked if you are sure that you want to delete everything when you push this button.</p>
+
+
+</body>
+</html>
+
+

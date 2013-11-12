@@ -7,9 +7,13 @@
 
 * Block import button while already loading
 
+* Add CRSF tokens
+
 
 KNOWN ISSUES:
 
 * Chart right margin shifts the plot
 
 * Global variables sharing between multiple browser tabs
+
+* Security holes about everywhere

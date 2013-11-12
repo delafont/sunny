@@ -39,8 +39,8 @@
             <div id="loading"></div>
             <div id="login">
                 <a href="{% url 'login' %}">Log out</a><br>
-                <a href="{% static 'doc.html' %}" target="_blank">Documentation</a><br>
-                <a href="{% static 'graph/BIBF_k.txt' %}" target='_blank'>Sample file</a>
+                <a href="{% url 'graph:doc' %}" target="_blank">Documentation</a><br>
+                <a href="{% static 'graph/sample_files/BIBF_k.txt' %}" target='_blank'>Sample file</a>
             </div>
         </div>
         <div id="mid">

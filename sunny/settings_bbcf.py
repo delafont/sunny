@@ -1,8 +1,8 @@
-# Django settings for sunny project.
+# Django settings for BMC project.
 
 import os
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 PROJECT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), os.path.pardir))
 
@@ -17,7 +17,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': './bmcdb',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': '',
+        'USER': 'rvmuser',
         'PASSWORD': '',
         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
@@ -75,7 +75,6 @@ STATIC_URL = ROOT_URL+'/static/'
 # Additional locations of static files
 STATICFILES_DIRS = (
     os.path.join(PROJECT_DIR,'static'),
-    os.path.join(ROOT_URL,'doc'),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

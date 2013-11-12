@@ -11,6 +11,8 @@ urlpatterns = patterns('',
     url(r'^update_active_table_id/?$', views.update_active_table_id, name='update_active_table_id'),
     url(r'^getfile/(?P<pk>\d+)', views.getfile, name='getfile'),
     url(r'^getimages/(?P<pk>\d+)', views.getimages, name='getimages'),
+    #url(r'^sample_file/?$', views.sample_file, name='sample_file'),
+    url(r'^doc/?$', views.documentation, name='doc'),
 )
 
 

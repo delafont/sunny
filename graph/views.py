@@ -207,6 +207,13 @@ def getimages(request,pk=None):
     response['Content-Disposition'] = 'attachment; filename=5images_%s.tar.gz' % pk
     return response
 
+#def sample_file(request):
+#    """Stupid view to just return the sample file url, thanks Django."""
+#    return redirect('graph/BIBF_k.txt')
+
+def documentation(request):
+    """Stupid view to just return the doc url, thanks Django."""
+    return render(request, 'graph/doc.html')
 
 #------------------------------------------------------#
 # This code was written by Julien Delafontaine         #

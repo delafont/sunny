@@ -188,8 +188,8 @@ function change_sample_graph(button){
 }
 // Switch the displayed table according to the selected radio button.
 function change_sample_table(button){
-    console.log(">>> Change Sample Table -->");
     _ACTIVE_TABLE_ID_ = parseInt($(button).val());
+    console.log(">>> Change Sample Table --> ",_ACTIVE_TABLE_ID_);
     update_local('active_table',[_ACTIVE_TABLE_ID_])
     $.post(_UPDATE_ACTIVE_URL_, JSON.stringify(_ACTIVE_TABLE_ID_));
     update_BMC_display_block();
@@ -258,7 +258,7 @@ function create_new_sample(newsample){
 // Remove sample on click on the red cross in front of the sample name
 function remove_sample_onclick(button){
     var this_li = $(button).parent();
-    var sample_id = $('input', this_li).val();
+    var sample_id = parseInt($('input', this_li).val());
     remove_sample(sample_id);
     $('#samples_container input[value='+sample_id+']').parent('li').remove();
 }
@@ -273,17 +273,17 @@ function remove_sample(sample_id){
     for (var sid in _DATA_.samples) {break;} // first sample id found
     if (sid){
         if (sample_id == _ACTIVE_TABLE_ID_){ // if we remove the currently selected table id
-            _ACTIVE_TABLE_ID_ = parseInt(sid);
+            _ACTIVE_TABLE_ID_ = parseInt(sid); // set it to a random remaining one
             if ($.inArray(_ACTIVE_TABLE_ID_,_ACTIVE_GRAPH_IDS_) == -1) {
-                _ACTIVE_GRAPH_IDS_.push(_ACTIVE_TABLE_ID_);
+                _ACTIVE_GRAPH_IDS_.push(_ACTIVE_TABLE_ID_); // make it graph active, too
             }
         }
-    } else {
+    } else { // if no more samples
         _ACTIVE_TABLE_ID_ = null;
     }
     update_local('active_samples',_ACTIVE_GRAPH_IDS_);
     update_local('active_table',[_ACTIVE_TABLE_ID_]);
-    $.post(_REMOVE_SAMPLE_URL_, sample_id);
+    $.post(_REMOVE_SAMPLE_URL_, JSON.stringify(sample_id));
     $.post(_UPDATE_ACTIVE_URL_, JSON.stringify(_ACTIVE_TABLE_ID_));
     check_active_samples();
     create_table();
@@ -306,9 +306,9 @@ function update_text_and_images(){
         var s = _DATA_.samples[parseInt(sid)];
         sid = "/"+sid;
         var elts = "<a href='"+getfile_url+sid+"' class='dl_norm_data'>"
-                 + "<img src='"+text_img_url+"' alt='Download Normalized data'></a>"
+                 + "<img src='"+text_img_url+"' title='Download Normalized data'></a>"
                  + "<a href='"+getimages_url+sid+"' class='dl_5pics'>"
-                 + "<img src='"+img_img_url+"' alt='Download R graphs'></a>";
+                 + "<img src='"+img_img_url+"' title='Download R graphs'></a>";
         $(x).append(elts);
     });
 }
@@ -383,13 +383,12 @@ function get_data_and_redraw(){
 // Update _DATA_, recreate the table, redraw
 function update_all(newdata){
     _DATA_ = newdata;
-    create_table();
-    draw_graph();
     hide_loading_gif();
+    create_table();
     load_active_samples();
     check_active_samples();
     update_text_and_images();
-    $(window).resize();
+    draw_graph();
 }
 // Send the (possibly edited) table data, and the active samples for redrawing
 function update_event(){

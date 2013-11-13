@@ -431,6 +431,7 @@ function all_active_samples(){
 // Read data from table
 function read_data_from_table(){
     console.log(">>> Read Data From Table");
+    console.log(_TABLE_.dataTable().fnGetData())
     return _TABLE_.dataTable().fnGetData();
 }
 // Create a table from given *points*, a dict {exp:[(1,2,exp),]}, or by default read from _DATA_.points
@@ -440,7 +441,7 @@ function create_table(points){
         // Feature enabling
         "bAutoWidth": false,     // auto columns width [true]
         "bDeferRender": true,    // speed boost if Ajax [false]
-        "bFilter": true,        // search field [true]
+        "bFilter": false,        // search field [true]
         "bInfo": false,          // display of table info [true]
         "bPaginate": true,      // pagination [true]
         "bLengthChange": true,  // if pagination, choice for the length of the list [true]
@@ -454,7 +455,7 @@ function create_table(points){
         "iDisplayLength": 20, // default length of the list displayed [10]
         "iTabIndex": -1,         // keyboard navigation
     });
-    _TABLE_.fnClearTable();
+    _TABLE_.dataTable().fnClearTable();
     if (!_ACTIVE_TABLE_ID_) { // No sample
         return;
     }
@@ -467,6 +468,22 @@ function create_table(points){
     for (exp in points){
         _TABLE_.dataTable().fnAddData(points[exp]);
     }
+    // Make fields editable
+    _TABLE_.$('td').editable(function(value,settings){return value;} ,{
+        "callback": function( sValue, y ) {
+            var float_sval = parseFloat(sValue);
+            if (! isNaN(float_sval)) {sValue = float_sval;}
+            var aPos = _TABLE_.fnGetPosition( this );
+            _TABLE_.fnUpdate( sValue, aPos[0], aPos[1] );
+        },
+        "submitdata": function ( value, settings ) {
+            return {
+                "row_id": this.parentNode.getAttribute('id'),
+                "column": _TABLE_.fnGetPosition( this )[2]
+            };
+        },
+        "height": "14px",
+    })
     return _TABLE_;
 }
 // Add a row to the input table with a Remove button, with class 'datarow'
@@ -516,32 +533,21 @@ function import_file(file){
         var grid = $('#input_table tr.datarow');
         var lines = e.target.result.split('\n');
         lines = lines.slice(-lines.length+1); // remove header line
-
+        var file_data = [];
         $.each(lines, function(i,L){
             L = $.trim(L);
             L = L.split('\t');
-            dose = L[0];
-            response = parseFloat(L[1]).toFixed(2);
+            dose = parseFloat(L[0]);
+            response = parseFloat(L[1]);
             if (L[2] == undefined) {experiment = '1';}
             else {experiment = L[2];}
             // Update the input table
             if (L.length > 1){
-                if (i < grid.length){ // replace existing lines
-                    var cells = $('input',grid[i]);
-                    $(cells[0]).val(dose);
-                    $(cells[1]).val(response);
-                    $(cells[2]).val(experiment);
-                } else { // add necessary lines
-                    add_row(dose,response,experiment,'last');
-                }
-            } else { // remove superfluous lines
-                var glen = grid.length;
-                for (var k=i; k<=glen; k++){
-                    $(grid[k]).remove();
-                }
-                return false;
+                file_data.push([dose,response,experiment]);
             }
         });
+        _TABLE_.dataTable().fnClearTable();
+        _TABLE_.dataTable().fnAddData(file_data);
         // Create new sample if necessary, read the new table and redraw
         var sha1 = SHA1(e.target.result);
         var sname = file.name.replace(/\.[^/.]+$/, "");

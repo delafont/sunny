@@ -5,6 +5,7 @@
 var _USER_;
 var _DATA_;
 var _CHART_;
+var _TABLE_;
 var _ACTIVE_GRAPH_IDS_ = [];
 var _ACTIVE_TABLE_ID_;
 var _BMC_LEVEL_;
@@ -430,53 +431,54 @@ function all_active_samples(){
 // Read data from table
 function read_data_from_table(){
     console.log(">>> Read Data From Table");
-    var measurements = [];
-    $('#input_table tr.datarow').each(function(index,v){
-        var fields = $('input',v);
-        var dose = parseFloat($(fields[0]).val());
-        var response = parseFloat($(fields[1]).val());
-        var experiment = parseInt($(fields[2]).val());
-        if (dose || response){
-            measurements.push([dose,response,experiment]);
-        }
-    });
-    return measurements;
+    return _TABLE_.dataTable().fnGetData();
 }
-// Create a table from given *points*, a dict {exp:[(1,2,exp),]}
+// Create a table from given *points*, a dict {exp:[(1,2,exp),]}, or by default read from _DATA_.points
 function create_table(points){
     console.log(">>> Create Table", points);
-    $('#input_table .datarow').remove();
+    _TABLE_ = $('#input_table').dataTable({
+        // Feature enabling
+        "bAutoWidth": false,     // auto columns width [true]
+        "bDeferRender": true,    // speed boost if Ajax [false]
+        "bFilter": true,        // search field [true]
+        "bInfo": false,          // display of table info [true]
+        "bPaginate": true,      // pagination [true]
+        "bLengthChange": true,  // if pagination, choice for the length of the list [true]
+        "bProcessing": false,    // display processing indicator [false]
+        "bSort": true,          // toggle sorting functionality [true]
+        "bSortClasses": true,    // auto sort on the other columns, too [true]
+        "bStateSave": true,      // cookie-based state saver [false]
+        // Options
+        "bDestroy": true,        // destroy and create new table instead of updating [false]
+        "iCookieDuration": 60*60*24,  // cookie duration [null]
+        "iDisplayLength": 20, // default length of the list displayed [10]
+        "iTabIndex": -1,         // keyboard navigation
+    });
+    _TABLE_.fnClearTable();
     if (!_ACTIVE_TABLE_ID_) { // No sample
         return;
     }
     if (typeof(points)==='undefined') { // Method called without argument
         points = _DATA_.points[_ACTIVE_TABLE_ID_];
-    }
-    if ($.isEmptyObject(points)) { // New custom sample
-        add_newline('','','','last');
+    } else if ($.isEmptyObject(points)) { // New custom sample
+        add_row('','','','last');
+        return;
     }
     for (exp in points){
-        M = points[exp];
-        N = M.length;
-        if (N==0) { // No measurements yet, add a blank input line
-            add_newline('','','','first');
-        } else {
-            for (var i=0; i<N; i++){
-                add_newline(M[i][0],M[i][1],exp,'last');
-            }
-        }
+        _TABLE_.dataTable().fnAddData(points[exp]);
     }
-    //$('#input_table').dataTable({
-    //        "bPaginate": false,
-    //        "bLengthChange": false,
-    //        "bFilter": true,
-    //        "bSort": false,
-    //        "bInfo": false,
-    //        "bAutoWidth": false
-    //});
+    return _TABLE_;
 }
 // Add a row to the input table with a Remove button, with class 'datarow'
 // Position is 'first' or 'last' (element of the table).
+function add_row(d,r,e,position) {
+    if (typeof(d)==='undefined') d=''; // dose
+    if (typeof(r)==='undefined') r=''; // response
+    if (typeof(e)==='undefined') e=''; // experiment
+    var row_id = $('#input_table').dataTable().fnAddData([d,r,e,'']);
+    var delete_button = $('<td>').addClass('remove_mes').html('x')
+                                 .click(function() {fnDeleteRow(row_id);} );
+}
 function add_newline(d,r,e,position) {
     if (typeof(d)==='undefined') d=''; // dose
     if (typeof(r)==='undefined') r=''; // response
@@ -530,7 +532,7 @@ function import_file(file){
                     $(cells[1]).val(response);
                     $(cells[2]).val(experiment);
                 } else { // add necessary lines
-                    add_newline(dose,response,experiment,'last');
+                    add_row(dose,response,experiment,'last');
                 }
             } else { // remove superfluous lines
                 var glen = grid.length;

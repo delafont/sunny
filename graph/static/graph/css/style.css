@@ -117,7 +117,7 @@ body{
 }
 
 /************** Input table *************/
-.input_table{
+/*.input_table{
     border-spacing: 0;
     border-collapse: collapse;
     width: 200px;
@@ -131,6 +131,7 @@ body{
 .input_table input.dose_in{ width: 60px; }
 .input_table input.response_in{ width: 60px; }
 .input_table input.experiment_in{ width: 30px; }
+*/
 
 /************** Graph *************/
 #graph_container .graph-top-filler{

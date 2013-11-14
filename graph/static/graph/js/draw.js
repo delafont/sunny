@@ -483,7 +483,8 @@ function create_table(points){
                 "column": _TABLE_.fnGetPosition( this )[2]
             };
         },
-        "height": "14px",
+        "height": "11px",
+        "width": "40px",
     })
     return _TABLE_;
 }

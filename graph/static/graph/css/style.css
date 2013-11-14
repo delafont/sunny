@@ -1,12 +1,27 @@
 
+/**************** General *******************/
 
-/************** Main containers *************/
 body{
     background-color: #96B0EB;
     min-width: 870px;
     max-width: 1400px;
     padding-left: 10px;
+    font-family: "Times", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
 }
+select{
+    width: auto;
+    margin: 0;
+}
+label{
+    font-size: 16px;
+}
+table {
+    margin: 1em 0;
+    clear: both;
+}
+
+/************** Main containers *************/
 
 #banner{
     margin-top: 15px;
@@ -43,6 +58,7 @@ body{
 }
 #input_table_container{
     float: left;
+    width: 200px;
     margin-top: 0px;
     margin-bottom: 20px;
     margin-right: 15px;
@@ -75,8 +91,10 @@ body{
 #clear_button{
     color: red;
 }
+.upload_button_desc{
+}
 
-/************** +- Buttons *************/
+/************** (+/-) Buttons *************/
 /* Red cross as a 'Remove' button */
 /* Green plus as an 'Add' button */
 .remove_mes, .remove_sam, #add_mes{
@@ -106,10 +124,16 @@ body{
     padding-left: 6px;
     padding-right: 6px;
     margin: 0;
-    font-size: 1.2em;
+    font-size: 20px;
 }
 #results_container span.bmclevel_label{
     margin-left: 6px;
+}
+
+/************** Links *************/
+
+.topright_link{
+    font-size: 18px;
 }
 
 /************** Login *************/
@@ -117,21 +141,41 @@ body{
 }
 
 /************** Input table *************/
-/*.input_table{
-    border-spacing: 0;
-    border-collapse: collapse;
-    width: 200px;
+table td form{
+    margin: 0;
 }
-.input_table tr.datarow{
-    font-size: 0.9em;
+div.dataTables_length label {
+    width: 460px;
+    float: left;
+    text-align: left;
 }
-.input_table input{
-    width: 70px;
+div.dataTables_filter label {
+    float: right;
+    width: 460px;
 }
-.input_table input.dose_in{ width: 60px; }
-.input_table input.response_in{ width: 60px; }
-.input_table input.experiment_in{ width: 30px; }
-*/
+div.dataTables_info {
+    padding-top: 8px;
+}
+div.dataTables_paginate {
+    float: right;
+    margin: 0;
+}
+div.dataTables_paginate a{
+    cursor: pointer;
+}
+table.table thead .sorting,
+table.table thead .sorting_asc,
+table.table thead .sorting_desc,
+table.table thead .sorting_asc_disabled,
+table.table thead .sorting_desc_disabled {
+    cursor: pointer;
+    *cursor: hand;
+}
+table.table thead .sorting { background: url('images/sort_both.png') no-repeat center right; }
+table.table thead .sorting_asc { background: url('images/sort_asc.png') no-repeat center right; }
+table.table thead .sorting_desc { background: url('images/sort_desc.png') no-repeat center right; }
+table.table thead .sorting_asc_disabled { background: url('images/sort_asc_disabled.png') no-repeat center right; }
+table.table thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }
 
 /************** Graph *************/
 #graph_container .graph-top-filler{
@@ -146,6 +190,11 @@ body{
 #table_samples_container ul{
     padding: 0;
     list-style-type: none;
+}
+#graph_samples_container li input,
+#table_samples_container li input{
+    margin-right: 10px;
+    margin-bottom: 4px;
 }
 
 /************** Log *************/

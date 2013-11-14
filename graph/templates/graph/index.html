@@ -10,8 +10,11 @@
     <script type="text/javascript" src="{% static 'graph/js/Highcharts-3.0.4/js/modules/exporting.js' %}"></script>
     <script type="text/javascript" src="{% static 'graph/js/jquery.dataTables.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'graph/js/jquery.jeditable.mini.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap_dataTables_add.js' %}"></script>
 {% endblock %}
 {% block app_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'graph/css/style.css' %}" />
 {% endblock %}
 {% block title %}Benchmark Concentration Modelling{% endblock %}
@@ -21,7 +24,7 @@
     <div id="global_container">
         <div id="banner">
             <div id="buttons_container">
-                <span id='upload_button_desc'>Upload input file:</span>
+                <span class='upload_button_desc'>Upload input file:</span>
                 <input type='file' name='file_upload' id='file_upload'><br>
                 <button type='button' id='update_button'>Update</button><br>
                 <button type='button' id='new_sample_button'>New custom sample</button><br>
@@ -39,14 +42,14 @@
             </div>
             <div id="loading"></div>
             <div id="login">
-                <a href="{% url 'login' %}">Log out</a><br>
-                <a href="{% url 'graph:doc' %}" target="_blank">Documentation</a><br>
-                <a href="{% static 'graph/sample_files/BIBF_k.txt' %}" target='_blank'>Sample file</a>
+                <a href="{% url 'login' %}" class='topright_link'>Log out</a><br>
+                <a href="{% url 'graph:doc' %}" target="_blank" class='topright_link'>Documentation</a><br>
+                <a href="{% static 'graph/sample_files/BIBF_k.txt' %}" target='_blank' class='topright_link'>Sample file</a>
             </div>
         </div>
         <div id="mid">
             <div id="input_table_container">
-                <table id='input_table' class='input_table'>
+                <table id='input_table' class='input_table table table-bordered'>
                     <thead><tr><th>Dose</th><th>Response</th><th>Exp</th></tr></thead>
                         <!--<th id='add_mes'>+</th></tr></thead>-->
                     <tbody id='tbody'></tbody>

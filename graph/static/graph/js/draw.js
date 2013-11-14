@@ -443,7 +443,7 @@ function create_table(points){
         "bDeferRender": true,    // speed boost if Ajax [false]
         "bFilter": false,        // search field [true]
         "bInfo": false,          // display of table info [true]
-        "bPaginate": true,      // pagination [true]
+        "bPaginate": false,      // pagination [true]
         "bLengthChange": true,  // if pagination, choice for the length of the list [true]
         "bProcessing": false,    // display processing indicator [false]
         "bSort": true,          // toggle sorting functionality [true]
@@ -452,8 +452,9 @@ function create_table(points){
         // Options
         "bDestroy": true,        // destroy and create new table instead of updating [false]
         "iCookieDuration": 60*60*24,  // cookie duration [null]
-        "iDisplayLength": 20, // default length of the list displayed [10]
+        "iDisplayLength": 25,    // default length of the list displayed [10]
         "iTabIndex": -1,         // keyboard navigation
+        "sPaginationType": 'full_numbers' // way to change pages ('two_button', 'full_numbers' or 'bootstrap')
     });
     _TABLE_.dataTable().fnClearTable();
     if (!_ACTIVE_TABLE_ID_) { // No sample

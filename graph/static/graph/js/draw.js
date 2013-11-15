@@ -454,8 +454,24 @@ function create_table(points){
         "iCookieDuration": 60*60*24,  // cookie duration [null]
         "iDisplayLength": 25,    // default length of the list displayed [10]
         "iTabIndex": -1,         // keyboard navigation
-        "sPaginationType": 'full_numbers' // way to change pages ('two_button', 'full_numbers' or 'bootstrap')
+        "sPaginationType": 'full_numbers', // way to change pages ('two_button', 'full_numbers' or 'bootstrap')
+        // Callbacks
+        "fnRowCallback": function(){},
+        "aoColumnDefs": [{
+                "aTargets": [3],
+                "bSortable": false,
+                "mData": null,
+                "sTitle": "Button",
+                "sName": "remove_mes",
+                "sType": "html",
+                "sClass": "remove_mes",
+                "sDefaultContent": 'my html here',
+                "mRender": function (data, type, full) {
+                    return '<a href="#" onclick="alert(\''+ full[0] +'\');">Process</a>';
+                }
+           }],
     });
+    $('#input_table thead').append('<th id="add_mes">+</th></tr></thead>')
     _TABLE_.dataTable().fnClearTable();
     if (!_ACTIVE_TABLE_ID_) { // No sample
         return;
@@ -475,7 +491,7 @@ function create_table(points){
             var float_sval = parseFloat(sValue);
             if (! isNaN(float_sval)) {sValue = float_sval;}
             var aPos = _TABLE_.fnGetPosition( this );
-            _TABLE_.fnUpdate( sValue, aPos[0], aPos[1] );
+            _TABLE_.fnUpdate( sValue, aPos[0], aPos[1], '' );
         },
         "submitdata": function ( value, settings ) {
             return {

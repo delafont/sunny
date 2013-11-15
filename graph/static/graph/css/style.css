@@ -58,7 +58,7 @@ table {
 }
 #input_table_container{
     float: left;
-    width: 200px;
+    /*width: 200px;*/
     margin-top: 0px;
     margin-bottom: 20px;
     margin-right: 15px;

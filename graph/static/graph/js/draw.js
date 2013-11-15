@@ -466,14 +466,6 @@ function create_table(points){
             }
         }
     }
-    //$('#input_table').dataTable({
-    //        "bPaginate": false,
-    //        "bLengthChange": false,
-    //        "bFilter": true,
-    //        "bSort": false,
-    //        "bInfo": false,
-    //        "bAutoWidth": false
-    //});
 }
 // Add a row to the input table with a Remove button, with class 'datarow'
 // Position is 'first' or 'last' (element of the table).

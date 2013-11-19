@@ -51,10 +51,10 @@ output, the renormalized data points can be downloaded and the parameters for th
 <h2>C. Explanation of buttons and menu parts:</h2>
 
 <h3>Login</h3>
-<p>To Login please provide an email address and a self-chosen password. Every time you login with your user data the datasets from your previous session are loaded.</p>
+<p>To log in please provide an email address and a self-chosen password. Every time you log in with your same user identifiers the datasets from your previous session are loaded.</p>
 
 <h3>Logout</h3>
-<p>By clicking the logout button all the processed data from the current session are saved and can be readily accessed in the next login.</p>
+<p>By clicking the logout button all the processed data from the current session are saved and can be readily accessed in the next login. You return to the login menu.</p>
 
 <h3>‘Input data’ menu:</h3>
 <p>Data can be entered manually, or a file can be uploaded. The data format is simple and uniform: each line defines one data point. Each line has three columns.</p>
@@ -62,25 +62,30 @@ output, the renormalized data points can be downloaded and the parameters for th
 <p class="strong">First column: concentration (C)</p>
 <p class="strong">Second column: response (R) (= viability)</p>
 <p class="strong">Third column: Number of the experiment (#)</p>
-C: concentrations (in nM) that were used for the treatment of the cells (e.g. compound concentration of arsenic was 0.001 nM).
-R: has to be given as percentage of surviving cells. This means that the user has to subtract the background from the raw data and normalize the data with untreated controls prior to benchmark concentration modeling.
-#: input is an integer number, to define from which experiment the concentration-response data are derived. This allows analysis of several samples (of the same treatment) in the same file. If only a single experiment is analyzed this number is 1(If the same number is used more than once for a given concentration, this is interpreted as technical replicate within one experiment).</p>
+<p>
+<ul>
+<li><strong>C</strong> : concentrations (in nM) that were used for the treatment of the cells (e.g. compound concentration of arsenic was 0.001 nM).</li>
+<li><strong>R</strong> : percentage of surviving cells. This means that the user has to subtract the background from the raw data and normalize the data with untreated controls prior to benchmark concentration modeling.</li>
+<li><strong>#</strong> : an integer number, to define from which experiment the concentration-response data are derived. This allows analysis of several samples (of the same treatment) in the same file. If only a single experiment is analyzed this number is 1.
+</ul>
+ If the same concentration is used more than once for the same experiment, this is interpreted as a technical replicate within one experiment.</li>
+</p>
 <p class="strong">Example for data input lines:</p>
 <table>
 <thead><tr><td>dose</td><td>response</td><td>experiment</td></tr></thead>
 <tbody>
 <tr><td>0.00001</td><td> 96.32 </td><td>  1
-<tr><td>0.0001</td><td>  98.51</td><td>   1 
+<tr><td>0.0001</td><td>  98.51</td><td>   1
 <tr><td>0.001</td><td>   72.63 </td><td>  1
 <tr><td>0.001</td><td>   73.23 </td><td>  1 (second technical replicate of experiment 1) </td></tr>
 <tr><td>0.01</td><td>    47.36  </td><td> 1 </td></tr>
 <tr><td>0.001</td><td>   75.32  </td><td> 2 (experiment 2) </td></tr>
-<tr><td>0.01</td><td>    51.11 </td><td>  2 (experiment 2)</td></tr> 
+<tr><td>0.01</td><td>    51.11 </td><td>  2 (experiment 2)</td></tr>
 </tbody>
 </table>
 </p>
 <h3>New custom sample:</h3>
-<p>By pushing the new custom sample button you can specify a name for your sample and manually insert the data in the grid.</p>
+<p>By pushing the new custom sample button you can specify a name for your sample and manually insert the data in the grid. Use the "Update" button to save your changes (see the Update section below).</p>
 <p><h3>Browse:</h3></p>
 <p>Input data have to be provided in a tab delimited text file format. By clicking on the ‘browse’ button (might be displayed in your language depending on your browser settings), you can search the file system of your computer and upload the file. Data from Excel can be saved as tab delimited text files. After upload, the data show up in the grid on the left side of the screen. To start the modeling procedure you must click on Update as described below. </p>
 <h3>Update:</h3>
@@ -92,12 +97,12 @@ Clicking on the ‘Update’ button runs the algorithm in the background. The gr
 </ul>
 <h3>Dynamic Graph:</h3>
 <p>
-After pushing the ‘Update’ button, a graph pops up that shows the fitted model and the normalized data from each experiment in different colors. Items can be removed from the graph by clicking on the line and point symbols in the legend under the graph. In this manner each single experiment can be visualized alone or together with others. Moreover, an average curve (obtained by fitting the model to the pooled data) for all experiments can be displayed as black dashed line.
+After pushing the ‘Update’ button, a graph pops up that shows the fitted model and the normalized data from each experiment in different colors. Items can be removed from the graph by clicking on the line and point symbols in the legend under the graph. In this manner each single experiment can be visualized alone or together with others. Moreover, an average curve (obtained by fitting the model to the pooled data) for all experiments is displayed as black dashed line.
 The average curve is used for calculation of the BMC and BMCL, and it is obtained by fitting the optimal model again through the normalized datasets pooled from all experiments.
 </p>
 <h3>Output information</h3>
 <p>Above the graph, the benchmark concentration (BMC) and the benchmark concentration lower limit (BMCL) are depicted for a benchmark response (BMR) of 50%, 15% and 10% respectively.</p>
-<p> Under the graph, the chosen model and its parameters are displayed (self-starter functions as described in detail in the R package drc, Ritz, C. & Streibig, J. C. (2005)):</p>
+<p> Under the graph, the chosen model and its parameters are displayed (self-starter functions as described in detail in the R package drc, Ritz, C. & Streibig, J. C. (2005)). "W" stands for "Weibull", "LL" for "Log-Logistic", with various number of free parameters:</p>
 <p class="strong">W1.4</p>
 <p>f(x) = c + (d-c) exp(-exp(b(log(x) -log(e))))</p>
 <p class="strong">W2.4</p>
@@ -123,20 +128,18 @@ x-coordinate is also shown in the area below the graph. It can be distinguished 
 and black.
 </p>
 <p>
-The graph can be downloaded in svg, png, jpg and pdf by expanding the menu and clicking on the desired format on the upper right corner of the graph.
+The graph can be downloaded in svg, png, jpg and pdf by expanding the menu on the upper right corner of the graph and clicking on the desired format.
 </p>
 <h3>Samples to display:</h3>
 <p>
-On the right side of the graph you have the possibility to choose between your samples by moving your cursor and clicking on checkbox next to the desired
-sample. This sample is visualized in the graph field now and the corresponding data are shown in the grid.
+On the right side of the graph, under "Samples to display", you have the possibility to choose which samples will be drawn by clicking on the checkbox next to the desired samples. These samples are added to the graph now. Under "Edit sample", you can choose which sample will be shown in the grid (one at a time), so that you are able to see or edit its data.
 </p>
 <h3>Edit sample:</h3>
 <p>
 If you want to modify a previously uploaded sample you have to select this sample in the edit sample menu.
 Right of the ‘edit sample’ button, there is a text icon. Clicking it allows download of the normalized data.
-Next to that text icon, there is a graph icon. Clicking it allows download of a .zip file (you need to download winzip, 7zip or any other program able to
-open this file format to decompress). This folder contains all the single fitting steps from the algorithm as described in the paper (put link to my paper
-here).
+Next to that text icon, there is a graph icon. Clicking it allows to download of a .zip file (you need to download <a href="http://www.winzip.com/mac/en/index.htm">winzip</a>, <a href="http://www.7-zip.org/">7zip</a> or any other program able to
+open this file format to decompress). This folder contains all the single fitting steps from the algorithm as described in the paper <font color="red">(put link to my paper here)</font>.
 </p>
 <h3>Clear all:</h3>
 <p>

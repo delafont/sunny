@@ -121,11 +121,9 @@ The average curve is used for calculation of the BMC and BMCL, and it is obtaine
 <p>f(x) =1 + exp(b(log(x) -log(e)))</p>
 <p>This area is also used as alert for errors that occurred during modeling and to indicate anchor points introduced by the software.</p>
 <p>
-The algorithm sets an anchor point at y=0, and at x &gt;&gt; BMC if there are not sufficient data in the toxic range for meaningful curve modeling. As
-demonstrated empirically, this procedure allows still for reasonable estimates of BMCL10 or BMCL15, but it should not be used for estimates of
-BMC50/BMCL50. The algorithm calculates the EC50*80 and the highest treatment dose*80. The smaller one of these two values is used as anchor point and the
-x-coordinate is also shown in the area below the graph. It can be distinguished from measured data points because it is emphasized in larger symbol size
-and black.
+If there are not sufficient data in the toxic range for meaningful curve modeling, the algorithm sets an anchor point at (L,0), where L &gt;&gt; BMC is the minimum value between the EC50*80 and the highest treatment dose*80.
+As demonstrated empirically, this procedure allows still for reasonable estimates of BMCL10 or BMCL15, but it should not be used for estimates of BMC50/BMCL50.
+The anchor point is also shown in the area below the graph. It can be distinguished from measured data points because it is emphasized in larger symbol size and black.
 </p>
 <p>
 The graph can be downloaded in svg, png, jpg and pdf by expanding the menu on the upper right corner of the graph and clicking on the desired format.

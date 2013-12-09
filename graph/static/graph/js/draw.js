@@ -600,19 +600,23 @@ function change_bmc_level(selector){
     localStorage.setItem('bmc_level',_BMC_LEVEL_);
     update_BMC_display_block();
     var bmc_lines = _CHART_.xAxis[0].plotLinesAndBands;
-    var color = bmc_lines[0].options.color;
+    if (bmc_lines[0]) {
+        var color = bmc_lines[0].options.color;
+    }
     $.each(_ACTIVE_GRAPH_IDS_, function(index,sample_id){
         var bmc = _DATA_.BMC[sample_id];
-        _CHART_.xAxis[0].removePlotLine('BMCline_'+sample_id);
-        _CHART_.xAxis[0].removePlotLine('BMCLline_'+sample_id);
-        _CHART_.xAxis[0].addPlotLine({
-                id: 'BMCline_'+sample_id, value: bmc[_BMC_LEVEL_][0], width: 1, color: color,
-                label: {text: 'BMC '+_BMC_LEVEL_, style: {color: '#606060'}},
-        });
-        _CHART_.xAxis[0].addPlotLine({
-                id: 'BMCLline_'+sample_id, value: bmc[_BMC_LEVEL_][1], width: 1, color: color,
-                label: {text: 'BMCL '+_BMC_LEVEL_, style: {color: '#606060'}}, dashStyle: 'Dash',
-        });
+        if (bmc) {
+            _CHART_.xAxis[0].removePlotLine('BMCline_'+sample_id);
+            _CHART_.xAxis[0].removePlotLine('BMCLline_'+sample_id);
+            _CHART_.xAxis[0].addPlotLine({
+                    id: 'BMCline_'+sample_id, value: bmc[_BMC_LEVEL_][0], width: 1, color: color,
+                    label: {text: 'BMC '+_BMC_LEVEL_, style: {color: '#606060'}},
+            });
+            _CHART_.xAxis[0].addPlotLine({
+                    id: 'BMCLline_'+sample_id, value: bmc[_BMC_LEVEL_][1], width: 1, color: color,
+                    label: {text: 'BMCL '+_BMC_LEVEL_, style: {color: '#606060'}}, dashStyle: 'Dash',
+            });
+        }
     });
 }
 function update_BMC_display_block(){

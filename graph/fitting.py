@@ -249,16 +249,12 @@ def model_selection(data):
 
 def calculate_anchor(pooled_data,fit_name):
     """:param pooled_data: list of tuples (dose,response,experiment)"""
-    below_5_pooled = [m for m in pooled_data if m[1]<5]
-    if len(below_5_pooled) == 0:
-        ec50 = calculate_BMC(pooled_data, fit_name).get('50',[0])[0]
-        xmax = max(m[0] for m in pooled_data)
-        if ec50:
-            anchor = (min(80*ec50,80*xmax),0)
-        else:
-            anchor = (80*xmax,0)
+    ec50 = calculate_BMC(pooled_data, fit_name).get('50',[0])[0]
+    xmax = max(m[0] for m in pooled_data)
+    if ec50:
+        anchor = (min(80*ec50,80*xmax),0)
     else:
-        anchor = sorted(below_5_pooled, key=lambda x:x[1])[-1]
+        anchor = (80*xmax,0)
     return anchor
 
 def create_bins(min_x,max_x,nbins=100):

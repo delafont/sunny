@@ -161,7 +161,7 @@ param_fixed = {
                'W2.4': {'c':0},
               }
 
-def fit_drm(data, fit_name='LL.4', normalize=True):
+def fit_drm(data, fit_name, normalize=True):
     """:param data: a list of couples (dose,response,experiment)"""
     def model_drm(fit_name,dose,response,fixed=''):
         ro.r.assign('dose',numpy2ri(dose))
@@ -174,7 +174,7 @@ def fit_drm(data, fit_name='LL.4', normalize=True):
             return model
         except RRuntimeError, re:
             return "R: "+str(re)
-    def normalize_response(response,model,fit_name):
+    def normalize_response(response,model):
         summary = model_summary(model)
         names = summary['names']
         coeffs = summary['coeffs']
@@ -191,7 +191,7 @@ def fit_drm(data, fit_name='LL.4', normalize=True):
         R_output += model
         return None, data, R_output
     if normalize:
-        norm_response = normalize_response(response,model,fit_name)
+        norm_response = normalize_response(response,model)
         norm_data = zip(dose,nround(norm_response,2),experiment)
         # Re-fit normalized data
         fixed = [0 if x in param_fixed[fit_name] else None for x in param_names[fit_name]]
@@ -216,7 +216,7 @@ def compute_fitting_curve(model, interpolate=range(0,10000,10)):
     curve = zip(interpolate,list(curve))
     return curve
 
-def calculate_BMC(data, fit_name='LL.4', normalize=True):
+def calculate_BMC(data, fit_name, normalize=True):
     """:param data: list of tuples (dose,response,experiment)"""
     model,norm_data,R_output = fit_drm(data, fit_name, normalize)
     if model:
@@ -300,11 +300,6 @@ def generate_images(data,template):
 drc = importr('drc')
 ro.r("""source("graph/R/functions.R")""")
 
-################################### TESTS #####################################
-
-# plot(fit, type="all", broken=FALSE, xlim=c(0, max(d$dose)), ylim=c(0,100), lty="dashed", lwd=1.3, cex.lab=1.2, cex.main=2, cex=2)
-# points(d$dose, fitted(fit)[1:length(d$dose)], col='blue')
-# fit$curve[[1]](seq(10000))
 
 
 #------------------------------------------------------#

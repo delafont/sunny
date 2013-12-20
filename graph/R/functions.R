@@ -1,36 +1,3 @@
-##############
-constraints <- function(objdrc, fctname){
-    parameter <- matrix(coef(objdrc))
-    switch(fctname,
-       "LL.3" = {
-         norm<-parameter[2]
-         fixedP=c(NA, NA, NA)
-         KoefName=c("b=","d=", "e=")
-         AnzK=3
-       }, "W1.4" = {
-         norm<-parameter[3]
-         fixedP=c(NA, 0, NA, NA)
-         KoefName=c("b=", "d=", "e=")
-         AnzK=3
-       }, "W2.4" = {
-         norm<-parameter[3]
-         fixedP=c(NA, 0, NA, NA)
-         KoefName=c("b=", "d=", "e=")
-         AnzK=3
-       }, "LL.4" = {
-         norm<-parameter[3]
-         fixedP=c(NA, 0, NA, NA)
-         KoefName=c("b=", "d=", "e=")
-         AnzK=3
-       }, "LL.5" = {
-         norm<-parameter[3]
-         fixedP=c(NA, 0, NA, NA, NA)
-         KoefName=c("b=", "d=", "e=", "f=")
-         AnzK=4
-    })
-    return(list(norm=norm, fixedP=fixedP, KoefName=KoefName, AnzK=AnzK))
-}
-
 
 bestModel <- function(bmdrcdata, linreg=FALSE) {
     # bmdrcdata: data.frame from original file, with at least dose and response columns

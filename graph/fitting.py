@@ -25,6 +25,7 @@ def fit_etc(samples):
     xmin = ymin = sys.maxint
     xmax = ymax = -sys.maxint
     if samples:
+
         # Pool samples, select the best model and apply it to all together
         for s in samples:
             print '>>> Sample', s
@@ -36,6 +37,7 @@ def fit_etc(samples):
                 continue # !!!
             print "* Model selection"
             fit_name = model_selection(measurements_pooled)
+
             # Calculate the anchor point in case it will be needed
             if fit_name:
                 print "* Calculate anchor"
@@ -49,13 +51,14 @@ def fit_etc(samples):
                     maxx_pooled = max(x[0] for x in measurements_pooled)
                     intervals_pooled = create_bins(minx_pooled,maxx_pooled,nbins)
                     curve_pooled = compute_fitting_curve(model_pooled, interpolate=intervals_pooled)
-                    coeffs[s.id]['pooled'] = get_coeffs(model_pooled, fit_name)
+                    coeffs[s.id]['pooled'] = get_coeffs(model_pooled)
                     loglist.append('Model parameters: %s' % format_coeffs(coeffs[s.id]['pooled']))
                 else:
                     curve_pooled = []
                 curves[s.id]['pooled'] = curve_pooled
             else:
                 loglist.append('No model found for sample %s.' % (s.name))
+
             # Apply best model to individual datasets
             print '* Fit individual datasets'
             for exp,pts in measurements.iteritems():
@@ -72,12 +75,13 @@ def fit_etc(samples):
                     model,pts,log = fit_drm(pts, fit_name, normalize=True)
                     if model:
                         models[exp] = model
-                        coeffs[s.id][exp] = get_coeffs(model, fit_name)
+                        coeffs[s.id][exp] = get_coeffs(model)
                         loglist.append(log)
                             #print "Model:", model.rx2(2).rx2('par')
                             #print 'convergence',model.rx2(2).rx2('convergence')
                 bounds = update_bounds(pts,bounds,s.id)
                 points[s.id][exp] = pts
+
             # Compute the curves
             print "* Compute curves"
             intervals = create_bins(bounds[s.id][0],bounds[s.id][1],nbins)
@@ -89,6 +93,7 @@ def fit_etc(samples):
                     curve = []
                 if len(curve) == 0: loglist.append("Failed to fit the model.")
                 curves[s.id][exp] = curve
+
             # Calculate the BMC
             print "* Calculate BMC"
             points_pooled = [p for exp,pts in points[s.id].iteritems() for p in pts]
@@ -99,6 +104,7 @@ def fit_etc(samples):
                 BMC[s.id] = {'10':[0,0,0],'15':[0,0,0],'50':[0,0,0]}
             else:
                 BMC[s.id] = bmc
+
             # Export normalized data to text file
             if not (s.textfile and default_storage.exists(os.path.join(os.path.dirname(s.textfile.path),s.sha1)) ):
                 file_content = '\t'.join(['dose','response','experiment'])+'\n'
@@ -106,23 +112,54 @@ def fit_etc(samples):
                     file_content += '\t'.join(['%s'%x for x in p])+'\n'
                 file_content = ContentFile(file_content)
                 s.textfile.save(s.sha1,file_content)
+
     return points,curves,bounds,loglist,BMC,anchors,coeffs
 
 
 ################################## FITTING #####################################
 
-
-param_names = {'LL.3': ['b','d','e'],
-               'LL.4': ['b','d','e'],
-               'LL.5': ['b','d','e','f'],
-               'W1.4': ['b','d','e'],
-               'W2.4': ['b','d','e'],}
-
 def list2r(L):
     """Transform a Python list into a string in R format: [1,2,'C'] -> "c(1,2,'C')" ."""
     if not isinstance(L,(list,tuple)): L = [L] # everything is a vector in R
-    LL = ["'%s'"%v if isinstance(v,basestring) else str(v) for v in L] # add quotes if elements are strings
+    LL = []
+    for v in L:
+        if isinstance(v,basestring): LL.append("'%s'"%v)
+        elif v is None: LL.append('NA')
+        else: LL.append(str(v))
     return "c(%s)" % ','.join(LL)
+
+def model_summary(model):
+    info = {'model': model}
+    info['fit_name'] = model.rx2('fct').rx2('name')[0]
+    info['names'] = list(model.rx2('fct').rx2('names'))
+    info['coeffs'] = list(model.rx2('coefficients'))
+    #info['fixed'] = list(model.rx2('fct').rx2('fixed'))
+    return info
+
+def get_coeffs(model):
+    summary = model_summary(model)
+    return zip(summary['names'],summary['coeffs'])
+
+param_names = {
+               'LL.2': ['b','e'],
+               'LL.3': ['b','d','e'],
+               'LL.4': ['b','c','d','e'],
+               'LL.5': ['b','c','d','e','f'],
+               'W1.2': ['b','e'],
+               'W1.3': ['b','d','e'],
+               'W1.4': ['b','c','d','e'],
+               'W2.4': ['b','c','d','e'],
+              }
+param_fixed = {
+               'LL.2': {},
+               'LL.3': {},
+               'LL.4': {'c':0},
+               'LL.5': {'c':0},
+               'W1.2': {},
+               'W1.3': {},
+               'W1.4': {'c':0},
+               'W2.4': {'c':0},
+              }
 
 def fit_drm(data, fit_name='LL.4', normalize=True):
     """:param data: a list of couples (dose,response,experiment)"""
@@ -138,11 +175,14 @@ def fit_drm(data, fit_name='LL.4', normalize=True):
         except RRuntimeError, re:
             return "R: "+str(re)
     def normalize_response(response,model,fit_name):
-        constraints = ro.r('constraints')
-        param = constraints(model, fit_name)
-        norm_response = response/(param.rx2('norm')[0]/100.)
-        fixedP = param.rx2('fixedP')
-        return norm_response, fixedP
+        summary = model_summary(model)
+        names = summary['names']
+        coeffs = summary['coeffs']
+        if 'd' in names:
+            norm = coeffs[names.index('d')]
+        else: norm = 100
+        norm_response = response/(norm/100.)
+        return norm_response
     R_output = ""
     data_array = asarray(zip(*data))
     dose = data_array[0]; response = data_array[1]; experiment = data_array[2]
@@ -151,10 +191,11 @@ def fit_drm(data, fit_name='LL.4', normalize=True):
         R_output += model
         return None, data, R_output
     if normalize:
-        norm_response,fixedP = normalize_response(response,model,fit_name)
+        norm_response = normalize_response(response,model,fit_name)
         norm_data = zip(dose,nround(norm_response,2),experiment)
         # Re-fit normalized data
-        model = model_drm(fit_name,dose,norm_response, fixed=fixedP)
+        fixed = [0 if x in param_fixed[fit_name] else None for x in param_names[fit_name]]
+        model = model_drm(fit_name,dose,norm_response, fixed=fixed)
         if isinstance(model,basestring):
             R_output += model
             return None, norm_data, R_output
@@ -162,11 +203,6 @@ def fit_drm(data, fit_name='LL.4', normalize=True):
     else:
         return model, data, R_output
 
-def get_coeffs(model, fit_name):
-    constraints = ro.r('constraints')
-    coeff_names = [x.strip('=') for x in constraints(model, fit_name).rx2('KoefName')]
-    coeffs = list(model.rx2(2).rx2('par'))
-    return zip(coeff_names,coeffs)
 
 def format_coeffs(coeffs):
     out = ''

@@ -101,24 +101,26 @@ After pushing the ‘Update’ button, a graph pops up that shows the fitted mod
 The average curve is used for calculation of the BMC and BMCL, and it is obtained by fitting the optimal model again through the normalized datasets pooled from all experiments.
 </p>
 <h3>Output information</h3>
-<p>Above the graph, the benchmark concentration (BMC) and the benchmark concentration lower limit (BMCL) are depicted for a benchmark response (BMR) of 50%, 15% and 10% respectively.</p>
-<p> Under the graph, the chosen model and its parameters are displayed (self-starter functions as described in detail in the R package drc, Ritz, C. & Streibig, J. C. (2005)). "W" stands for "Weibull", "LL" for "Log-Logistic", with various number of free parameters:</p>
-<p class="strong">W1.4</p>
-<p>f(x) = c + (d-c) exp(-exp(b(log(x) -log(e))))</p>
-<p class="strong">W2.4</p>
-<p>f(x) = c + (d-c)(1 - exp(-exp(b(log(x) -log(e)))))</p>
-<p class="strong">W1.2</p>
-<p>f(x) = exp(-exp(b(log(x) -e)))</p>
-<p class="strong">W1.3</p>
-<p>f(x) = 0 + (d-0) exp(-exp(b(log(x)-e)))</p>
-<p class="strong">LL.5</p>
-<p>f(x) = c +d - c(1 + exp(b(log(x) -log(e))))<sup>f</sup></p>
-<p class="strong">LL.4</p>
-<p>f(x) = c +d-c(1 + exp(b(log(x) -e)))<sup>f</sup></p>
-<p class="strong">LL.3</p>
-<p>f(x) = c +1-c (1 + exp(b(log(x) -e))</p>
-<p class="strong">LL.2</p>
-<p>f(x) =1 + exp(b(log(x) -log(e)))</p>
+<p>Above the graph, the benchmark concentration (BMC) and the benchmark concentration lower limit
+(BMCL) are depicted for a benchmark response (BMR) of 50%, 15% and 10% respectively.</p>
+<p> Under the graph, the chosen model and its parameters are displayed (self-starter functions as described
+in detail in the <a href="http://cran.r-project.org/web/packages/drc/">R package drc</a>, Ritz, C. & Streibig, J. C. (2005)). "W" stands for "Weibull", "LL" for "Log-Logistic", with various number of free parameters:</p>
+<h4>W1.2</h4>
+f(x) = exp(-exp(b(log(x) - log(e))))
+<h4>W1.3</h4>
+f(x) = d * exp(-exp(b(log(x) - log(e))))
+<h4>W1.4</h4>
+f(x) = c + (d-c) exp(-exp(b(log(x) - log(e))))
+<h4>W2.4</h4>
+f(x) = c + (d-c)(1 - exp(-exp(b(log(x) - log(e)))))
+<h4>LL.2</h4>
+f(x) = 1 / (1 + exp(b(log(x) - log(e))))<sup>f</sup>
+<h4>LL.3</h4>
+f(x) = d / (1 + exp(b(log(x) - log(e))))
+<h4>LL.4</h4>
+f(x) = c + (d-c) / (1 + exp(b(log(x) - log(e))))
+<h4>LL.5</h4>
+f(x) = c + (d-c) / (1 + exp(b(log(x) - log(e))))<sup>f</sup>
 <p>This area is also used as alert for errors that occurred during modeling and to indicate anchor points introduced by the software.</p>
 <p>
 If there are not sufficient data in the toxic range for meaningful curve modeling, the algorithm sets an anchor point at (L,0), where L &gt;&gt; BMC is the minimum value between the EC50*80 and the highest treatment dose*80.

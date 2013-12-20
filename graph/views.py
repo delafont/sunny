@@ -15,7 +15,7 @@ from django.shortcuts import render, redirect
 from fitting import *
 
 ### Usual imports
-import tarfile
+import zipfile
 import glob
 
 
@@ -197,14 +197,14 @@ def getimages(request,pk=None):
     measurements = [(x.dose,x.response,x.experiment) for x in measurements]
     template = "sunny/media/images/fit_images_%s" % pk
     generate_images(measurements,template+'.png')
-    with tarfile.open(template+".tar.gz", "w:gz") as tar:
+    with zipfile.ZipFile(template+".zip", "w") as zip:
         for filename in glob.glob(template+'*.png'):
-            tar.add(filename,arcname=os.path.basename(filename),recursive=False)
+            zip.write(filename,arcname=os.path.basename(filename))
             os.remove(filename)
-    sample.images.save('5images_%s.tar.gz'%pk, File(open(template+".tar.gz")),save=True)
-    os.remove(template+'.tar.gz')
-    response = HttpResponse(FileWrapper(sample.images), content_type='application/gzip')
-    response['Content-Disposition'] = 'attachment; filename=5images_%s.tar.gz' % pk
+    sample.images.save('5images_%s.zip'%pk, File(open(template+".zip")),save=True)
+    os.remove(template+'.zip')
+    response = HttpResponse(FileWrapper(sample.images), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename=5images_%s.zip' % pk
     return response
 
 #def sample_file(request):

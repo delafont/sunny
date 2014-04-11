@@ -220,6 +220,7 @@ def calculate_BMC(data, fit_name, normalize=True):
     """:param data: list of tuples (dose,response,experiment)"""
     model,norm_data,R_output = fit_drm(data, fit_name, normalize)
     if model:
+        # R: EC(modell, [10,15,50], c("delta"), level=0.9, type="relative", display=FALSE)
         BMC = ro.r('ED')(model,ro.IntVector([10,15,50]),interval=ro.StrVector(["delta"]),\
                          level=0.90,type="relative",display=False)
         BMC = ro.r('round')(BMC,4)
@@ -252,9 +253,9 @@ def calculate_anchor(pooled_data,fit_name):
     ec50 = calculate_BMC(pooled_data, fit_name).get('50',[0])[0]
     xmax = max(m[0] for m in pooled_data)
     if ec50:
-        anchor = (min(80*ec50,80*xmax),0)
+        anchor = (min(100*ec50,100*xmax),0)
     else:
-        anchor = (80*xmax,0)
+        anchor = (100*xmax,0)
     return anchor
 
 def create_bins(min_x,max_x,nbins=100):

@@ -1,5 +1,6 @@
 
 
+# Best model selection
 bestModel <- function(bmdrcdata, linreg=FALSE) {
     # bmdrcdata: data.frame from original file, with at least dose and response columns
     modelList <- list(LL.4(), LL.5(), W1.4(), W2.4(), LL.3())
@@ -13,12 +14,16 @@ bestModel <- function(bmdrcdata, linreg=FALSE) {
     if (class(modell)=="try-error") { # no model found
         mynames <- NULL
     } else {
+        #mselect:  from drc, based on log-lik, AIC, resid.std or lack-of-fit test
         best <- mselect(modell, fctList=modelList)
         mynames <- rownames(best)
     }
     return(mynames)
 }
 
+#-------------------#
+# Environment setup #
+#-------------------#
 
 nulldev <- function() {
     os <- Sys.info()['sysname']

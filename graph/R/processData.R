@@ -3,6 +3,8 @@ library("gplots")
 library("bmd")
 library("splines")
 
+# Calls machPlots.R main function for each plot
+
 constraints <- function(objdrc, fctname){
     parameter <- matrix(coef(objdrc))
     switch(fctname,

@@ -202,7 +202,7 @@ def fit_drm(data, fit_name, fixed='', normalize=True):
             data = rescale(data,model)
             data_array = asarray(zip(*data))
             dose = data_array[0]; response = data_array[1]
-            # Now it is rescaled to have survival =100% at start, so fix d=100 for the fit
+            # Now fix c=0 for the fit (?)
             fixed = [0 if x in param_fixed[fit_name] else None for x in param_names[fit_name]]
             model = model_drm(fit_name,dose,response,fixed)
         return model, data, R_output

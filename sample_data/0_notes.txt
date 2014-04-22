@@ -1,0 +1,15 @@
+
+All good:
+    BIBF_k
+
+Straight horizontal, linear data, y=50:
+    Gefitinib_k
+
+Independant bad/incomplete datasets, but the pooled fits - without anchor:
+    ?
+
+Independant bad/incomplete datasets, but the pooled fits - with anchor:
+    pma_c, saha_g
+
+Curved, but nothing below 25%:
+    Geldanamycin_k

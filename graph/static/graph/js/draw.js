@@ -599,6 +599,7 @@ function print_log(){
 function create_bmr_selector(){
     var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
     var selector = $('#bmclevel_selector')
+    selector.empty();
     for (bmr in bmc){
         selector.append($('<option>', {value: bmr}).text(bmr));
     }

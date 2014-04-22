@@ -243,7 +243,7 @@ def compute_fitting_curve(model, intervals=range(0,10000,10)):
     curve = zip(intervals,list(curve))
     return curve
 
-def calculate_BMC(model, percents=[10,15,50]):
+def calculate_BMC(model, percents=[10,15,30,50]):
     """Return a dict {BMR: (BMC,BMCL,BMCU)}."""
     # R: EC(modell, [10,15,50], c("delta"), level=0.9, type="relative", display=FALSE)
     BMC = ro.r('ED')(model,ro.IntVector(percents),interval=ro.StrVector(["delta"]),\

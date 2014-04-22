@@ -5,6 +5,9 @@ All good:
 Straight horizontal, linear data, y=50:
     Gefitinib_k
 
+Linear ~ horizontal, only one exp fits with the anchor added:
+    Gleevec_k
+
 Independant bad/incomplete datasets, but the pooled fits - without anchor:
     ?
 

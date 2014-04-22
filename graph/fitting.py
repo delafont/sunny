@@ -45,12 +45,12 @@ def fit_etc(samples):
                 loglist.append('Model selected for sample %s: %s.' % (s.name,fit_name))
                 print "* Fit pooled data"
                 # Fit a first time to get the norm parameter
-                modelPN,dataPN,logP = fit_drm(dataP, fit_name, normalize=True)
-                print "* Calculate anchor"
-                anchor = calculate_anchor(modelPN, dataPN)
-                print '.. Anchor:', anchor
-                # Calculate the curve for the pooled data
+                modelPN,dataPN,logPN = fit_drm(dataP, fit_name, normalize=True)
                 if modelPN:
+                    print "* Calculate anchor"
+                    anchor = calculate_anchor(modelPN, dataPN)
+                    print '.. Anchor:', anchor
+                    # Calculate the curve for the pooled data
                     minxPN = min(x[0] for x in dataPN)
                     maxxPN = max(x[0] for x in dataPN)
                     intervalsPN = create_bins(minxPN,maxxPN,nbins)
@@ -59,6 +59,7 @@ def fit_etc(samples):
                     loglist.append('Model parameters: %s' % format_coeffs(coeffs[s.id]['pooled']))
                 else:
                     curvePN = []
+                    loglist.append(logPN)
                 curves[s.id]['pooled'] = curvePN
             else:
                 loglist.append('No model found for sample %s.' % (s.name))
@@ -70,7 +71,7 @@ def fit_etc(samples):
                 dataE = [(x.dose,x.response,x.experiment) for x in mes]
                 if fit_name:
                     # Fit a first time to normalize
-                    modelEN,dataEN,log = fit_drm(dataE, fit_name, normalize=True)
+                    modelEN,dataEN,logEN = fit_drm(dataE, fit_name, normalize=True)
                     # Look if there is data < 5%, else add anchor point
                     below5 = [p for p in dataEN if p[1]<5]
                     if len(below5) == 0:
@@ -79,11 +80,11 @@ def fit_etc(samples):
                         anchors[s.id] = anchor
                         dataEN.append((anchor[0],anchor[1],exp))
                     # Fit again with the anchor added
-                    modelEAN,dataEAN,log = fit_drm(dataEN, fit_name, normalize=True)
+                    modelEAN,dataEAN,logEAN = fit_drm(dataEN, fit_name, normalize=True)
                     if modelEAN:
                         models[exp] = modelEAN
                         coeffs[s.id][exp] = get_coeffs(modelEAN)
-                        loglist.append(log)
+                        loglist.append(logEAN)
                 else:
                     dataEAN = dataE
                 bounds[s.id] = update_bounds(dataEAN,bounds[s.id])
@@ -98,7 +99,8 @@ def fit_etc(samples):
                     curve = compute_fitting_curve(model, intervals)
                 else:
                     curve = []
-                if len(curve) == 0: loglist.append("Failed to fit the model.")
+                if len(curve) == 0:
+                    loglist.append("Failed to fit the model.")
                 curves[s.id][exp] = curve
 
             # Calculate the BMC
@@ -108,10 +110,12 @@ def fit_etc(samples):
             percents = [10,15,30,50]
             pointsP = [p for exp,pts in points[s.id].iteritems() for p in pts]
             if fit_name:
-                modelPN,dataPN,R_output = fit_drm(pointsP, fit_name, normalize=True)
+                modelPN,dataPN,logPN = fit_drm(pointsP, fit_name, normalize=True)
                 if modelPN:
                     bmc = calculate_BMC(modelPN, percents)
-                else: bmc = ''
+                else:
+                    bmc = ''
+                    loglist.append(logPN)
             if isinstance(bmc,basestring): # error string
                 loglist.append("BMC not found for sample %s." % s.name)
                 loglist.append(bmc)

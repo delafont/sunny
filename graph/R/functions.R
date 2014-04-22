@@ -3,7 +3,7 @@
 # Best model selection
 bestModel <- function(bmdrcdata, linreg=FALSE) {
     # bmdrcdata: data.frame from original file, with at least dose and response columns
-    modelList <- list(LL.4(), LL.5(), W1.4(), W2.4(), LL.3())
+    modelList <- list(LL.3(), LL.4(), LL.5(), W1.4(), W2.4())
     modell <- NULL
     for(n in seq(length(modelList))) {
         curModelName <- modelList[[n]]$name

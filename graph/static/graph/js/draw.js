@@ -387,6 +387,7 @@ function update_all(newdata){
     create_table();
     load_active_samples();
     check_active_samples();
+    create_bmr_selector();
     update_text_and_images();
     draw_graph();
 }
@@ -594,6 +595,14 @@ function print_log(){
 }
 
 /************************** BMC DISPLAY BLOCK *****************************/
+
+function create_bmr_selector(){
+    var bmc = _DATA_.BMC[_ACTIVE_TABLE_ID_];
+    var selector = $('#bmclevel_selector')
+    for (bmr in bmc){
+        selector.append($('<option>', {value: bmr}).text(bmr));
+    }
+}
 
 function change_bmc_level(selector){
     _BMC_LEVEL_ = $(selector).val();

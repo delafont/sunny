@@ -1,4 +1,6 @@
 
+* Linear model if b<0
+
 * DataTables for the table layout, and separate edition fields
 
 * Row ids of the table linked to points ids on the graph

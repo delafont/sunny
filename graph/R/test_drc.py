@@ -70,11 +70,13 @@ model = drc.drm(ro.Formula('response~dose'),fct=fit_fct)
 
 # R list - index shifted by one
 # [0]: NULL
-# [1]: $par, $value, $convergence, $message, $hessian, $ovalue
+# [1]: "fit": $par, $value, $convergence, $message, $hessian, $ovalue
 # [2]: curve()
 # ...
 # [5]: ["b","c","d","e"]
 # [6]: [[predicted values],[residuals]]
 # [7]: call
 # ...
-# [27]: same as [1][0]: parameters
+# [9]: [parameters]
+# ...
+# [27]: same as [1][0] and 9: parameters

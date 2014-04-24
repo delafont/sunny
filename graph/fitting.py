@@ -11,7 +11,7 @@ from rpy2.robjects.packages import importr
 from rpy2.rinterface import RRuntimeError
 
 ### Standard imports
-from numpy import asarray, round as nround
+from numpy import asarray
 import numpy
 from math import log10
 import os,sys,itertools
@@ -22,7 +22,7 @@ import os,sys,itertools
 
 def fit_etc(samples):
     points={}; curves={}; models={}; BMC={}; bounds={}; anchors={}; coeffs={}
-    loglist=[]; log=''; nbins=100
+    loglist=[]; nbins=100
     xmin = ymin = sys.maxint
     xmax = ymax = -sys.maxint
     if samples:
@@ -183,7 +183,9 @@ param_fixed = {
 
 def fit_drm(data, fit_name, fixed='', normalize=True):
     """:param data: a list of couples (dose,response,experiment)"""
-    def model_drm(fit_name,dose,response,fixed):
+    def model_drm(fit_name,_data,fixed):
+        data_array = asarray(zip(*_data))
+        dose = data_array[0]; response = data_array[1]
         ro.r.assign('dose',numpy2ri(dose))
         ro.r.assign('response',numpy2ri(response))
         if fixed:
@@ -195,20 +197,16 @@ def fit_drm(data, fit_name, fixed='', normalize=True):
         except RRuntimeError, re:
             return "R: "+str(re)
     R_output = ""
-    data_array = asarray(zip(*data))
-    dose = data_array[0]; response = data_array[1]
-    model = model_drm(fit_name,dose,response,fixed)
+    model = model_drm(fit_name,data,fixed='')
     if isinstance(model,basestring): # error string
         R_output += model
         return None, data, R_output
     else:
         if normalize:
             data = rescale(data,model)
-            data_array = asarray(zip(*data))
-            dose = data_array[0]; response = data_array[1]
             # Now fix c=0 for the fit (?)
             fixed = [0 if x in param_fixed[fit_name] else None for x in param_names[fit_name]]
-            model = model_drm(fit_name,dose,response,fixed)
+            model = model_drm(fit_name,data,fixed)
         return model, data, R_output
 
 def rescale(data, model):
@@ -224,7 +222,7 @@ def rescale(data, model):
     else:
         norm = 100
     norm_response = response/(norm/100.)
-    norm_data = zip(dose,nround(norm_response,2),experiment)
+    norm_data = zip(dose,norm_response,experiment)
     return norm_data
 
 def format_coeffs(coeffs):
@@ -246,7 +244,8 @@ def compute_fitting_curve(model, intervals=range(0,10000,10)):
 def calculate_BMC(model, percents=[10,15,30,50]):
     """Return a dict {BMR: (BMC,BMCL,BMCU)}."""
     # R: EC(modell, [10,15,50], c("delta"), level=0.9, type="relative", display=FALSE)
-    BMC = ro.r('ED')(model,ro.IntVector(percents),interval=ro.StrVector(["delta"]),\
+    BMC = ro.r('ED')(model,ro.IntVector(percents), \
+                     interval=ro.StrVector(["delta"]),\
                      level=0.90,type="relative",display=False)
     BMC = asarray(ro.r('round')(BMC,4))
     BMC = numpy.delete(BMC, 1, 1)
@@ -269,7 +268,7 @@ def model_selection(data):
 
 def calculate_anchor(model, data):
     """:param pooled_data: list of tuples (dose,response,experiment)"""
-    ec50 = calculate_BMC(model).get('50',[0])[0]
+    ec50 = calculate_BMC(model).get(50,[0])[0]
     xmax = max(m[0] for m in data)
     if ec50:
         anchor = (min(100*ec50,100*xmax),0)

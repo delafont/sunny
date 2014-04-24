@@ -512,7 +512,7 @@ function import_file(file){
             L = $.trim(L);
             L = L.split('\t');
             dose = L[0];
-            response = parseFloat(L[1]).toFixed(2);
+            response = parseFloat(L[1]);  // rounding actually makes everything different, don't!!!
             if (L[2] == undefined) {experiment = '1';}
             else {experiment = L[2];}
             // Update the input table

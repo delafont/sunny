@@ -1,7 +1,8 @@
 
 library('drc')
 
-data = read.table("../../sample_data/BIBF_k.txt", header=TRUE)
+#data = read.table("../../sample_data/BIBF_k.txt", header=TRUE)
+data = read.table("../../sample_data/Geldanamycin_k.txt", header=TRUE)
 
 
 # a is the "scale"

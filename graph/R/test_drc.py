@@ -52,7 +52,8 @@ param_fixed = {
                'W2.4': {'c':0},
               }
 
-with open("../../sample_data/BIBF_k.txt") as f:
+#with open("../../sample_data/BIBF_k.txt") as f:
+with open("../../sample_data/Geldanamycin_k.txt") as f:
     header = f.readline()
     data = [[int(line.split()[0]),float(line.split()[1])] for line in f]
     dose, response = zip(*data)
@@ -61,10 +62,11 @@ ro.r.assign('dose',numpy2ri(asarray(dose)))
 ro.r.assign('response',numpy2ri(asarray(response)))
 
 
-fit_name = "LL.4"
-#fit_fct = ro.r(fit_name+'()')
-fixed = 'fixed='+list2r([0 if x in param_fixed[fit_name] else None for x in param_names[fit_name]])
-fit_fct = ro.r(fit_name+'('+fixed+')')
+#fit_name = "LL.4"
+fit_name = "W2.4"
+fit_fct = ro.r(fit_name+'()')
+#fixed = 'fixed='+list2r([0 if x in param_fixed[fit_name] else None for x in param_names[fit_name]])
+#fit_fct = ro.r(fit_name+'('+fixed+')')
 
 model = drc.drm(ro.Formula('response~dose'),fct=fit_fct)
 

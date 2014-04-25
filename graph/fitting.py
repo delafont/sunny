@@ -47,6 +47,7 @@ def fit_etc(samples):
                 # Fit a first time to get the norm parameter
                 modelPN,dataPN,logPN = fit_drm(dataP, fit_name, normalize=True)
                 if modelPN:
+                    coeffs[s.id]['pooled'] = get_coeffs(modelPN)
                     print "* Calculate anchor"
                     anchor = calculate_anchor(modelPN, dataPN)
                     print '.. Anchor:', anchor
@@ -55,7 +56,6 @@ def fit_etc(samples):
                     maxxPN = max(x[0] for x in dataPN)
                     intervalsPN = create_bins(minxPN,maxxPN,nbins)
                     curvePN = compute_fitting_curve(modelPN, intervalsPN)
-                    coeffs[s.id]['pooled'] = get_coeffs(modelPN)
                     loglist.append('Model parameters: %s' % format_coeffs(coeffs[s.id]['pooled']))
                 else:
                     curvePN = []
@@ -111,6 +111,7 @@ def fit_etc(samples):
             pointsP = [p for exp,pts in points[s.id].iteritems() for p in pts]
             if fit_name:
                 modelPN,dataPN,logPN = fit_drm(pointsP, fit_name, normalize=True)
+                #print modelPN[1][0]  # Parameters of the final fit
                 if modelPN:
                     bmc = calculate_BMC(modelPN, percents)
                 else:
@@ -183,7 +184,7 @@ param_fixed = {
 
 def fit_drm(data, fit_name, fixed='', normalize=True):
     """:param data: a list of couples (dose,response,experiment)"""
-    def model_drm(fit_name,_data,fixed):
+    def model_drm(fit_name,_data,fixed=''):
         data_array = asarray(zip(*_data))
         dose = data_array[0]; response = data_array[1]
         ro.r.assign('dose',numpy2ri(dose))
@@ -205,8 +206,8 @@ def fit_drm(data, fit_name, fixed='', normalize=True):
         if normalize:
             data = rescale(data,model)
             # Now fix c=0 for the fit (?)
-            fixed = [0 if x in param_fixed[fit_name] else None for x in param_names[fit_name]]
-            model = model_drm(fit_name,data,fixed)
+            #fixed = [0 if x in param_fixed[fit_name] else None for x in param_names[fit_name]]
+            model = model_drm(fit_name,data) #,fixed)
         return model, data, R_output
 
 def rescale(data, model):

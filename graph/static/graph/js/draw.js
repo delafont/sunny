@@ -471,6 +471,11 @@ function create_table(points){
 // Add a row to the input table with a Remove button, with class 'datarow'
 // Position is 'first' or 'last' (element of the table).
 function add_newline(d,r,e,position) {
+    if (_ACTIVE_GRAPH_IDS_.length == 0){
+        alert("No sample to edit. Create a new empty sample using the button \"New custom sample\" "
+            + "or load an input file first.");
+        return false;
+    }
     if (typeof(d)==='undefined') d=''; // dose
     if (typeof(r)==='undefined') r=''; // response
     if (typeof(e)==='undefined') e=''; // experiment

@@ -109,11 +109,11 @@
         on_page_load();
         console.log(">>> User:",_USER_);
         $('#add_mes').click(function() {
-            //if (jQuery.isEmptyObject(_DATA_.samples)){
-            //    alert("No sample to edit. Create a new empty sample using the button "
-            //       +  "\"New custom sample\" or load an input file first.");
-            //    return false;
-            //}
+            if (jQuery.isEmptyObject(_DATA_.samples)){
+                alert("No sample to edit. Create a new empty sample using the button "
+                   +  "\"New custom sample\" or load an input file first.");
+                return false;
+            }
             add_newline('','','',position='first');
         });
         $('#update_button').click(function() {

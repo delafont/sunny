@@ -123,7 +123,7 @@ f(x) = c + (d-c) / (1 + exp(b(log(x) - log(e))))
 f(x) = c + (d-c) / (1 + exp(b(log(x) - log(e))))<sup>f</sup>
 <p>This area is also used as alert for errors that occurred during modeling and to indicate anchor points introduced by the software.</p>
 <p>
-If there are not sufficient data in the toxic range for meaningful curve modeling, the algorithm sets an anchor point at (L,0), where L &gt;&gt; BMC is the minimum value between the EC50*80 and the highest treatment dose*80.
+If there are not sufficient data in the toxic range for meaningful curve modeling, the algorithm sets an anchor point at (L,0), where L &gt;&gt; BMC is the minimum value between the EC50*100 and the highest treatment dose*100.
 As demonstrated empirically, this procedure allows still for reasonable estimates of BMCL10 or BMCL15, but it should not be used for estimates of BMC50/BMCL50.
 The anchor point is also shown in the area below the graph. It can be distinguished from measured data points because it is emphasized in larger symbol size and black.
 </p>
@@ -132,7 +132,7 @@ The graph can be downloaded in svg, png, jpg and pdf by expanding the menu on th
 </p>
 <h3>Samples to display:</h3>
 <p>
-On the right side of the graph, under "Samples to display", you have the possibility to choose which samples will be drawn by clicking on the checkbox next to the desired samples. These samples are added to the graph now. Under "Edit sample", you can choose which sample will be shown in the grid (one at a time), so that you are able to see or edit its data.
+On the right side of the graph, under "Samples displayed on chart", you have the possibility to choose which samples will be drawn by clicking on the checkbox next to the desired samples. These samples are added to the graph now. Under "Active sample", you can choose which sample will be shown in the grid (one at a time), so that you are able to see or edit its data.
 </p>
 <h3>Edit sample:</h3>
 <p>

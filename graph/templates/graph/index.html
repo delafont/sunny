@@ -47,23 +47,23 @@
                 </table>
             </div>
             <div id='samples_container'>
-                <div id="graph_samples_container">
-                    Samples to display:
+                <div id="table_samples_container">
+                    Active sample:
                     <ul>
                     {% for sample in samples %}
                         <li>
-                        <input type='checkbox' name='samples_graph' value='{{ sample.id }}'/>{{ sample.name }}
+                        <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
                         <span class='remove_sam'>x</span>
                         </li>
                     {% endfor %}
                     </ul>
                 </div>
-                <div id="table_samples_container">
-                    Edit sample:
+                <div id="graph_samples_container">
+                    Samples displayed on chart:
                     <ul>
                     {% for sample in samples %}
                         <li>
-                        <input type='radio' name='samples_table' value='{{ sample.id }}'/>{{ sample.name }}
+                        <input type='checkbox' name='samples_graph' value='{{ sample.id }}'/>{{ sample.name }}
                         <span class='remove_sam'>x</span>
                         </li>
                     {% endfor %}

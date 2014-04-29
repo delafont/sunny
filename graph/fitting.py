@@ -162,22 +162,22 @@ def get_coeffs(model):
     return zip(summary['names'],summary['coeffs'])
 
 param_names = {
-               'LL.2': ['b','e'],
+               #'LL.2': ['b','e'],
                'LL.3': ['b','d','e'],
                'LL.4': ['b','c','d','e'],
                'LL.5': ['b','c','d','e','f'],
-               'W1.2': ['b','e'],
-               'W1.3': ['b','d','e'],
+               #'W1.2': ['b','e'],
+               #'W1.3': ['b','d','e'],
                'W1.4': ['b','c','d','e'],
                'W2.4': ['b','c','d','e'],
               }
-param_fixed = {
-               'LL.2': {},
+param_fixed = {  # Not used anymore
+               #'LL.2': {},
                'LL.3': {},
                'LL.4': {'c':0},
                'LL.5': {'c':0},
-               'W1.2': {},
-               'W1.3': {},
+               #'W1.2': {},
+               #'W1.3': {},
                'W1.4': {'c':0},
                'W2.4': {'c':0},
               }

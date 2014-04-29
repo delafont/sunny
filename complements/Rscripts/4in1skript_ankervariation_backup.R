@@ -395,11 +395,11 @@ processData <- function(mydata, outname, xlab, plotname, run=4, plotnr=0, nsteps
 
     # Simulation stuff
     if (plotnr > 0){
-        cat("Step",plotnrs,"\n")
         EC50 <- ED(modelP,50,display=FALSE)[1]   # simulation starting point : EC50
         interval <- lseq(from=(EC50*1),to=(EC50*400),length.out=nsteps)
         anchtdose = interval[plotnr]
         plotnrs <- sprintf("%03d", plotnr)
+        cat("Step",plotnrs,"\n")
         plotname <- sub(".png", paste("_", plotnrs, ".png", sep=""), plotname)
     } else {
         anchtdose = NULL

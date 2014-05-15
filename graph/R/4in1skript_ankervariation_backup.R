@@ -70,7 +70,7 @@ cleanupDrcData <- function() {
 }
 
 # Use drc.mselect to choose the best model
-bestModel <- function(bmdrcdata, linreg) {
+bestModel <- function(bmdrcdata) {
     modelList <- list(LL.3(), LL.4(),LL.5(),W1.4(), W2.4())
     modell <- NULL
     for(n in seq(length(modelList))) {
@@ -84,7 +84,7 @@ bestModel <- function(bmdrcdata, linreg) {
     if (class(modell)=="try-error") { # no model found
         mynames <- NULL
     } else {
-        best <- mselect(modell, fctList=modelList, linreg=linreg)
+        best <- mselect(modell, fctList=modelList, linreg=FALSE)
         mynames <- rownames(best)
     }
     return(mynames)
@@ -374,7 +374,7 @@ processData <- function(mydata, outname, xlab, plotname, run=4, plotnr=0, nsteps
     experiments = unique(mydata$experiment)
 
     # Choose the best model for the pooled data
-    mlist <- bestModel(mydata[,1:2],linreg=FALSE)
+    mlist <- bestModel(mydata[,1:2])
     fctname <- mlist[1]
     cat("Run",run,"\n")
     cat("Fit chosen:",fctname,"\n")

@@ -301,18 +301,26 @@ def generate_images(data,template):
     """Run Sunniva's R script to generate the 5 plots she likes.
     :param data: list of tuples (dose,response,experiment)"""
     ro.r("""
-    source("graph/R/machPlots.R")
-    source("graph/R/processData.R")
+    source("graph/R/4in1skript_ankervariation_backup.R")
+    library("gplots")
+    library("bmd")
+    library("splines")
+    library("plyr")
+    library("emdbook")
     """)
     data_array = asarray(zip(*data))
     dose = data_array[0]; response = data_array[1]; experiment = data_array[2]
     ro.r.assign('dose',numpy2ri(dose))
     ro.r.assign('response',numpy2ri(response))
     ro.r.assign('experiment',numpy2ri(experiment))
-    ro.r.assign('outfilename',template)
+    ro.r.assign('outfilename',template)  # sunny/media/images/fit_images_1
     ro.r("""
     mydata = data.frame(dose=dose,response=response,experiment=experiment)
-    processData(mydata, title="DRM", xlab="Dose", outfilename=outfilename, cooksfilename='', run=3)
+    for (run in c(1,2,3,4)){
+        outname = paste(outfilename,'_',run, sep="")
+        plotname = paste(outfilename,'_',run,'.png', sep="")
+        processData(mydata, outname=outname, xlab="Concentration [AU]", plotname=plotname, run=run)
+    }
     """)
 
 

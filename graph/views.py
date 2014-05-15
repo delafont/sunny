@@ -196,15 +196,15 @@ def getimages(request,pk=None):
     measurements = Measurement.objects.filter(sample=pk)
     measurements = [(x.dose,x.response,x.experiment) for x in measurements]
     template = "sunny/media/images/fit_images_%s" % pk
-    generate_images(measurements,template+'.png')
+    generate_images(measurements,template)
     with zipfile.ZipFile(template+".zip", "w") as zip:
         for filename in glob.glob(template+'*.png'):
             zip.write(filename,arcname=os.path.basename(filename))
             os.remove(filename)
-    sample.images.save('5images_%s.zip'%pk, File(open(template+".zip")),save=True)
+    sample.images.save('Rplots_%s.zip'%pk, File(open(template+".zip")),save=True)
     os.remove(template+'.zip')
     response = HttpResponse(FileWrapper(sample.images), content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename=5images_%s.zip' % pk
+    response['Content-Disposition'] = 'attachment; filename=Rplots_%s.zip' % pk
     return response
 
 #def sample_file(request):

@@ -13,7 +13,7 @@ class User(models.Model):
 class Sample(models.Model):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=100,default='')
-    sha1 = models.CharField(max_length=20,default='') # hash of the file's content
+    sha1 = models.CharField(max_length=100,default='') # hash of the file's content
     textfile = models.FileField(upload_to="text/")
     images = models.FileField(upload_to="images/")
     graph_active = models.BooleanField()
